@@ -1,35 +1,38 @@
 #ifndef STATEHPP
 #define STATEHPP
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-
 #include <common.hpp>
-#include <sprite.hpp>
 #include <gameObject.hpp>
-#include <tileSet.hpp>
-#include <tileMap.hpp>
-
+#include <sound.hpp>
 
 class State{
-	Sprite bg;
+protected:
+	bool popRequested;
+	bool quitRequested;
 	vector<unique_ptr<GameObject>> objectArray;
 
-	bool quitRequested;
+	vector<unique_ptr<Sound>> sounds;
 
-	TileSet tileSet;
-	TileMap tileMap;
+	virtual void UpdateArray(float time);
+	virtual void RenderArray();
 public:
-
 	State();
-	~State();
+	virtual ~State(){}
 
+	virtual void Update(float time)=0;
+	virtual void Render()=0;
+
+	virtual void Pause()=0;
+	virtual void Resume()=0;
+
+	virtual void LoadAssets()=0;
+
+	virtual void AddObject(GameObject* obj);
+
+	void AddSound(string file,int times);
+
+	bool PopRequested();
 	bool QuitRequested();
-
-	void loadAssets();
-	void update();
-	void render();
-	void AddObject(GameObject* obj);
 };
 
 #endif//STATEHPP

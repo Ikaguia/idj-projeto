@@ -2,12 +2,12 @@
 #include <tileSet.hpp>
 
 TileMap::TileMap(string file,TileSet* ts){
-	load(file);
-	setTileSet(ts);
+	Load(file);
+	SetTileSet(ts);
 }
 
 
-void TileMap::load(string file){
+void TileMap::Load(string file){
 	int x;
 	string line;
 	std::ifstream in;
@@ -26,43 +26,43 @@ void TileMap::load(string file){
 			FOR(w,mapWidth){
 				in >> x;
 				in.ignore(1);
-				at(w,h,d) = x-1;
+				At(w,h,d) = x-1;
 			}
 		}
 	}
 	in.close();
 }
 
-void TileMap::setTileSet(TileSet* ts){
+void TileMap::SetTileSet(TileSet* ts){
 	tileSet = ts;
 }
 
-int& TileMap::at(int x,int y,int z){
+int& TileMap::At(int x,int y,int z){
 	return tileMatrix[x+(y*mapWidth)+(z*(mapWidth*mapHeight))];
 }
 
-void TileMap::render(int cameraX,int cameraY){
+void TileMap::Render(int cameraX,int cameraY){
 	FOR(i,mapDepth){
-		renderLayer(i,cameraX,cameraY);
+		RenderLayer(i,cameraX,cameraY);
 	}
 }
 
-void TileMap::renderLayer(int layer,int cameraX,int cameraY){
-	int w=tileSet->getWidth();
-	int h=tileSet->getHeight();
+void TileMap::RenderLayer(int layer,int cameraX,int cameraY){
+	int w=tileSet->GetWidth();
+	int h=tileSet->GetHeight();
 	FOR(y,mapHeight){
 		FOR(x,mapWidth){
-			tileSet->render(at(x,y,layer),(x*w)-cameraX,(y*h)-cameraY);
+			tileSet->Render(At(x,y,layer),(x*w)-cameraX,(y*h)-cameraY);
 		}
 	}
 }
 
-int TileMap::getWidth(){
+int TileMap::GetWidth(){
 	return mapWidth;
 }
-int TileMap::getHeight(){
+int TileMap::GetHeight(){
 	return mapHeight;
 }
-int TileMap::getDepth(){
+int TileMap::GetDepth(){
 	return mapDepth;
 }

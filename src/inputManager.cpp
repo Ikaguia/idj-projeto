@@ -12,14 +12,14 @@ void InputManager::Update(){
 		if(event.type==SDL_QUIT)quitRequested=true;
 		else if(event.type==SDL_MOUSEBUTTONDOWN){
 			//cout << "mouse button down " << (int)event.button.button << endl;
-			if(event.button.button>=0 && event.button.button<6 && mouseState[event.button.button]!=true){
+			if(/*event.button.button>=0 && */event.button.button<6 && mouseState[event.button.button]!=true){
 				mouseUpdate[event.button.button]=updateCounter;
 				mouseState[event.button.button]=true;
 			}
 		}
 		else if(event.type==SDL_MOUSEBUTTONUP){
 			//cout << "mouse button up " << (int)event.button.button << endl;
-			if(event.button.button>=0 && event.button.button<6 && mouseState[event.button.button]!=false){
+			if(/*event.button.button>=0 && */event.button.button<6 && mouseState[event.button.button]!=false){
 				mouseUpdate[event.button.button]=updateCounter;
 				mouseState[event.button.button]=false;
 			}

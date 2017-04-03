@@ -8,33 +8,35 @@
 #include <ctime>
 
 #include <common.hpp>
+#include <state.hpp>
 
-#ifndef STATEHPP
-class State;
-#endif//STATEHPP
-
-#define GAMEINST Game::getInstance()
-#define GAMESTATE GAMEINST.getState()
-#define GAMERENDER GAMEINST.getRenderer()
+#define GAMEINST Game::GetInstance()
+#define GAMESTATE GAMEINST.GetCurrentState()
+#define GAMERENDER GAMEINST.GetRenderer()
 
 class Game{
 	static Game* instance;
+
+	State* storedState;
 	SDL_Window* window;
 	SDL_Renderer* renderer;
-	State* state;
+	stack<unique_ptr<State>> stateStack;
 
 	int frameStart;
 	float dt;
 
-	void calculateDeltaTime();
+	void CalculateDeltaTime();
 public:
 	Game(string title,int width,int height);
 	~Game();
 
-	void run();
-	SDL_Renderer* getRenderer();
-	State& getState();
-	static Game& getInstance();
+	static Game& GetInstance();
+	SDL_Renderer* GetRenderer();
+	State& GetCurrentState();
+
+	void Push(State* state);
+
+	void Run();
 
 	float GetDeltaTime();
 };

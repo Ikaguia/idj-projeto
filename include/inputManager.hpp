@@ -26,10 +26,11 @@ class InputManager{
 	array<int,6> mouseUpdate;
 	unordered_map<int,bool> keyState;
 	unordered_map<int,int>  keyUpdate;
-	bool quitRequested;
 	int updateCounter;
 	int mouseX;
 	int mouseY;
+
+	bool quitRequested;
 
 	InputManager();
 	~InputManager();

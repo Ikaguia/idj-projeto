@@ -17,14 +17,14 @@ class TileMap{
 	int mapDepth;
 public:
 	TileMap(string file,TileSet* ts);
-	void load(string file);
-	void setTileSet(TileSet* ts);
-	int& at(int x,int y,int z);
-	void render(int cameraX=0,int cameraY=0);
-	void renderLayer(int layer,int cameraX=0,int cameraY=0);
-	int getWidth();
-	int getHeight();
-	int getDepth();
+	void Load(string file);
+	void SetTileSet(TileSet* ts);
+	int& At(int x,int y,int z);
+	void Render(int cameraX=0,int cameraY=0);
+	void RenderLayer(int layer,int cameraX=0,int cameraY=0);
+	int GetWidth();
+	int GetHeight();
+	int GetDepth();
 };
 
 #endif//TILEMAPHPP

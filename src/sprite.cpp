@@ -9,8 +9,8 @@ Sprite::Sprite(string file,int fCount,float fTime):texture{nullptr},scaleX{1.0f}
 Sprite::~Sprite(){}
 
 void Sprite::Open(string file,int fCount,float fTime){
-	texture = Resources::getImage(file);
-	if(SDL_QueryTexture(texture,nullptr,nullptr,&width,&height)){
+	texture = Resources::GetImage(file);
+	if(SDL_QueryTexture(texture.get(),nullptr,nullptr,&width,&height)){
 		cout << "Erro ao carregar as dimensões da textura \"" << file << "\", o programa ira encerrar agora" << endl;
 		exit(EXIT_FAILURE);
 	}
@@ -26,7 +26,7 @@ void Sprite::SetClip(int x,int y,int w,int h){
 	clipRect.h=h;
 }
 
-void Sprite::render(int x,int y,float angle){
+void Sprite::Render(int x,int y,float angle){
 	SDL_Rect dest;
 	dest.x=x;
 	dest.y=y;
@@ -34,7 +34,7 @@ void Sprite::render(int x,int y,float angle){
 	dest.h=clipRect.h;
 	//cout << "rendering with size " << dest.w << "," << dest.h << " fCount = " << frameCount << endl;
 	//SDL_RenderCopyEx(GAMERENDER,texture,nullptr,nullptr,angle,nullptr,SDL_FLIP_NONE);
-	SDL_RenderCopyEx(GAMERENDER,texture,&clipRect,&dest,angle,nullptr,SDL_FLIP_NONE);
+	SDL_RenderCopyEx(GAMERENDER,texture.get(),&clipRect,&dest,angle,nullptr,SDL_FLIP_NONE);
 }
 
 void Sprite::Update(float time){
@@ -63,7 +63,7 @@ int Sprite::GetHeight(){
 	return (height*scaleY);
 }
 
-bool Sprite::isOpen(){
+bool Sprite::IsOpen(){
 	return (texture!=nullptr);
 }
 

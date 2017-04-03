@@ -98,7 +98,7 @@ void Rect::operator=(const Rect& b){
 }
 
 Rect Rect::operator+ (const Vec2& b)const{
-	Rect r(x+b.x,y+b.y,w,h);
+	return Rect(x+b.x,y+b.y,w,h);
 }
 void Rect::operator+=(const Vec2& b){
 	x+=b.x;
@@ -106,7 +106,7 @@ void Rect::operator+=(const Vec2& b){
 }
 
 Rect Rect::operator- (const Vec2& b)const{
-	Rect r(x-b.x,y-b.y,w,h);
+	return Rect(x-b.x,y-b.y,w,h);
 }
 void Rect::operator-=(const Vec2& b){
 	x-=b.x;

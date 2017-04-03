@@ -14,9 +14,9 @@ class TileSet{
 	int tileHeight;
 public:
 	TileSet(int  w,int h,string file);
-	void render(unsigned int index,float x,float y);
-	int getWidth();
-	int getHeight();
+	void Render(unsigned int index,float x,float y);
+	int GetWidth();
+	int GetHeight();
 };
 
 #endif//TILESETHPP

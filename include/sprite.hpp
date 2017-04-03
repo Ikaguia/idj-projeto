@@ -8,7 +8,7 @@
 
 
 class Sprite{
-	SDL_Texture* texture;
+	shared_ptr<SDL_Texture> texture;
 	int width;
 	int height;
 	SDL_Rect clipRect;
@@ -26,7 +26,7 @@ public:
 
 	void Open(string file,int fCount=1,float fTime=1.0f);
 	void SetClip(int x,int y,int w,int h);
-	void render(int x,int y,float angle=0.0f);
+	void Render(int x,int y,float angle=0.0f);
 
 	void Update(float time);
 	void SetFrame(int frame);
@@ -36,7 +36,7 @@ public:
 	int GetWidth();
 	int GetHeight();
 
-	bool isOpen();
+	bool IsOpen();
 
 	void SetScaleX(float scale);
 	void SetScaleY(float scale);

@@ -14,7 +14,7 @@ void Animation::Update(float time){
 	sp.Update(time);
 }
 void Animation::Render(){
-	sp.render(box.center().x-Camera::pos.x,box.center().y-Camera::pos.y);
+	sp.Render(box.center().x-Camera::pos.x,box.center().y-Camera::pos.y);
 }
 
 bool Animation::IsDead(){

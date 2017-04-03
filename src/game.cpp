@@ -1,21 +1,41 @@
+#include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_ttf.h>
+
 #include <game.hpp>
 #include <state.hpp>
 #include <inputManager.hpp>
+#include <resources.hpp>
+
 
 Game* Game::instance=NULL;
 
 
 Game::Game(string title,int width,int height):frameStart{0},dt{0}{
 	srand(time(NULL));
+
 	if(instance){
 		cout << "Erro, mais de uma instancia de 'Game' instanciada, o programa ira encerrar agora" << endl;
 		exit(EXIT_FAILURE);
 	}
 	instance=this;
+
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER)){
-		cout << "Erro SDL encontrado:\n" << SDL_GetError() << endl << "o programa ira encerrar agora" << endl;
+		cout << "Erro SDL encontrado:\n" << (string)SDL_GetError() << endl << "o programa ira encerrar agora" << endl;
 		exit(EXIT_FAILURE);
 	}
+
+	window = SDL_CreateWindow(title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,width,height,0);
+	if(!window){
+		cout << "Erro ao instanciar janela da SDL, o programa ira encerrar agora" << endl;
+		exit(EXIT_FAILURE);
+	}
+
+	renderer = SDL_CreateRenderer(window,-1,SDL_RENDERER_ACCELERATED);
+	if(!window){
+		cout << "Erro ao instanciar renderizador da SDL, o programa ira encerrar agora" << endl;
+		exit(EXIT_FAILURE);
+	}
+
 	int img_init = IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF);
 	if(img_init != (IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF)){
 		cout << "Erro na inicialização da IMG_Init:" << endl;
@@ -25,53 +45,90 @@ Game::Game(string title,int width,int height):frameStart{0},dt{0}{
 		cout << "o programa ira encerrar agora" << endl;
 		exit(EXIT_FAILURE);
 	}
-   	window = SDL_CreateWindow(title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,width,height,0);
-	if(!window){
-		cout << "Erro ao instanciar janela da SDL, o programa ira encerrar agora" << endl;
-		exit(EXIT_FAILURE);
+
+	int mix_init = Mix_Init(MIX_INIT_OGG);
+	if(!(mix_init & MIX_INIT_OGG)){
+		cout << "Erro na inicialização da Mix_Init, erro ao inicializar OGG, o programa ira encerrar agora" << endl;
 	}
-	renderer = SDL_CreateRenderer(window,-1,SDL_RENDERER_ACCELERATED);
-	if(!window){
-		cout << "Erro ao instanciar renderizador da SDL, o programa ira encerrar agora" << endl;
-		exit(EXIT_FAILURE);
+
+	if(Mix_OpenAudio(MIX_DEFAULT_FREQUENCY,MIX_DEFAULT_FORMAT,MIX_DEFAULT_CHANNELS,1024)){
+		cout << "Erro na inicialização da Mix_OpenAudio​, o programa ira encerrar agora" << endl;
 	}
-	state = new State;
-	if(!state){
-		cout << "Erro ao inicializar o estado de jogo, o programa ira encerrar agora" << endl;
-		exit(EXIT_FAILURE);
+
+	if(TTF_Init()){
+		cout << "Erro na inicialização da TTF_Init, erro ao inicializar OGG, o programa ira encerrar agora" << endl;
 	}
+
+	storedState = nullptr;
 };
 
 Game::~Game(){
-	delete state;
-	SDL_DestroyRenderer(renderer);
+	while(stateStack.size()){
+		delete stateStack.top().get();
+		stateStack.pop();
+	}
+	if(storedState)delete storedState;
+	Resources::ClearImages();
+	Resources::ClearMusics();
+	Resources::ClearFonts();
+	TTF_Quit();
+	Mix_CloseAudio();
+	Mix_Quit();
 	IMG_Quit();
+	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 }
 
 
-Game& Game::getInstance(){
+Game& Game::GetInstance(){
 	return (*instance);
 }
 
-State& Game::getState(){
-	return (*state);
+State& Game::GetCurrentState(){
+	return (*stateStack.top());
 }
 
-SDL_Renderer* Game::getRenderer(){
+SDL_Renderer* Game::GetRenderer(){
 	return renderer;
 }
 
-void Game::run(){
-	while(!(state->QuitRequested())){
-		calculateDeltaTime();
+void Game::Push(State* state){
+	if(storedState)delete storedState;
+	storedState=state;
+}
+
+void Game::Run(){
+	if(storedState){
+		stateStack.push(unique_ptr<State>(storedState));
+		storedState=nullptr;
+	}
+	while(stateStack.size() && !(GetCurrentState().QuitRequested())){
+		CalculateDeltaTime();
 		INPUTMAN.Update();
-		state->update();
-		state->render();
+		GetCurrentState().Update(GetDeltaTime());
+		GetCurrentState().Render();
 		SDL_RenderPresent(renderer);
+
+		if(GetCurrentState().PopRequested()){
+			GetCurrentState().Pause();
+			stateStack.pop();
+			GetCurrentState().Resume();
+			Resources::ClearImages();
+			Resources::ClearMusics();
+			Resources::ClearFonts();
+			if(stateStack.size())GetCurrentState().Resume();
+		}
+		if(storedState){
+			GetCurrentState().Pause();
+			stateStack.push(unique_ptr<State>(storedState));
+			GetCurrentState().Resume();
+			storedState=nullptr;
+		}
+
 		SDL_Delay(33);
 	}
+	while(stateStack.size())stateStack.pop();
 }
 
 float Game::GetDeltaTime(){
@@ -80,7 +137,7 @@ float Game::GetDeltaTime(){
 
 
 
-void Game::calculateDeltaTime(){
+void Game::CalculateDeltaTime(){
 	int time = SDL_GetTicks();
 	dt = (time - (frameStart))/1000.0f;
 	frameStart = time;
