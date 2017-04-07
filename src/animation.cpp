@@ -13,6 +13,8 @@ void Animation::Update(float time){
 	endTimer.Update(time);
 	sp.Update(time);
 }
+void Animation::UpdatePos(float time){}
+void Animation::UpdatePhysics(float time){}
 void Animation::Render(){
 	sp.Render(box.center().x-Camera::pos.x,box.center().y-Camera::pos.y);
 }
@@ -22,7 +24,7 @@ bool Animation::IsDead(){
 	return false;
 }
 
-void Animation::NotifyCollision(GameObject& other){}
+void Animation::NotifyCollision(GameObject *other){}
 bool Animation::Is(string type){
 	return (type=="Animation");
 }

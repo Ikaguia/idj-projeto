@@ -19,6 +19,14 @@ class StageState: public State{
 	TileMap tileMap;
 
 	Music music;
+
+	//virtual void UpdateArray(float time);
+	void UpdateArrayPos(float time);
+	void UpdateArrayPhysics(float time);
+
+	void CheckCollisions();
+
+	void CheckEnd(float time);
 public:
 
 	StageState();

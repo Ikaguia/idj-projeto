@@ -41,6 +41,9 @@ void Vec2::operator/=(const float& r){
 	x/=r;
 	y/=r;
 }
+bool Vec2::operator==(const Vec2& b){
+	return (x==b.x && y==b.y);
+}
 
 
 float Vec2::len() const{
@@ -111,6 +114,9 @@ Rect Rect::operator- (const Vec2& b)const{
 void Rect::operator-=(const Vec2& b){
 	x-=b.x;
 	y-=b.y;
+}
+bool Rect::operator==(const Rect& b){
+	return (x==b.x && y==b.y && w==b.w && h==b.h);
 }
 
 

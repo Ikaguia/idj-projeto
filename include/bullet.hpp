@@ -21,7 +21,7 @@ public:
 	bool IsDead();
 	void Kill();
 
-	virtual void NotifyCollision(GameObject& other);
+	virtual void NotifyCollision(GameObject *other);
 	virtual bool Is(string type);
 };
 

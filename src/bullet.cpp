@@ -28,10 +28,13 @@ void Bullet::Kill(){
 }
 
 
-void Bullet::NotifyCollision(GameObject& other){
-	if(!other.Is("Bullet") && &other!=owner){
+void Bullet::NotifyCollision(GameObject *other){
+	if(other==nullptr){//hit the ground
 		Kill();//mark the bullet to be destroyed
-		other.NotifyCollision(*this);
+	}
+	else if(!other->Is("Bullet") && other!=owner){
+		Kill();//mark the bullet to be destroyed
+		other->NotifyCollision(this);
 	}
 }
 bool Bullet::Is(string type){

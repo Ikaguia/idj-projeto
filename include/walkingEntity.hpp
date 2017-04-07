@@ -1,17 +1,15 @@
-#ifndef GAMEOBJECTHPP
-#define GAMEOBJECTHPP
+#ifndef WALKING_ENTITYHPP
+#define WALKING_ENTITYHPP
 
 #include <common.hpp>
-#include <geometry.hpp>
+#include <gameObject.hpp>
+#include <tileMap.hpp>
 
-class GameObject{
+class WalkingEntity : public GameObject{
 public:
-	Rect box;
-	Rect nextBox;
-	float rotation;
-
-	GameObject(float r=0);
-	virtual ~GameObject(){}
+	bool onAir;
+	WalkingEntity();
+	virtual ~WalkingEntity(){}
 
 	virtual void Update(float time)=0;
 	virtual void UpdatePos(float time)=0;
@@ -22,6 +20,8 @@ public:
 
 	virtual void NotifyCollision(GameObject *other)=0;
 	virtual bool Is(string type)=0;
+
+	virtual void CheckCollisionGround(const TileMap &tileMap)=0;
 };
 
-#endif//GAMEOBJECTHPP
+#endif//WALKING_ENTITYHPP

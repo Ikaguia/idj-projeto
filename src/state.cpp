@@ -21,11 +21,10 @@ void State::AddSound(string file,int times){
 }
 
 void State::UpdateArray(float time){
-	int i=0;
-	while(i<(int)objectArray.size()){
-		objectArray[i]->Update(time);
-		if(objectArray[i]->IsDead())objectArray.erase(objectArray.begin() + i);
-		else i++;
+	for(auto it=objectArray.begin();it!=objectArray.end();){
+		(*it)->Update(time);
+		if((*it)->IsDead())it = objectArray.erase(it);
+		else it++;
 	}
 }
 void State::RenderArray(){

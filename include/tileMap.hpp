@@ -11,6 +11,7 @@ class TileSet;
 
 class TileMap{
 	vector<int> tileMatrix;
+	vector<int> tileMatrixMeta;
 	TileSet* tileSet;
 	int mapWidth;
 	int mapHeight;
@@ -20,11 +21,15 @@ public:
 	void Load(string file);
 	void SetTileSet(TileSet* ts);
 	int& At(int x,int y,int z);
-	void Render(int cameraX=0,int cameraY=0);
-	void RenderLayer(int layer,int cameraX=0,int cameraY=0);
-	int GetWidth();
-	int GetHeight();
-	int GetDepth();
+	const int& At(int x,int y,int z) const;
+	int& AtMeta(int x,int y);
+	const int& AtMeta(int x,int y) const;
+	void Render(int cameraX=0,int cameraY=0) const;
+	void RenderLayer(int layer,int cameraX=0,int cameraY=0) const;
+	int GetWidth() const;
+	int GetHeight() const;
+	int GetDepth() const;
+	void GetIndAtPos(const int x,const int y,int &outX,int &outY) const;
 };
 
 #endif//TILEMAPHPP

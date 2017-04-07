@@ -15,11 +15,13 @@ public:
 	Animation(float x,float y,float rotation,string sprite,int fCount,float fTime,bool ends);
 
 	void Update(float time);
+	void UpdatePos(float time);
+	void UpdatePhysics(float time);
 	void Render();
 
 	bool IsDead();
 
-	void NotifyCollision(GameObject& other);
+	void NotifyCollision(GameObject *other);
 	bool Is(string type);
 };
 

@@ -27,7 +27,7 @@ DEP_FILES = $(wildcard $(DEP_PATH)/*.d)
 DEP_FLAGS = -MT $@ -MMD -MP -MF $(DEP_PATH)/$*.d
 DIRECTIVES = -std=c++11 -Wall -Wextra -c -I $(HEADER_PATH) -Wno-unused-result -Wno-unused-parameter
 LIBS = -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
-#
+# #
 # #---------------------------------------------------------------------------------------------
 # #windows
 # #---------------------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ LIBS = -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 # #caminhos
 # SDL_PATH = C:SDL2-2.0.5\x86_64-w64-mingw32
 # #arquivo
-# EXEC := $(EXEC).exec
+# EXEC := $(EXEC).exe
 # #flags
 # DIRECTIVES += -I $(SDL_PATH)\include
 # LIBS = -L $(SDL_PATH)\lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lm
@@ -107,8 +107,7 @@ clean :
 #extras
 #---------------------------------------------------------------------------------------------
 #
-print-% : $*
-	@echo $* = $($*)
+print-% : ; @echo $* = \'$($*)\'
 
 debug : DIRECTIVES += -ggdb -O0
 debug : all
@@ -119,14 +118,14 @@ release : all
 
 
 
-make_class_files: make_class/make_class_files.cpp
-	$(CC) -o make_class/make_class_files make_class/make_class_files.cpp $(CFLAGS)
+make_new_file: make_class/make_new_file.cpp
+	$(CC) -o make_class/make_new_file make_class/make_new_file.cpp -std=c++11
 
-make_class-%-hpp: make_class_files
-	./make_class/make_class_files $* a && subl include/$*.hpp
+make_class-%-hpp: make_new_file
+	./make_class/make_new_file $* a && subl include/$*.hpp && subl src/$*.cpp
 
-make_class-%-cpp: make_class_files
-	./make_class/make_class_files $* a a && subl src/$*.cpp
+make_class-%-cpp: make_new_file
+	./make_class/make_new_file $* a a && subl include/$*.hpp && subl src/$*.cpp
 
-make_class-%: make_class_files
-	./make_class/make_class_files $* && subl include/$*.hpp && subl src/$*.cpp
+make_class-%: make_new_file
+	./make_class/make_new_file $* && subl include/$*.hpp && subl src/$*.cpp

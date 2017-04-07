@@ -28,6 +28,8 @@ public:
 	Vec2 operator/ (const float& r)const;
 	void operator/=(const float& r);
 
+	bool operator==(const Vec2& b);
+
 	float len() const;//magnitude do vetor
 	float angle() const;//angulo entre this e o eixo x
 
@@ -55,6 +57,8 @@ public:
 	void operator+=(const Vec2& b);
 	Rect operator- (const Vec2& b)const;
 	void operator-=(const Vec2& b);
+
+	bool operator==(const Rect& b);
 
 	Vec2 center() const;//retorna o centro do retangulo
 

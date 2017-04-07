@@ -64,7 +64,7 @@ void makeCPP(string s){
 int main(int argc,char **argv){
 	if(argc<=1)return 0;
 	string s=argv[1];
-	if(arc==2){
+	if(argc==2){
 		makeCPP(s);
 		makeHPP(s);
 	}
