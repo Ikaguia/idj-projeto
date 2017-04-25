@@ -12,6 +12,8 @@
 #include <queue>
 #include <stack>
 #include <cmath>
+#include <utility>
+#include <algorithm>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
@@ -28,6 +30,12 @@ using std::array;
 using std::bitset;
 using std::queue;
 using std::stack;
+using std::pair;
+using std::min;
+using std::max;
+using std::next;
+
+using ii=pair<int,int>;
 
 #define FOR(  cont,    max) for(int (cont)=0;           (cont)<(int)(max); (cont)++)
 #define FOR2( cont,min,max) for(int (cont)=(int)(min);  (cont)<(int)(max); (cont)++)
@@ -46,7 +54,8 @@ using std::stack;
 
 #define WALK_SPEED 1.4//m/s
 #define METER 100//pixels
-#define GRAVITY 9.80665//m/s
+//#define GRAVITY 9.80665//m/s
+#define GRAVITY 15.0//m/s
 
 #define NOMEPROJETO "IDJ - Projeto"
 

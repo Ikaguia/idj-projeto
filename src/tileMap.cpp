@@ -98,4 +98,42 @@ void TileMap::GetIndAtPos(const int x,const int y,int &outX,int &outY) const{
 			}
 		}
 	}
+	outX=-1;
+	outY=-1;
+}
+
+bool Solid(int x){
+	return x==1;
+}
+
+#include <game.hpp>
+#include <stageState.hpp>
+#include <camera.hpp>
+bool TileMap::Collides(const int &x1,const int &x2,const int &y1,const int &y2,const ConvexPolygon& pol,ii& ret)const{
+	int tileW=tileSet->GetWidth(),tileH=tileSet->GetHeight();
+	for(auto &p:pol.GetPoints())((StageState*)&GAMESTATE)->debugPointsRed.push_back(p);
+	cout << "aaaa " << x1 << " " << x2 << " " << y1 << " " << y2 << endl;
+	((StageState*)&GAMESTATE)->debugPointsBlue.push_back(Vec2(x1*tileW,y1*tileH));
+	((StageState*)&GAMESTATE)->debugPointsBlue.push_back(Vec2(x2*tileW,y1*tileH));
+	((StageState*)&GAMESTATE)->debugPointsBlue.push_back(Vec2(x1*tileW,y2*tileH));
+	((StageState*)&GAMESTATE)->debugPointsBlue.push_back(Vec2(x2*tileW,y2*tileH));
+
+
+	Rect tileBox(0,0,tileW,tileH);
+	FOR2(j,y1,y2){
+		FOR2(i,x1,x2){
+			if(Solid(AtMeta(i,j))){
+				tileBox.x=tileW*i;
+				tileBox.y=tileH*j;
+				((StageState*)&GAMESTATE)->debugPointsBlue.push_back(tileBox.corner());
+				//checa se colide
+				if(pol.Collides(tileBox.polygon())){
+					ret.first=i;
+					ret.second=j;
+					return true;
+				}
+			}
+		}
+	}
+	return false;
 }

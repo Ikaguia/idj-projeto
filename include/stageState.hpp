@@ -39,6 +39,9 @@ public:
 	virtual void Resume();
 
 	virtual void LoadAssets();
+
+	vector<Vec2> debugPointsRed;
+	vector<Vec2> debugPointsBlue;
 };
 
 #endif//STAGESTATEHPP

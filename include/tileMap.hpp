@@ -4,6 +4,7 @@
 #include <fstream>
 
 #include <common.hpp>
+#include <geometry.hpp>
 
 #ifndef TILESETHPP
 class TileSet;
@@ -30,6 +31,7 @@ public:
 	int GetHeight() const;
 	int GetDepth() const;
 	void GetIndAtPos(const int x,const int y,int &outX,int &outY) const;
+	bool Collides(const int &x1,const int &x2,const int &y1,const int &y2,const ConvexPolygon& pol,ii& ret)const;
 };
 
 #endif//TILEMAPHPP

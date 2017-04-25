@@ -13,6 +13,7 @@ class Player : public WalkingEntity{
 	int hp;
 	Timer t;
 	bool doubleJump;
+	float bowRotation;
 public:
 	static Player* player;
 
@@ -27,10 +28,9 @@ public:
 
 	void Damage(int dmg=15);
 
+	void CheckCollisionGround(const TileMap &tileMap);
 	void NotifyCollision(GameObject *other);
 	bool Is(string type);
-
-	void CheckCollisionGround(const TileMap &tileMap);
 };
 
 #endif//PLAYERHPP

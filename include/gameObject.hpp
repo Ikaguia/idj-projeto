@@ -4,6 +4,8 @@
 #include <common.hpp>
 #include <geometry.hpp>
 
+class TileMap;
+
 class GameObject{
 public:
 	Rect box;
@@ -20,6 +22,7 @@ public:
 
 	virtual bool IsDead()=0;
 
+	virtual void CheckCollisionGround(const TileMap &tileMap);
 	virtual void NotifyCollision(GameObject *other)=0;
 	virtual bool Is(string type)=0;
 };

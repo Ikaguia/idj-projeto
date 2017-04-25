@@ -13,7 +13,7 @@
 
 Player* Player::player=nullptr;
 
-Player::Player(float x,float y):WalkingEntity::WalkingEntity(),sp{RESOURCESFOLDER+"img/player.png"},speed{0.0f,0.0f},hp{30}{
+Player::Player(float x,float y):WalkingEntity::WalkingEntity(),sp{RESOURCESFOLDER+"img/monstro1-sprites.png",8,0.125f},speed{0.0f,0.0f},hp{30}{
 	box.x=x-sp.GetWidth()/2;
 	box.y=y-sp.GetHeight()/2;
 	box.w=sp.GetWidth();
@@ -27,6 +27,7 @@ Player::~Player(){
 
 void Player::Update(float time){
 	t.Update(time);
+	sp.Update(time);
 
 	if(!onAir)doubleJump=true;
 	if(INPUTMAN.IsKeyDown(W_KEY) && !onAir){
@@ -43,10 +44,10 @@ void Player::Update(float time){
 		if(equals(speed.x,0.0f))speed.x=0.0f;
 	}
 	else if(INPUTMAN.IsKeyDown(A_KEY)){
-		speed.x=std::max(-WALK_SPEED,speed.x-(WALK_SPEED*time/0.25));
+		speed.x=max(-WALK_SPEED,speed.x-(WALK_SPEED*time/0.25));
 	}
 	else if(INPUTMAN.IsKeyDown(D_KEY)){
-		speed.x=std::min( WALK_SPEED,speed.x+(WALK_SPEED*time/0.25));
+		speed.x=min( WALK_SPEED,speed.x+(WALK_SPEED*time/0.25));
 	}
 	if(INPUTMAN.MousePress(RIGHT_MOUSE_BUTTON))speed=Vec2(0.0f,0.0f);
 
@@ -59,11 +60,8 @@ void Player::UpdatePhysics(float time){
 	if(onAir){
 		speed.y+=(GRAVITY*time);
 		// if((speed.y+(GRAVITY*time))<0)speed.y+=(GRAVITY*time);
-		// else{
-		// 	speed.y=0.0f;
-		// 	onAir=false;
-		// }
 	}
+	else speed.y=0.0f;
 }
 void Player::Render(){
 	sp.Render(box.x-Camera::pos.x,box.y-Camera::pos.y,rotation);
@@ -99,45 +97,115 @@ bool Player::Is(string type){
 }
 
 void Player::CheckCollisionGround(const TileMap &tileMap){
-	cout << "checking player ground collision" << endl;
 	int x1,x2,y1,y2;
-	bool out=false;
-	tileMap.GetIndAtPos(box.x,      std::min(box.y,nextBox.y),      x1,y1);
-	tileMap.GetIndAtPos(box.x+box.w,std::max(box.y,nextBox.y)+box.h,x2,y2);
-	FOR2(j,y1,y2){
-		if(out)break;
-		FOR2(i,x1,x2){
-			if(tileMap.AtMeta(i,j)==1){
-				cout << "checking player collision with tile " << i << "," << j << endl;
-				Rect tileBox(tileMap.GetWidth()*i,tileMap.GetHeight()*j,tileMap.GetWidth()*(i+1),tileMap.GetHeight()*(j+1));
-				if(Collision::IsColliding(tileBox,tileBox,rotation,0.0f)){
-					cout << "collided" << endl;
-					if(onAir)onAir=false;
-					speed.y=0.0f;
-					nextBox.y=box.y;
-					out = true;
-					break;
-				}
-				cout << "nope" << endl;
-			}
-		}
-	}
+	Rect curBox=box;
 
-	out=false;
-	tileMap.GetIndAtPos(std::min(box.x,nextBox.x),      std::min(box.y,nextBox.y),      x1,y1);
-	tileMap.GetIndAtPos(std::max(box.x,nextBox.x)+box.w,std::max(box.y,nextBox.y)+box.h,x2,y2);
-	FOR2(j,y1,y2){
-		if(out)break;
-		FOR2(i,x1,x2){
-			if(tileMap.AtMeta(i,j)==1){
-				Rect tileBox(tileMap.GetWidth()*i,tileMap.GetHeight()*j,tileMap.GetWidth()*(i+1),tileMap.GetHeight()*(j+1));
-				if(Collision::IsColliding(tileBox,tileBox,rotation,0.0f)){
-					nextBox.x=box.x;
-					speed.x=0.0f;
-					out = true;
+	//pega o intervalo de tiles pra checar
+	tileMap.GetIndAtPos(min(curBox.x,nextBox.x),         min(curBox.y,nextBox.y),         x1,y1);
+	tileMap.GetIndAtPos(max(curBox.x,nextBox.x)+curBox.w,max(curBox.y,nextBox.y)+curBox.h,x2,y2);
+	system("clear");
+	FOR(j,tileMap.GetHeight()){
+		FOR(i,tileMap.GetWidth()){
+			if(BETWEEN(i,x1,x2+1) && BETWEEN(j,y1,y2+1))cout << 1;
+			else cout << 0;
+			cout << tileMap.AtMeta(i,j) << " ";
+		}
+		cout << endl;
+	}
+	//cria o poligono do movimento do player
+	ConvexPolygon move,moveLine;
+	moveLine.AddPoint({});
+	moveLine.AddPoint(nextBox.center()-curBox.center());
+	cout << curBox.corner() << " " << nextBox.corner() << endl;	
+	cout << "moveLine = " << moveLine << endl;
+	cout << "playerPol = " << curBox.polygon(rotation) << endl;
+	move=moveLine.MinkowskySum(curBox.polygon(rotation));
+
+	cout << "move = " << move << endl;
+	moveLine.RemovePoint(nextBox.center());
+
+	pair<int,int> ii;
+	if(tileMap.Collides(x1,x2,y1,y2,move,ii)){//se colidiu
+		//acha o ponto onde o player ira ficar apos a colisao
+		//busca binaria pra achar a ulima posição onde não ocorre colisão
+		Vec2 inPos=curBox.corner(),endPos=nextBox.corner(),midPos;
+		FOR(i,100){
+			midPos=(inPos+endPos)/2.0f;
+			moveLine.AddPoint(midPos);
+			move=moveLine.MinkowskySum(curBox.polygon(rotation));
+			moveLine.RemovePoint(midPos);
+			if(tileMap.Collides(x1,x2,y1,y2,move,ii))endPos=midPos;
+			else inPos=midPos;
+
+			if(inPos==endPos){
+				midPos=inPos;
+				break;
+			}
+		}
+		//Vec2 oldPos=box.corner();
+		curBox.x=midPos.x;
+		curBox.y=midPos.y;
+
+		//atualiza a velocidade e a posição
+		//x
+		Vec2 moveX(0.00125f,0.0f);
+		moveLine.AddPoint(moveX);
+		move=moveLine.MinkowskySum(curBox.polygon(rotation));
+		moveLine.RemovePoint(moveX);
+
+		tileMap.GetIndAtPos(min(curBox.x,nextBox.x),      curBox.y,         x1,y1);
+		tileMap.GetIndAtPos(max(curBox.x,nextBox.x)+box.w,curBox.y+curBox.h,x2,y2);
+		if(tileMap.Collides(x1,x2,y1,y2,move,ii))speed.x=0.0f;
+		else{//move the rest
+			float lowX=0.0f,highX=speed.x,midX;
+			FOR(i,100){
+				midX=(lowX+highX)/2.0f;
+				moveX.x=midX;
+				moveLine.AddPoint(moveX);
+				move=moveLine.MinkowskySum(curBox.polygon(rotation));
+				moveLine.RemovePoint(moveX);
+				if(tileMap.Collides(x1,x2,y1,y2,move,ii))highX=midX;
+				else lowX=midX;
+
+				if(equals(lowX,highX)){
+					midX=lowX;
 					break;
 				}
 			}
+			speed.x=midX;
+			curBox.x+=midX;
 		}
+		//y
+		Vec2 moveY(0.0f,0.00125f);
+		moveLine.AddPoint(moveY);
+		move=moveLine.MinkowskySum(curBox.polygon(rotation));
+		moveLine.RemovePoint(moveY);
+
+		tileMap.GetIndAtPos(curBox.x,         min(curBox.y,nextBox.y),         x1,y1);
+		tileMap.GetIndAtPos(curBox.x+curBox.w,max(curBox.y,nextBox.y)+curBox.h,x2,y2);
+		if(tileMap.Collides(x1,x2,y1,y2,move,ii)){
+			onAir=speed.y<0.0f;//if its falling
+			speed.y=0.0f;
+		}
+		else{//move the rest
+			float lowY=0.0f,highY=speed.y,midY;
+			FOR(i,100){
+				midY=(lowY+highY)/2.0f;
+				moveY.y=midY;
+				moveLine.AddPoint(moveY);
+				move=moveLine.MinkowskySum(curBox.polygon(rotation));
+				moveLine.RemovePoint(moveY);
+				if(tileMap.Collides(x1,x2,y1,y2,move,ii))highY=midY;
+				else lowY=midY;
+
+				if(equals(lowY,highY)){
+					midY=lowY;
+					break;
+				}
+			}
+			speed.y=midY;
+			curBox.y+=midY;
+		}
+		nextBox=curBox;
 	}
 }

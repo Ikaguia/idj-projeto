@@ -47,26 +47,7 @@ void StageState::CheckCollisions(){
 	//check collisions object-ground
 	for(auto &it:objectArray){
 		if((*it).Is("Animation"))continue;//animation does not collide
-		GameObject* pt=it.get();
-
-		int x1,y1,x2,y2;
-		if(pt->Is("WalkingEntity")){
-			((WalkingEntity*)pt)->CheckCollisionGround(tileMap);
-		}
-		tileMap.GetIndAtPos(pt->nextBox.x,pt->nextBox.y,x1,y1);
-		tileMap.GetIndAtPos(pt->nextBox.x+pt->box.w,pt->nextBox.y+pt->box.h,x2,y2);
-		FOR2(j,y1,y2){
-			FOR2(i,x1,x2){
-				if(tileMap.AtMeta(i,j)==1){
-					Rect box(tileMap.GetWidth()*i,tileMap.GetHeight()*j,tileMap.GetWidth()*(i+1),tileMap.GetHeight()*(j+1));
-					if(Collision::IsColliding(pt->box,box,pt->rotation,0.0f)){
-						pt->NotifyCollision(nullptr);
-					}
-				}
-			}
-		}
-		if(!(pt->nextBox==(*it).box)){
-		}
+		it->CheckCollisionGround(tileMap);
 	}
 
 	//check colllisions object-object
@@ -101,6 +82,13 @@ void StageState::Render(){
 	RenderArray();
 
 	tileMap.RenderLayer(1,Camera::pos.x*2,Camera::pos.y*2);
+
+	static Sprite redDotDebug("img/point_red.jpg",1,1.0f);
+	static Sprite blueDotDebug("img/point_blue.jpg",1,1.0f);
+	for(Vec2& v:debugPointsRed)  redDotDebug.Render(-Camera::pos.x+v.x,-Camera::pos.y+v.y);
+	for(Vec2& v:debugPointsBlue)blueDotDebug.Render(-Camera::pos.x+v.x,-Camera::pos.y+v.y);
+	debugPointsRed.clear();
+	debugPointsBlue.clear();
 }
 
 void StageState::Pause(){

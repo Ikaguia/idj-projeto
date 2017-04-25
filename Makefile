@@ -66,10 +66,10 @@ LIBS = -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 
 
 
-#regra default
-all : $(BIN_PATH).folder $(DEP_PATH).folder $(EXEC)
+#regra default, cria as pastas caso nao existam e depois manda compilar
+all : $(BIN_PATH).make_dir $(DEP_PATH).make_dir $(EXEC)
 
-#roda o jogo
+#chama all e depois roda o jogo
 run : all
 	$(CLEAR) && ./$(EXEC) && $(CLEAR)
 
@@ -92,12 +92,8 @@ $(BIN_PATH)/%.o : $(SOURCE_PATH)/%.cpp
 # else
 	# @mkdir -p $(DEP_PATH) $(BIN_PATH)
 # endif
-$(BIN_PATH).folder:
-	@mkdir -p $(BIN_PATH)
-
-$(DEP_PATH).folder:
-	@mkdir -p $(DEP_PATH)
-
+%.make_dir:
+	@mkdir -p $*
 
 clean :
 	$(RMDIR) $(BIN_PATH) $(DEP_PATH)
