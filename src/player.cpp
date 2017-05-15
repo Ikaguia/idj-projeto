@@ -8,7 +8,7 @@
 #include <collision.hpp>
 
 
-#define INITIAL_JUMP_SPEED 7.1//ms vertical speed
+#define SMALL 0.00125f
 
 
 Player* Player::player=nullptr;
@@ -29,36 +29,49 @@ void Player::Update(float time){
 	t.Update(time);
 	sp.Update(time);
 
-	if(!onAir)doubleJump=true;
-	if(INPUTMAN.IsKeyDown(W_KEY) && !onAir){
-		speed.y=-INITIAL_JUMP_SPEED;
-		onAir=true;
+	cout << "onGround " << onGround << endl;
+	cout << "onTop " << onTop << endl;
+	// cout << "onLeft " << onLeft << endl;
+	// cout << "onRight " << onRight << endl;
+
+	if(onGround)doubleJump=true;
+
+	if(INPUTMAN.IsKeyDown(W_KEY) && onGround && !onTop){
+		speed.y=-PLAYER_JUMP;
+		onGround=false;
+		cout << "pulou " << speed.y << endl;
 	}
-	else if(INPUTMAN.KeyPress(W_KEY) && onAir && doubleJump){
-		speed.y=-INITIAL_JUMP_SPEED;
+	else if(INPUTMAN.KeyPress(W_KEY) && !onGround && !onTop && doubleJump){
+		speed.y=-PLAYER_JUMP;
 		doubleJump=false;
+		cout << "pulou2 " << speed.y << endl;
 	}
 	if((INPUTMAN.IsKeyDown(A_KEY) && INPUTMAN.IsKeyDown(D_KEY)));
 	else if((!INPUTMAN.IsKeyDown(A_KEY) && !INPUTMAN.IsKeyDown(D_KEY))){
 		speed.x/=1+(20*time);
 		if(equals(speed.x,0.0f))speed.x=0.0f;
 	}
-	else if(INPUTMAN.IsKeyDown(A_KEY)){
-		speed.x=max(-WALK_SPEED,speed.x-(WALK_SPEED*time/0.25));
+	else if(INPUTMAN.IsKeyDown(A_KEY) && !onLeft){
+		if(equals(speed.x,0.0f))speed.x=-WALK_SPEED/4;
+		else speed.x=max(-WALK_SPEED,speed.x-(WALK_SPEED*time/0.25));
 	}
-	else if(INPUTMAN.IsKeyDown(D_KEY)){
-		speed.x=min( WALK_SPEED,speed.x+(WALK_SPEED*time/0.25));
+	else if(INPUTMAN.IsKeyDown(D_KEY) && !onRight){
+		if(equals(speed.x,0.0f))speed.x=WALK_SPEED/4;
+		else speed.x=min( WALK_SPEED,speed.x+(WALK_SPEED*time/0.25));
 	}
+
 	if(INPUTMAN.MousePress(RIGHT_MOUSE_BUTTON))speed=Vec2(0.0f,0.0f);
 
+	cout << "speed = " << speed << endl;
 	nextBox=box+(speed)*METER*time;
 }
 void Player::UpdatePos(float time){
 	box=nextBox;
 }
 void Player::UpdatePhysics(float time){
-	if(onAir){
-		speed.y+=(GRAVITY*time);
+	if(!onGround){
+		if((onLeft && INPUTMAN.IsKeyDown(A_KEY)) || (onRight && INPUTMAN.IsKeyDown(D_KEY)))speed.y+=(GRAVITY*time)/2.0f;
+		else speed.y+=(GRAVITY*time);
 		// if((speed.y+(GRAVITY*time))<0)speed.y+=(GRAVITY*time);
 	}
 	else speed.y=0.0f;
@@ -99,113 +112,107 @@ bool Player::Is(string type){
 void Player::CheckCollisionGround(const TileMap &tileMap){
 	int x1,x2,y1,y2;
 	Rect curBox=box;
+	ii ret;
 
 	//pega o intervalo de tiles pra checar
 	tileMap.GetIndAtPos(min(curBox.x,nextBox.x),         min(curBox.y,nextBox.y),         x1,y1);
 	tileMap.GetIndAtPos(max(curBox.x,nextBox.x)+curBox.w,max(curBox.y,nextBox.y)+curBox.h,x2,y2);
-	system("clear");
-	FOR(j,tileMap.GetHeight()){
-		FOR(i,tileMap.GetWidth()){
-			if(BETWEEN(i,x1,x2+1) && BETWEEN(j,y1,y2+1))cout << 1;
-			else cout << 0;
-			cout << tileMap.AtMeta(i,j) << " ";
-		}
-		cout << endl;
+	x1--;y1--;x2+=2;y2+=2;//checa um quadrado a mais em cada direção, para evitar erros de precisão
+
+	//se a posição atual do player ja colide
+	if(tileMap.Collides(x1,x2,y1,y2,curBox.polygon(rotation),ret)){
+		cout << "buggg" << endl;
 	}
+
+
 	//cria o poligono do movimento do player
-	ConvexPolygon move,moveLine;
-	moveLine.AddPoint({});
-	moveLine.AddPoint(nextBox.center()-curBox.center());
-	cout << curBox.corner() << " " << nextBox.corner() << endl;	
-	cout << "moveLine = " << moveLine << endl;
-	cout << "playerPol = " << curBox.polygon(rotation) << endl;
-	move=moveLine.MinkowskySum(curBox.polygon(rotation));
+	Vec2 move=nextBox.corner()-curBox.corner();
+	ConvexPolygon movePol=(move.polygon()).MinkowskySum(curBox.polygon(rotation));
+	//cout << "movePol = " << move.polygon() << " + " << curBox.polygon(rotation) << " = " << movePol << endl;
 
-	cout << "move = " << move << endl;
-	moveLine.RemovePoint(nextBox.center());
-
-	pair<int,int> ii;
-	if(tileMap.Collides(x1,x2,y1,y2,move,ii)){//se colidiu
-		//acha o ponto onde o player ira ficar apos a colisao
-		//busca binaria pra achar a ulima posição onde não ocorre colisão
-		Vec2 inPos=curBox.corner(),endPos=nextBox.corner(),midPos;
+	//se o movimento completo colide
+	if(tileMap.Collides(x1,x2,y1,y2,movePol,ret)){
+		Vec2 pos1,pos2,pos3=move,safe;
+		//busca binaria para achar a ultima posição onde nao colide
 		FOR(i,100){
-			midPos=(inPos+endPos)/2.0f;
-			moveLine.AddPoint(midPos);
-			move=moveLine.MinkowskySum(curBox.polygon(rotation));
-			moveLine.RemovePoint(midPos);
-			if(tileMap.Collides(x1,x2,y1,y2,move,ii))endPos=midPos;
-			else inPos=midPos;
-
-			if(inPos==endPos){
-				midPos=inPos;
-				break;
+			pos2=(pos1+pos3)/2.0f;
+			pos2.floor();
+			movePol=(pos2.polygon()).MinkowskySum(curBox.polygon(rotation));
+			if(tileMap.Collides(x1,x2,y1,y2,movePol,ret))pos3=pos2;
+			else{
+				pos1=pos2;
+				safe=pos2;
 			}
+		 if(pos1==pos3)break;
 		}
-		//Vec2 oldPos=box.corner();
-		curBox.x=midPos.x;
-		curBox.y=midPos.y;
+		curBox+=safe;
 
-		//atualiza a velocidade e a posição
-		//x
-		Vec2 moveX(0.00125f,0.0f);
-		moveLine.AddPoint(moveX);
-		move=moveLine.MinkowskySum(curBox.polygon(rotation));
-		moveLine.RemovePoint(moveX);
-
-		tileMap.GetIndAtPos(min(curBox.x,nextBox.x),      curBox.y,         x1,y1);
-		tileMap.GetIndAtPos(max(curBox.x,nextBox.x)+box.w,curBox.y+curBox.h,x2,y2);
-		if(tileMap.Collides(x1,x2,y1,y2,move,ii))speed.x=0.0f;
-		else{//move the rest
-			float lowX=0.0f,highX=speed.x,midX;
+		Vec2 moveX{nextBox.x-curBox.x,0.0f};
+		movePol=(moveX.polygon()).MinkowskySum(curBox.polygon(rotation));
+		if(tileMap.Collides(x1,x2,y1,y2,movePol,ret)){
+			pos1=pos2=safe=Vec2{};
+			pos3=moveX;
 			FOR(i,100){
-				midX=(lowX+highX)/2.0f;
-				moveX.x=midX;
-				moveLine.AddPoint(moveX);
-				move=moveLine.MinkowskySum(curBox.polygon(rotation));
-				moveLine.RemovePoint(moveX);
-				if(tileMap.Collides(x1,x2,y1,y2,move,ii))highX=midX;
-				else lowX=midX;
-
-				if(equals(lowX,highX)){
-					midX=lowX;
-					break;
+				pos2=(pos1+pos3)/2.0f;
+				movePol=(pos2.polygon()).MinkowskySum(curBox.polygon(rotation));
+				if(tileMap.Collides(x1,x2,y1,y2,movePol,ret))pos3=pos2;
+				else{
+					pos1=pos2;
+					safe=pos2;
 				}
 			}
-			speed.x=midX;
-			curBox.x+=midX;
+			curBox+=safe;
+			speed.x=0.0f;
 		}
-		//y
-		Vec2 moveY(0.0f,0.00125f);
-		moveLine.AddPoint(moveY);
-		move=moveLine.MinkowskySum(curBox.polygon(rotation));
-		moveLine.RemovePoint(moveY);
+		else curBox.x=nextBox.x;
 
-		tileMap.GetIndAtPos(curBox.x,         min(curBox.y,nextBox.y),         x1,y1);
-		tileMap.GetIndAtPos(curBox.x+curBox.w,max(curBox.y,nextBox.y)+curBox.h,x2,y2);
-		if(tileMap.Collides(x1,x2,y1,y2,move,ii)){
-			onAir=speed.y<0.0f;//if its falling
+		Vec2 moveY{0.0f,nextBox.y-curBox.y};
+		movePol=(moveY.polygon()).MinkowskySum(curBox.polygon(rotation));
+		if(tileMap.Collides(x1,x2,y1,y2,movePol,ret)){
+			cout << "aaaa " << pos2.y << endl;
+			pos1=pos2=safe=Vec2{};
+			pos3=moveY;
+			FOR(i,100){
+				pos2=(pos1+pos3)/2.0f;
+				pos2.floor();
+				movePol=(pos2.polygon()).MinkowskySum(curBox.polygon(rotation));
+				if(tileMap.Collides(x1,x2,y1,y2,movePol,ret))pos3=pos2;
+				else{
+					pos1=pos2;
+					safe=pos2;
+				}
+			}
+			curBox+=safe;
 			speed.y=0.0f;
 		}
-		else{//move the rest
-			float lowY=0.0f,highY=speed.y,midY;
-			FOR(i,100){
-				midY=(lowY+highY)/2.0f;
-				moveY.y=midY;
-				moveLine.AddPoint(moveY);
-				move=moveLine.MinkowskySum(curBox.polygon(rotation));
-				moveLine.RemovePoint(moveY);
-				if(tileMap.Collides(x1,x2,y1,y2,move,ii))highY=midY;
-				else lowY=midY;
+		else curBox.y=nextBox.y;
 
-				if(equals(lowY,highY)){
-					midY=lowY;
-					break;
-				}
-			}
-			speed.y=midY;
-			curBox.y+=midY;
-		}
+		curBox.floor();
 		nextBox=curBox;
+		speed.x=0.0f;
+	}
+	if(box.x < nextBox.x)onRight=false;
+	else{
+		Vec2 move{SMALL,0.0f};
+		movePol=(move.polygon()).MinkowskySum(curBox.polygon(rotation));
+		onRight=tileMap.Collides(x1,x2,y1,y2,movePol,ret);
+	}
+	if(box.x > nextBox.x)onLeft=false;
+	else{
+		Vec2 move{-SMALL,0.0f};
+		movePol=(move.polygon()).MinkowskySum(curBox.polygon(rotation));
+		onLeft=tileMap.Collides(x1,x2,y1,y2,movePol,ret);
+	}
+	if(box.y < nextBox.y)onGround=false;
+	else{
+		Vec2 move{0.0f,SMALL};
+		movePol=(move.polygon()).MinkowskySum(curBox.polygon(rotation));
+		onGround=tileMap.Collides(x1,x2,y1,y2,movePol,ret);
+	}
+	if(box.y > nextBox.y)onTop=false;
+	else{
+		Vec2 move{0.0f,-SMALL};
+		movePol=(move.polygon()).MinkowskySum(curBox.polygon(rotation));
+		onTop=tileMap.Collides(x1,x2,y1,y2,movePol,ret);
 	}
 }

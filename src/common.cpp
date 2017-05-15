@@ -11,5 +11,5 @@ SDL_Color MakeColor(int r,int g,int b,int a){
 
 
 bool equals(const float &a,const float &b){
-	return (std::fabs((a-b))<=0.00001);
+	return (std::fabs((a-b))<=PRECISION);
 }

@@ -42,6 +42,8 @@ public:
 
 	vector<Vec2> debugPointsRed;
 	vector<Vec2> debugPointsBlue;
+	vector<Vec2> debugPointsGreen;
+	vector<Vec2> debugPointsYellow;
 };
 
 #endif//STAGESTATEHPP

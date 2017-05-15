@@ -7,7 +7,10 @@
 
 class WalkingEntity : public GameObject{
 public:
-	bool onAir;
+	bool onGround=false;
+	bool onLeft=false;
+	bool onRight=false;
+	bool onTop=false;
 	WalkingEntity();
 	virtual ~WalkingEntity(){}
 };

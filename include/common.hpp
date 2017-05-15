@@ -34,13 +34,14 @@ using std::pair;
 using std::min;
 using std::max;
 using std::next;
+using std::find;
 
 using ii=pair<int,int>;
 
-#define FOR(  cont,    max) for(int (cont)=0;           (cont)<(int)(max); (cont)++)
-#define FOR2( cont,min,max) for(int (cont)=(int)(min);  (cont)<(int)(max); (cont)++)
-#define FORR( cont,    max) for(int (cont)=(int)(max-1);(cont)>=0;         (cont)--)
-#define FOR2R(cont,min,max) for(int (cont)=(int)(max-1);(cont)>=(int)(min);(cont)--)
+#define FOR(  cont,    max) for(int (cont)=0 	       ,_max_=(max);(cont)< _max_;(cont)++)
+#define FOR2( cont,min,max) for(int (cont)=(int)(min)  ,_max_=(max);(cont)< _max_;(cont)++)
+#define FORR( cont,    max) for(int (cont)=(int)(max-1)            ;(cont)>=0;    (cont)--)
+#define FOR2R(cont,min,max) for(int (cont)=(int)(max-1),_min_=(min);(cont)>=_min_;(cont)--)
 #define ABS(x) (((x)<0)?-(x):(x))
 #define BETWEEN(x,a,b) ((x>=a) && (x<b))
 
@@ -52,7 +53,9 @@ using ii=pair<int,int>;
 #define SDL_COLOR_BLUE  MakeColor(0,0,255)
 #define SDL_COLOR_WHITE MakeColor(255,255,255)
 
-#define WALK_SPEED 1.4//m/s
+#define PRECISION 0.0001
+#define PLAYER_JUMP 8.1//m/s
+#define WALK_SPEED 2.4//m/s
 #define METER 100//pixels
 //#define GRAVITY 9.80665//m/s
 #define GRAVITY 15.0//m/s

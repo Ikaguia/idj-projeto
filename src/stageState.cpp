@@ -83,12 +83,18 @@ void StageState::Render(){
 
 	tileMap.RenderLayer(1,Camera::pos.x*2,Camera::pos.y*2);
 
-	static Sprite redDotDebug("img/point_red.jpg",1,1.0f);
+	static Sprite yellowDotDebug("img/point_yellow.jpg",1,1.0f);
+	static Sprite greenDotDebug("img/point_green.jpg",1,1.0f);
 	static Sprite blueDotDebug("img/point_blue.jpg",1,1.0f);
-	for(Vec2& v:debugPointsRed)  redDotDebug.Render(-Camera::pos.x+v.x,-Camera::pos.y+v.y);
-	for(Vec2& v:debugPointsBlue)blueDotDebug.Render(-Camera::pos.x+v.x,-Camera::pos.y+v.y);
-	debugPointsRed.clear();
+	static Sprite redDotDebug("img/point_red.jpg",1,1.0f);
+	for(Vec2& v:debugPointsGreen)  greenDotDebug.Render(-Camera::pos.x+v.x,-Camera::pos.y+v.y);
+	for(Vec2& v:debugPointsBlue)    blueDotDebug.Render(-Camera::pos.x+v.x,-Camera::pos.y+v.y);
+	for(Vec2& v:debugPointsRed)      redDotDebug.Render(-Camera::pos.x+v.x,-Camera::pos.y+v.y);
+	for(Vec2& v:debugPointsYellow)yellowDotDebug.Render(-Camera::pos.x+v.x,-Camera::pos.y+v.y);
+	debugPointsGreen.clear();
 	debugPointsBlue.clear();
+	debugPointsRed.clear();
+	debugPointsYellow.clear();
 }
 
 void StageState::Pause(){

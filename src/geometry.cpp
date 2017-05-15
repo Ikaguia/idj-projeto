@@ -4,9 +4,10 @@ Vec2::Vec2(const float &a,const float &b):x{a},y{b}{}
 Vec2::Vec2(const Vec2 &b):x{b.x},y{b.y}{}
 
 
-void Vec2::operator=(const Vec2& b){
+Vec2 Vec2::operator=(const Vec2& b){
 	x=b.x;
 	y=b.y;
+	return *this;
 }
 
 Vec2 Vec2::operator+ (const Vec2& b)const{
@@ -51,6 +52,10 @@ bool Vec2::operator< (const Vec2& b)const{
 	return x<b.x;
 }
 
+void Vec2::floor(){
+	x=std::floor(x);
+	y=std::floor(y);
+}
 
 float Vec2::len() const{
 	return hypot(x,y);
@@ -67,6 +72,7 @@ float Vec2::dist(const Vec2 &b) const{
 }
 
 float Vec2::angle(const Vec2 &b) const{
+	if(*this==b)return 0.0f;
 	return (b-(*this)).angle();
 }
 
@@ -82,6 +88,13 @@ Vec2 Vec2::rotate(float a){
 	v.x = x*cos(a) - y*sin(a);
 	v.y = y*cos(a) + x*sin(a);
 	return v;
+}
+
+ConvexPolygon Vec2::polygon(){
+	ConvexPolygon pol;
+	pol.AddPoint({});
+	pol.AddPoint(*this);
+	return pol;
 }
 
 std::ostream& operator<<(std::ostream& os, const Vec2& obj){
@@ -104,13 +117,13 @@ Rect::Rect(const Rect &b):x{b.x},y{b.y},w{b.w},h{b.h}{}
 
 
 
-void Rect::operator=(const Rect& b){
+Rect Rect::operator=(const Rect& b){
 	x=b.x;
 	y=b.y;
 	w=b.w;
 	h=b.h;
+	return *this;
 }
-
 Rect Rect::operator+ (const Vec2& b)const{
 	return {x+b.x,y+b.y,w,h};
 }
@@ -118,7 +131,6 @@ void Rect::operator+=(const Vec2& b){
 	x+=b.x;
 	y+=b.y;
 }
-
 Rect Rect::operator- (const Vec2& b)const{
 	return Rect(x-b.x,y-b.y,w,h);
 }
@@ -133,22 +145,26 @@ bool Rect::operator!=(const Rect& b){
 	return !((*this)==b);
 }
 
+void Rect::floor(){
+	x=std::floor(x);
+	y=std::floor(y);
+	w=std::floor(w);
+	h=std::floor(h);
+}
 
 Vec2 Rect::corner() const{
 	return {x,y};
 }
-
 Vec2 Rect::center() const{
 	return {x+(w/2),y+(h/2)};
 }
-
 ConvexPolygon Rect::polygon(const float &r) const{
 	ConvexPolygon pol;
-	Vec2 v=corner();
-	pol.AddPoint(v);
-	pol.AddPoint(v+Vec2(w,0.0f).rotate(r));
-	pol.AddPoint(v+Vec2(0.0f,h).rotate(r));
-	pol.AddPoint(v+Vec2(w,h).rotate(r));
+	pol.AddPoint(Vec2{});
+	pol.AddPoint(Vec2{w,0.0f}.rotate(r));
+	pol.AddPoint(Vec2{0.0f,h}.rotate(r));
+	pol.AddPoint(Vec2{w,h}.rotate(r));
+	pol.MoveSource(corner());
 	return pol;
 }
 
@@ -188,228 +204,204 @@ bool Circle::contains(const float &px,const float &py)const{
 	return (center-p).len()<=r;
 }
 
+void Circle::floor(){
+	x=std::floor(x);
+	y=std::floor(y);
+	r=std::floor(r);
+}
+
 
 
 ConvexPolygon::ConvexPolygon():count{0}{}
+ConvexPolygon::ConvexPolygon(vector<Vec2> v,bool all):count{0}{
+	AddPoints(v,all);
+}
 
-bool ConvexPolygon::AddPoint(const Vec2 &p){
-	if(!count){//first point
-		Source()=p;
-		points.push_back(Vec2());
-		pointsAng[Vec2()]=0.0f;
-		count++;
-		return true;
-	}
-	Vec2 point = p-Source();//calculate point relative to source
-
-	if(std::find(points.begin(),points.end(),point)!=points.end())return false;//duplicate
-
-	if(count>1 && !IsConvex(point))return false;
-
-	points.push_back(point);
-	pointsAng[point]=point.angle();
-
+bool ConvexPolygon::AddPoint(Vec2 p){
+	p-=GetSource();
+	if(find(points.begin(),points.end(),p-GetSource())!=points.end())return false;
+	else if(!IsConvex(p))return false;
+	points.push_back(p);
+	ReorderPoints();
+	pointsAng[p]=points[0].angle(p);
 	count++;
-
-	if(point.y>0.0f || (equals(point.y,0.0f) && point.x>0))SetSource(point);
+	return true;
+}
+bool ConvexPolygon::AddPoints(const vector<Vec2> &pts,bool all){
+	if(all){
+		ConvexPolygon pol=*this;
+		if(!pol.AddPoints(pts))return false;
+		*this=pol;
+	}
 	else{
-		std::sort(points.begin(),points.end(),
-			[this](const Vec2 &a,const Vec2 &b){
-				if(equals(pointsAng[a],0))return true;
-				if(equals(pointsAng[b],0))return false;
-				return pointsAng[a]>pointsAng[b];
-			}
-		);
-	}
-	return true;
-}
-bool ConvexPolygon::RemovePoint(const Vec2 &p){
-	if(p==Vec2() && count>1){
-		if(count>1){
-			points.clear();
-			pointsAng.clear();
-			count=0;
-			Source()=Vec2();
-			return true;
-		}
-		return false;//cant remove source if its not the last one
-	}
-
-	auto it=std::find(points.begin(),points.end(),p);
-	if(it!=points.end())return false;//polygon doesnt contain p
-
-	points.erase(it);
-	pointsAng.erase(p);
-
-	count--;
-	return true;
-}
-bool ConvexPolygon::SetSource(const Vec2 &p){
-	if(count<=0)return false;
-	if(p==Vec2())return true;//p is already the source
-
-	auto it=std::find(points.begin(),points.end(),p);
-	if(it==points.end())return false;//polygon doesnt contain p
-
-	for(auto &point:points)point+=Source();
-
-	Source()=p+Source();
-
-	pointsAng.clear();
-	for(auto &point:points){
-		point-=Source();
-		pointsAng[point]=point.angle();
-	}
-	pointsAng[Vec2()]=0.0f;
-
-	std::sort(points.begin(),points.end(),
-		[this](const Vec2 &a,const Vec2 &b){
-			if(equals(pointsAng[a],0))return true;
-			if(equals(pointsAng[b],0))return false;
-			return pointsAng[a]>pointsAng[b];
-		}
-	);
-	return true;
-}
-bool ConvexPolygon::IsConvex(const Vec2 &p){
-	vector<Vec2> v=points;
-	map<Vec2,float> vAng=pointsAng;
-	v.push_back(p);
-	v.push_back(v[0]);//insert first point at the end to make the list "ciclic"
-	vAng[p]=p.angle();
-	std::sort(points.begin(),points.end(),
-		[this](const Vec2 &a,const Vec2 &b){
-			if(equals(pointsAng.at(a),0))return true;
-			if(equals(pointsAng.at(b),0))return false;
-			return pointsAng.at(a)>pointsAng.at(b);
-		}
-	);
-
-	auto prev=points.begin();
-	bool ang1=((*prev).angle(*(std::next(prev)))==0.0f);//check the angle between the 1st and 2nd point
-	bool ang2=((*prev).angle(*(std::next(prev)))< 0.0f);
-	for(auto point:points){
-		if(point==(*points.begin()))continue;
-		if(ang1){//if direction has not been determined yet, calculate it
-			ang1=((*prev).angle(*(std::next(prev)))==0.0f);
-			ang2=((*prev).angle(*(std::next(prev)))< 0.0f);
-		}
-		else{//if it has, check if it changes
-			if(ang2 != ((*prev).angle(*(std::next(prev)))< 0.0f))return false;
+		for(auto p:pts){
+			p-=GetSource();
+			AddPoint(p);
 		}
 	}
 	return true;
 }
-
-bool ConvexPolygon::Contains(const Vec2 &p)const{
-	if(count<3)return false;
-	float ang=0.0f;
-	vector<Vec2> v=GetPoints();
-	v.push_back(v[0]);
-	FOR(i,v.size()-1){
-		ang+=p.angle(v[i+1]);
-		ang-=p.angle(v[i]);
-	}
-	return equals(ang,0.0f);
+bool ConvexPolygon::RemovePoint(Vec2 p){
+	auto it=find(points.begin(), points.end(),p);
+	return RemovePoint(it-points.begin());
+}
+bool ConvexPolygon::RemovePoint(int ind){
+	if(ind<0 || ind>=count)return false;
+	pointsAng.erase(points[ind]);
+	points.erase(points.begin()+ind);
+	if(ind==0)ReorderPoints();
+	return true;
 }
 
-bool ConvexPolygon::Collides(const ConvexPolygon& other)const{
-	if(count<3 || other.GetCount()<3)return false;//degenerated polygons dont collide
-	Rect a=GetBoundingRectangle();
-	Rect b=other.GetBoundingRectangle();
-	if(a.x+a.w <= b.x || b.x+b.w<=a.x)return false;//if bounding boxes dont collide, no need
-	if(a.y+a.h <= b.y || b.y+b.h<=a.y)return false;// to do more complex collision check
+void ConvexPolygon::SetSource(const Vec2 &p){
+	Vec2 move=GetSource()-p;
+	for(auto &i:points)i+=move;
+	source=p;
+}
+void ConvexPolygon::MoveSource(const Vec2 &p){
+	source=p;
+}
+void ConvexPolygon::ReorderPoints(){
+	ReorderPoints(points,pointsAng);
+}
+void ConvexPolygon::ReorderPoints(vector<Vec2> &pts,map<Vec2,float> &ptsAng)const{
+	const auto &it=min_element(pts.begin(), pts.end(),[](const Vec2& a,const Vec2& b){
+		if(equals(a.y,b.y))return a.x>b.x;
+		return a.y>b.y;
+	});
+	std::swap(*pts.begin(),*it);
+	ptsAng.clear();
+	for(auto &p:pts)ptsAng[p]=pts[0].angle(p);
+	ptsAng[pts[0]]=400;
+	sort(pts.begin(), pts.end(),[&pts,&ptsAng](const Vec2 &a,const Vec2 &b){return ptsAng[a]>ptsAng[b];});
+	ptsAng[pts[0]]=0;
+}
 
-	ConvexPolygon ms = MinkowskySum(other*-1.0f);
-	return ms.Contains(Center());
+vector<Vec2> ConvexPolygon::GetPoints()const{
+	vector<Vec2> v;
+	for(auto p:points)v.push_back(p+GetSource());
+	return v;
+}
+const Vec2& ConvexPolygon::GetSource()const{
+	return source;
+}
+Vec2 ConvexPolygon::GetCenter()const{
+	Vec2 sum;
+	for(auto p:points)sum+=p;
+	sum/=points.size();
+	return sum+GetSource();
 }
 
 int ConvexPolygon::GetCount()const{
 	return count;
 }
-
-Vec2 ConvexPolygon::Center()const{
-	if(count<=1)return ConstSource();
-	Vec2 center;
-	auto pts=GetPoints();
-	for(auto &p:pts)center+=p;
-	center/=pts.size();
-	return center;
+float ConvexPolygon::GetPointAng(const Vec2& p)const{
+	if(pointsAng.count(p))return pointsAng.at(p);
+	return 0.0f;
+}
+float ConvexPolygon::GetPointAng(int ind)const{
+	return pointsAng.at(points[ind]);
 }
 
-Vec2& ConvexPolygon::Source(){
-	return source;
+bool ConvexPolygon::IsConvex(const Vec2 &p)const{
+	if(count<3)return true;
+	vector<Vec2> v=points;
+	map<Vec2,float> vAng=pointsAng;
+	v.push_back(p-GetSource());
+	ReorderPoints(v,vAng);
+	v.push_back(v[0]);
+
+	float prevAng=v[0].angle(v[1]),ang;
+	for(int i=1;i<=count;i++){
+		ang=v[i].angle(v[i+1]);
+		if(ang>prevAng)return false;
+		prevAng=ang;
+	}
+	return true;
+}
+bool ConvexPolygon::IsConvex(const vector<Vec2> &pts)const{
+	vector<Vec2> v=points;
+	map<Vec2,float> vAng=pointsAng;
+	for(auto p:pts)v.push_back(p-GetSource());
+	ReorderPoints(v,vAng);
+	v.push_back(v[0]);
+
+	float prevAng=v[1].angle(v[0]),ang;
+	for(int i=1;i<=count;i++){
+		ang=v[i+1].angle(v[i]);
+		if(ang<prevAng)return false;
+		prevAng=ang;
+	}
+	return true;
+}
+bool ConvexPolygon::Contains(Vec2 p)const{
+	if(count<3)return false;
+	p-=GetSource();
+	float ang=0.0f;
+	vector<Vec2> v=points;
+	v.push_back(v[0]);
+	FOR(i,v.size()-1){
+		ang+=p.angle(v[i+1]);
+		ang-=p.angle(v[i]);
+	}
+	return equals(ang,360.0f) || equals(ang,0.0f);
+}
+bool ConvexPolygon::Collides(const ConvexPolygon& other)const{
+	if(count<3 || other.GetCount()<3)return false;//degenerated polygons dont collide
+	Rect a=BoundingRect();
+	Rect b=other.BoundingRect();
+	if((a.x+a.w <= b.x) || (b.x+b.w<=a.x))return false;//if bounding boxes dont collide, no need
+	if((a.y+a.h <= b.y) || (b.y+b.h<=a.y))return false;// to do more complex collision check
+
+	ConvexPolygon ms = (AtOrigin()*-1.0f).MinkowskySum(other);
+
+	//if(ms.Contains(GetSource()))cout << *this << " collides with " << other << endl;
+
+	return ms.Contains(GetSource());
 }
 
-const Vec2& ConvexPolygon::ConstSource()const{
-	return source;
+ConvexPolygon ConvexPolygon::operator+(const Vec2& p)const{
+	ConvexPolygon pol=*this;
+	pol.AddPoint(p);
+	return pol;
+}
+ConvexPolygon ConvexPolygon::operator*(const float& f)const{
+	ConvexPolygon pol;
+	for(auto p:points)pol.AddPoint(p*-f);
+	pol.MoveSource(GetSource());
+	return pol;
 }
 
-Rect ConvexPolygon::GetBoundingRectangle()const{
-	if(count<=1)return Rect(ConstSource().x,ConstSource().y,0.0f,0.0f);
-	float minX,minY,maxX,maxY;
+void ConvexPolygon::Floor(){
+	for(auto &p:points)p.floor();
+	source.floor();
+}
+
+Rect ConvexPolygon::BoundingRect()const{
+	if(count<=1)return Rect(GetSource().x,GetSource().y,0.0f,0.0f);
+	float minX=0.0f,minY=0.0f,maxX=0.0f,maxY=0.0f;
 	for(auto &p:points){
 		minX=min(minX,p.x);
 		minY=min(minY,p.y);
 		maxX=max(maxX,p.x);
 		maxY=max(maxY,p.y);
 	}
-	return {minX,minY,maxX-minX,maxY-minY};
+	return Rect{minX,minY,maxX-minX,maxY-minY}+GetSource();
 }
-
-vector<Vec2> ConvexPolygon::GetPoints()const{
-	vector<Vec2> vPol=points;
-	for(auto &p:vPol){
-		p+=ConstSource();
-	}
-	return vPol;
-}
-
-float ConvexPolygon::GetPointAng(const Vec2& p)const{
-	if(pointsAng.count(p-ConstSource())){
-		cout << "Error, checking angle of invalid point '" << p-ConstSource() << "'" << endl;
-		return 0.0f;
-	}
-	return pointsAng.at(p-ConstSource());
-}
-
-
-ConvexPolygon ConvexPolygon::operator* (const float &x)const{
-	ConvexPolygon pol;
-	auto pts=GetPoints();
-	for(auto &p:pts)pol.AddPoint(p*x);
+ConvexPolygon ConvexPolygon::AtOrigin()const{
+	ConvexPolygon pol=*this;
+	pol.MoveSource(Vec2{});
 	return pol;
 }
-
-
 ConvexPolygon ConvexPolygon::MinkowskySum(const ConvexPolygon& pol)const{
 	if(count<=0 || pol.count<=0)return ConvexPolygon();
-	if(count==1){
-		ConvexPolygon ans=pol;
-		ans.Source()+=ConstSource();
-		return ans;
-	}
-	if(pol.GetCount()==1){
-		ConvexPolygon ans=*this;
-		ans.Source()+=pol.ConstSource();
-		return ans;
-	}
+	if(count==1)return pol+GetPoints()[0];
+	if(pol.GetCount()==1)return (*this)+pol.GetPoints()[0];
 
-	vector<Vec2> points1=GetPoints();
-	vector<Vec2> points2=pol.GetPoints();
-	auto func = [](const Vec2& a,const Vec2& b){
-					if(a.y==b.y)return a.x>b.x;
-					return a.y>b.y;
-				};
-	auto itMin1=std::min_element(points1.begin(),points1.end(),func);
-	auto itMin2=std::min_element(points2.begin(),points2.end(),func);
-
-	vector<Vec2> vPol1;
-	vPol1.insert(vPol1.end(),itMin1,points1.end());
-	vPol1.insert(vPol1.end(),points1.begin(),itMin1);
-	vector<Vec2> vPol2;
-	vPol2.insert(vPol2.end(),itMin2,points2.end());
-	vPol2.insert(vPol2.end(),points2.begin(),itMin2);
+	vector<Vec2> vPol1=GetPoints();
+	vector<Vec2> vPol2=pol.GetPoints();
+	vPol1.push_back(vPol1[0]);
+	vPol2.push_back(vPol2[0]);
 
 	vector<Vec2> vPol3;
 	vPol3.push_back(vPol1[0]+vPol2[0]);
@@ -452,16 +444,27 @@ ConvexPolygon ConvexPolygon::MinkowskySum(const ConvexPolygon& pol)const{
 
 	ConvexPolygon minkSum;
 	for(auto &p:vPol3)minkSum.AddPoint(p);
+
+	//cout << *this << " + " << pol << " = " << minkSum << endl;
+
 	return minkSum;
 }
 
 std::ostream& operator<<(std::ostream& os, const ConvexPolygon& obj){
+	// auto pts=obj.GetPoints();
+	// if(pts.size()==0)return os << "{}";
+	// os << "{(" << (int)pts[0].x << "," << (int)pts[0].y << ")";
+	// FOR2(i,1,pts.size())os << ",(" << (int)pts[i].x << "," << (int)pts[i].y << ")";
+	// os << "}";
+	// return os;
+
 	auto pts=obj.GetPoints();
 	if(pts.size()==0)return os << "{}";
 	os << "{" << pts[0];
 	FOR2(i,1,pts.size())os << "," << pts[i];
 	os << "}";
 	return os;
+
 	// auto pts=obj.GetPoints();
 	// if(pts.size()==0){
 	// 	os << "{}";
@@ -469,6 +472,6 @@ std::ostream& operator<<(std::ostream& os, const ConvexPolygon& obj){
 	// }
 	// os << "{" << pts[0] << "[" << obj.GetPointAng(pts[0]) << "]";
 	// FOR2(i,1,pts.size())os << "," << pts[i] << "[" << obj.GetPointAng(pts[i]) << "]";
-	// os << "} -> " << obj.ConstSource();
+	// os << "} -> " << obj.GetSource();
 	// return os;
 }
