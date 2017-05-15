@@ -1,16 +1,22 @@
 #include <gameObject.hpp>
 
-static vector<GameObject*> GameObject::entities;
+vector<GameObject*> GameObject::entities;
 
 GameObject::GameObject(){
 	entities.push_back(this);
 }
 GameObject::~GameObject(){
-	for(auto i:hasComponent)delete components[i];
+	FOR(i,Component::type::t_count)if(hasComponent[i])delete components[i];
 }
 
 void GameObject::Update(float time){
-	for(auto i:hasComponent)components[i]->Update(time);
+	FOR(i,Component::type::t_count)if(hasComponent[i])components[hasComponent[i]]->Update(time);
+}
+
+void GameObject::Render(){
+	//TODO: use this after making static and animated render components
+	// if(hasComponent[Component::type::t_static_render])  (*StaticRender)  Component[Component::type::t_static_render]  ->Render();
+	// if(hasComponent[Component::type::t_animated_render])(*AnimatedRender)Component[Component::type::t_animated_render]->Render();
 }
 
 void GameObject::AddComponent(Component* component){
@@ -39,3 +45,6 @@ void GameObject::RemoveComponent(Component::type t){
 	}
 }
 
+bool GameObject::IsDead()const{
+	return false;
+}

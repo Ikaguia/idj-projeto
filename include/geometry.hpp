@@ -83,6 +83,8 @@ public:
 
 	bool contains(const float &i,const float &j) const;//retorna se o ponto pertence ao retangulo
 	bool contains(const Vec2& b) const;//retorna se o ponto pertence ao retangulo
+
+	bool collides(const Rect& b) const;//retorna se o retangulo tem interseção com b
 };
 
 class Circle{

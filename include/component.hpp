@@ -3,16 +3,18 @@
 
 #include <common.hpp>
 
+class GameObject;
+
 class Component{
 public:
 	GameObject* entity;
-	enum type{t_collider,t_sprite,t_count};
+	enum type{t_collider,t_sprite,t_static_render,t_animated_render,t_movement,t_count};
 
 	Component(GameObject* go);
-	~Component()=0;
+	virtual ~Component(){};
 
-	void Update(float time)=0;
-	type GetType()const=0;
+	virtual void Update(float time)=0;
+	virtual type GetType()const=0;
 };
 
 #endif//COMPONENTHPP

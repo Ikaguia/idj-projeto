@@ -188,7 +188,13 @@ bool Rect::contains(const Vec2& b) const{
 	if(b.y>y+h)return false;
 	return true;
 }
-
+bool Rect::collides(const Rect& b) const{
+	if(x>b.x+b.w)return false;
+	if(y>b.y+b.h)return false;
+	if(x+w<b.x)return false;
+	if(y+h<b.y)return false;
+	return true;
+}
 
 
 

@@ -1,12 +1,11 @@
 #include <camera.hpp>
+#include <game.hpp>
 #include <gameObject.hpp>
 #include <inputManager.hpp>
 
 GameObject* Camera::focus=nullptr;
 Vec2 Camera::pos;
 Vec2 Camera::speed;
-
-#define WINDOWSIZE Vec2(1024,600)
 
 void Camera::Follow(GameObject* newFocus){
 	focus=newFocus;
@@ -24,5 +23,5 @@ void Camera::Update(float time){
 		speed*=time;
 		pos+=speed;
 	}
-	else pos=focus->box.center()-(WINDOWSIZE/2);
+	else pos=focus->box.center()-(WINSIZE/2);
 }

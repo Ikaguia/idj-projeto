@@ -1,5 +1,10 @@
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
+
+#include <cstdlib>
+#include <ctime>
 
 #include <game.hpp>
 #include <state.hpp>
@@ -10,7 +15,7 @@
 Game* Game::instance=NULL;
 
 
-Game::Game(string title,int width,int height):frameStart{0},dt{0}{
+Game::Game(string title,int width,int height):frameStart{0},dt{0},winSize{(float)width,(float)height}{
 	srand(time(NULL));
 
 	if(instance){

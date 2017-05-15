@@ -5,30 +5,37 @@
 
 #include <common.hpp>
 #include <component.hpp>
+#include <tileMap.hpp>
+
+class Collider;
 
 using colliderFunc=std::function<void(Collider* a,Collider* b)>;
+struct collidersOrder{
+	bool operator() (const Collider* a,const Collider* b);
+};
+struct collidersOrderEnd{
+	bool operator() (const Collider* a,const Collider* b);
+};
 
 class Collider : public Component{
-	map<_type,colliderFunc> useDefault;//use default collision check against colliders of type size_t
-
-	static bool collidersOrder(const Collider* a,const Collider* b);
-	static bool collidersOrderEnd(const Collider* a,const Collider* b);
 public:
-	static set<Collider*,decltype(collidersOrder)> colliders;
-	static set<Collider*,decltype(collidersOrderEnd)> collidersEnd;
-
-	enum _type{t_player,t_bullet,t_count};
-	_type type;
-	ConvexPolygon pol;
-
-	Collider();
+	//static members
+	static set<Collider*,collidersOrder> colliders;
+	static set<Collider*,collidersOrderEnd> collidersEnd;
+	//static functions
+	static set<Collider*> GetCollidersInRange(float x1,float x2);
+	//members
+	enum collType{t_ground,t_h_ground,t_player,t_bullet,t_count};
+	collType cType;
+	map<collType,colliderFunc> useDefault;//use custom collision handler against colliders of _type
+	//constructor/destructor
+	Collider(GameObject* go);
 	~Collider();
-
-	void collisionCheck(Collider &other);
+	//functions
+	void collisionCheck(Collider *other);
 	void collisionCheck(const TileMap &tileMap);
-	Vec2 collides(const Collider &other);
-	Vec2 collides(const TileMap &tileMap);
-
+	Vec2 collides(const Collider *other,const Vec2 &move);
+	Vec2 collides(const TileMap &tileMap,const Vec2 &move);
 	Component::type GetType();
 };
 

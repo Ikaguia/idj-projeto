@@ -1,18 +1,17 @@
 #ifndef GAMEHPP
 #define GAMEHPP
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-
-#include <cstdlib>
-#include <ctime>
-
 #include <common.hpp>
 #include <state.hpp>
+#include <geometry.hpp>
 
 #define GAMEINST Game::GetInstance()
 #define GAMESTATE GAMEINST.GetCurrentState()
 #define GAMERENDER GAMEINST.GetRenderer()
+#define WINSIZE GAMEINST.winSize
+
+class SDL_Window;
+class SDL_Renderer;
 
 class Game{
 	static Game* instance;
@@ -27,6 +26,8 @@ class Game{
 
 	void CalculateDeltaTime();
 public:
+	const Vec2 winSize;
+
 	Game(string title,int width,int height);
 	~Game();
 

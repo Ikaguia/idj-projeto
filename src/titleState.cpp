@@ -1,6 +1,5 @@
 #include <titleState.hpp>
 #include <game.hpp>
-#include <stageState.hpp>
 #include <inputManager.hpp>
 #include <text.hpp>
 
@@ -21,7 +20,8 @@ TitleState::~TitleState(){}
 
 void TitleState::Update(float time){
 	if(INPUTMAN.QuitRequested() || INPUTMAN.KeyPress(ESCAPE_KEY))quitRequested=true;
-	if(INPUTMAN.KeyPress(SPACEBAR_KEY))GAMEINST.Push(new StageState);
+	//TODO: remake stagestate
+	//if(INPUTMAN.KeyPress(SPACEBAR_KEY))GAMEINST.Push(new StageState);
 }
 void TitleState::Render(){
 	bg.Render(0,0);
