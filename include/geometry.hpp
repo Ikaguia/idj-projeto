@@ -103,6 +103,7 @@ class ConvexPolygon{
 	map<Vec2,float> pointsAng;//angle point-points[0] to the origin
 	Vec2 source;
 	int count;
+	Rect boundingRect;
 public:
 	ConvexPolygon();
 	ConvexPolygon(vector<Vec2> v,bool all=false);

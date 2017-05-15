@@ -1,24 +1,41 @@
 #include <gameObject.hpp>
-#include <tileMap.hpp>
-#include <collision.hpp>
 
-GameObject::GameObject(float r):rotation{r}{}
+static vector<GameObject*> GameObject::entities;
 
-void GameObject::CheckCollisionGround(const TileMap &tileMap){
-	int x1,y1,x2,y2;
-	tileMap.GetIndAtPos(nextBox.x,nextBox.y,x1,y1);
-	tileMap.GetIndAtPos(nextBox.x+box.w,nextBox.y+box.h,x2,y2);
-	Rect tileBox(0,0,tileMap.GetWidth(),tileMap.GetHeight());
-	FOR2(j,y1,y2){
-		FOR2(i,x1,x2){
-			if(tileMap.AtMeta(i,j)==1){
-				tileBox.x=tileMap.GetWidth()*i;
-				tileBox.y=tileMap.GetHeight()*j;
-				if(Collision::IsColliding(box,tileBox,rotation,0.0f)){
-					NotifyCollision(nullptr);
-					return;
-				}
-			}
-		}
+GameObject::GameObject(){
+	entities.push_back(this);
+}
+GameObject::~GameObject(){
+	for(auto i:hasComponent)delete components[i];
+}
+
+void GameObject::Update(float time){
+	for(auto i:hasComponent)components[i]->Update(time);
+}
+
+void GameObject::AddComponent(Component* component){
+	auto t=component->GetType();
+	if(hasComponent[t])cout << "Error, adding component " << t << " to a GameObject that already has it" << endl;
+	hasComponent[t]=true;
+	components[t]=component;
+}
+
+void GameObject::ReplaceComponent(Component* component){
+	auto t=component->GetType();
+	if(!hasComponent[t]){
+		cout << "Error, replacing component " << t << " on a GameObject that doesnt have it" << endl;
+		hasComponent[t]=true;
+	}
+	else delete components[t];
+	components[t]=component;
+}
+
+void GameObject::RemoveComponent(Component::type t){
+	if(!hasComponent[t])cout << "Error, removing component " << t << " on a GameObject that doesnt have it" << endl;
+	else{
+		delete components[t];
+		components[t]=nullptr;
+		hasComponent[t]=false;
 	}
 }
+

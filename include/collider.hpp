@@ -1,21 +1,25 @@
 #ifndef COLLIDERHPP
 #define COLLIDERHPP
 
+#include <functional>
+
 #include <common.hpp>
-#include <tileMap.hpp>
+#include <component.hpp>
 
-class GameObject;
+using colliderFunc=std::function<void(Collider* a,Collider* b)>;
 
-class Collider{
-	//private members
-	map<size_t,bool> useDefault;//use default collider check against colliders of type size_t
-	size_t type;
+class Collider : public Component{
+	map<_type,colliderFunc> useDefault;//use default collision check against colliders of type size_t
 
 	static bool collidersOrder(const Collider* a,const Collider* b);
+	static bool collidersOrderEnd(const Collider* a,const Collider* b);
 public:
-	//public members
-	static set<Collider*,decltype<collidersOrder>> colliders;
-	GameObject* entity;
+	static set<Collider*,decltype(collidersOrder)> colliders;
+	static set<Collider*,decltype(collidersOrderEnd)> collidersEnd;
+
+	enum _type{t_player,t_bullet,t_count};
+	_type type;
+	ConvexPolygon pol;
 
 	Collider();
 	~Collider();
@@ -25,7 +29,7 @@ public:
 	Vec2 collides(const Collider &other);
 	Vec2 collides(const TileMap &tileMap);
 
-	size_t getType();
+	Component::type GetType();
 };
 
 #endif//COLLIDERHPP

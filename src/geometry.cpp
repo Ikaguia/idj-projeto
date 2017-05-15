@@ -219,6 +219,15 @@ ConvexPolygon::ConvexPolygon(vector<Vec2> v,bool all):count{0}{
 
 bool ConvexPolygon::AddPoint(Vec2 p){
 	p-=GetSource();
+
+	if(!count)boundingRect += p;
+	else{
+		if(boundingRect.x>p.x)boundingRect.x = p.x;
+		else if(boundingRect.x+boundingRect.w<p.x)boundingRect.w = p.x-boundingRect.x;
+		if(boundingRect.y>p.y)boundingRect.y = p.y;
+		else if(boundingRect.y+boundingRect.h<p.y)boundingRect.h = p.y-boundingRect.y;
+	}
+
 	if(find(points.begin(),points.end(),p-GetSource())!=points.end())return false;
 	else if(!IsConvex(p))return false;
 	points.push_back(p);
@@ -250,6 +259,16 @@ bool ConvexPolygon::RemovePoint(int ind){
 	pointsAng.erase(points[ind]);
 	points.erase(points.begin()+ind);
 	if(ind==0)ReorderPoints();
+
+	float x1=0,x2=0,y1=0,y2=0;
+	for(auto &p:points){
+		x1=min(x1,p.x);
+		x2=max(x2,p.x);
+		y1=min(y1,p.y);
+		y2=max(y2,p.y);
+	}
+	boundingRect=Rect{x1,y1,x2-x1,y2-y1};
+
 	return true;
 }
 
@@ -378,15 +397,7 @@ void ConvexPolygon::Floor(){
 }
 
 Rect ConvexPolygon::BoundingRect()const{
-	if(count<=1)return Rect(GetSource().x,GetSource().y,0.0f,0.0f);
-	float minX=0.0f,minY=0.0f,maxX=0.0f,maxY=0.0f;
-	for(auto &p:points){
-		minX=min(minX,p.x);
-		minY=min(minY,p.y);
-		maxX=max(maxX,p.x);
-		maxY=max(maxY,p.y);
-	}
-	return Rect{minX,minY,maxX-minX,maxY-minY}+GetSource();
+	return boundingRect+GetSource();
 }
 ConvexPolygon ConvexPolygon::AtOrigin()const{
 	ConvexPolygon pol=*this;
