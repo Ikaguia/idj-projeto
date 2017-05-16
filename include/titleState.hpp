@@ -8,8 +8,9 @@
 
 class TitleState: public State{
 	Sprite bg;
-	Text text;
 public:
+	set<GameObject*> *entities;
+
 	TitleState();
 	~TitleState();
 

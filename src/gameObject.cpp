@@ -1,9 +1,18 @@
 #include <gameObject.hpp>
 
-vector<GameObject*> GameObject::entities;
+set<GameObject*> *GameObject::entities=nullptr;
+
+set<GameObject*> GameObject::GetEntitiesInRange(const float &x1,const float &x2){
+	set<GameObject*> s;
+	for(GameObject *go:(*entities))if(go->box.x>=x1 && (go->box.x + go->box.w)<=x2)s.insert(go);
+	return s;
+}
 
 GameObject::GameObject(){
-	entities.push_back(this);
+	entities->insert(this);
+}
+GameObject::GameObject(const Rect &rec,float r):box{rec},rotation{r}{
+	entities->insert(this);
 }
 GameObject::~GameObject(){
 	FOR(i,Component::type::t_count)if(hasComponent[i])delete components[i];
@@ -14,9 +23,7 @@ void GameObject::Update(float time){
 }
 
 void GameObject::Render(){
-	//TODO: use this after making static and animated render components
-	// if(hasComponent[Component::type::t_static_render])  (*StaticRender)  Component[Component::type::t_static_render]  ->Render();
-	// if(hasComponent[Component::type::t_animated_render])(*AnimatedRender)Component[Component::type::t_animated_render]->Render();
+	FOR(i,Component::type::t_count)if(hasComponent[i])components[hasComponent[i]]->Render();
 }
 
 void GameObject::AddComponent(Component* component){
@@ -24,6 +31,7 @@ void GameObject::AddComponent(Component* component){
 	if(hasComponent[t])cout << "Error, adding component " << t << " to a GameObject that already has it" << endl;
 	hasComponent[t]=true;
 	components[t]=component;
+	component->entity=this;
 }
 
 void GameObject::ReplaceComponent(Component* component){
@@ -34,6 +42,7 @@ void GameObject::ReplaceComponent(Component* component){
 	}
 	else delete components[t];
 	components[t]=component;
+	component->entity=this;
 }
 
 void GameObject::RemoveComponent(Component::type t){

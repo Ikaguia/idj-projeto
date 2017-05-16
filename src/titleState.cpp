@@ -1,20 +1,16 @@
 #include <titleState.hpp>
 #include <game.hpp>
 #include <inputManager.hpp>
-#include <text.hpp>
+#include <componentText.hpp>
 
-TitleState::TitleState():State::State(),
-						bg{Sprite(RESOURCESFOLDER+"img/title.jpg")},
-						text{
-							Text(
-								RESOURCESFOLDER+"font/Call me maybe.ttf",
-								36,
-								Text::TextStyle::BLENDED,
-								"Press spacebar to continue...",
-								MakeColor(80,140,190)
-							)
-						}{
-	text.SetPos(520,500,true,true);
+TitleState::TitleState():State::State(),bg{Sprite("img/title.jpg")}{
+	GameObject::entities = entities = new set<GameObject*>;
+
+
+	GameObject* text = new GameObject{Rect{520,500,0,0}};
+	text->AddComponent(new CompText{"Press spacebar to continue...",36,MakeColor(150,150,255)});
+	GameObject::entities->insert(text);
+
 }
 TitleState::~TitleState(){}
 
@@ -25,10 +21,14 @@ void TitleState::Update(float time){
 }
 void TitleState::Render(){
 	bg.Render(0,0);
-	text.Render(0,0);
+	for(GameObject* go:(*GameObject::entities))go->Render();
 }
 
-void TitleState::Pause(){}
-void TitleState::Resume(){}
+void TitleState::Pause(){
+	GameObject::entities=nullptr;
+}
+void TitleState::Resume(){
+	GameObject::entities=entities;
+}
 
 void TitleState::LoadAssets(){}

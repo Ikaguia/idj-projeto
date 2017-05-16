@@ -22,8 +22,7 @@ private:
 
 	void RemakeTexture();
 public:
-
-	Text(string file,int fSize,TextStyle st,string txt,SDL_Color c=SDL_COLOR_WHITE,int x=0,int y=0);
+	Text(string txt,int fSize,SDL_Color c=SDL_COLOR_WHITE,TextStyle st=TextStyle::BLENDED,string file="font/Call me maybe.ttf",int x=0,int y=0);
 	~Text();
 
 	void Render(int cameraX=0,int cameraY=0);

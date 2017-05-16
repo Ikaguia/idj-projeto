@@ -7,6 +7,8 @@
 
 class GameObject;
 
+#define CAMERA Camera::pos
+
 class Camera{
 	static GameObject* focus;
 public:

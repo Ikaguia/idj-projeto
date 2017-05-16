@@ -2,7 +2,7 @@
 #include <resources.hpp>
 #include <game.hpp>
 
-Text::Text(string file,int fSize,TextStyle st,string txt,SDL_Color c,int x,int y):texture{nullptr},fontName{file}{
+Text::Text(string txt,int fSize,SDL_Color c,TextStyle st,string file,int x,int y):texture{nullptr},fontName{file}{
 	SetColor(c);
 	SetText(txt);
 	SetStyle(st);
