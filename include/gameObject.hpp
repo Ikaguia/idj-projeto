@@ -10,11 +10,9 @@ public:
 	bitset<Component::type::t_count> hasComponent;
 	array<Component*,Component::type::t_count> components;
 
-	static set<GameObject*> *entities;
-	static set<GameObject*> GetEntitiesInRange(const float &x1,const float &x2);
-
 	Rect box;
 	float rotation;
+	bool dead;
 
 	GameObject();
 	GameObject(const Rect &rec,float r=0);

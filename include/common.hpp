@@ -37,6 +37,7 @@ using std::min;
 using std::max;
 using std::next;
 using std::find;
+using std::function;
 
 using ii=pair<int,int>;
 

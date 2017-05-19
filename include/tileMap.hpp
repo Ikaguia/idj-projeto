@@ -7,6 +7,7 @@
 #include <geometry.hpp>
 
 class TileSet;
+class GameObject;
 
 class TileMap{
 	vector<int> tileMatrix;
@@ -15,8 +16,8 @@ class TileMap{
 	int mapHeight;
 	int mapDepth;
 public:
-	TileMap(string file,TileSet* ts);
-	void Load(string file);
+	TileMap(string file,TileSet* ts,set<unique_ptr<GameObject>> *entities);
+	void Load(string file,set<unique_ptr<GameObject>> *entities);
 	void SetTileSet(TileSet* ts);
 	int& At(int x,int y,int z);
 	int  At(int x,int y,int z) const;

@@ -1,29 +1,22 @@
 #include <gameObject.hpp>
+#include <game.hpp>
 
-set<GameObject*> *GameObject::entities=nullptr;
-
-set<GameObject*> GameObject::GetEntitiesInRange(const float &x1,const float &x2){
-	set<GameObject*> s;
-	for(GameObject *go:(*entities))if(go->box.x>=x1 && (go->box.x + go->box.w)<=x2)s.insert(go);
-	return s;
-}
-
-GameObject::GameObject(){
-	entities->insert(this);
-}
-GameObject::GameObject(const Rect &rec,float r):box{rec},rotation{r}{
-	entities->insert(this);
-}
+GameObject::GameObject(){}
+GameObject::GameObject(const Rect &rec,float r):box{rec},rotation{r},dead{false}{}
 GameObject::~GameObject(){
 	FOR(i,Component::type::t_count)if(hasComponent[i])delete components[i];
 }
 
 void GameObject::Update(float time){
-	FOR(i,Component::type::t_count)if(hasComponent[i])components[hasComponent[i]]->Update(time);
+	FOR(i,Component::type::t_count)if(hasComponent[i])components[i]->Update(time);
 }
 
 void GameObject::Render(){
-	FOR(i,Component::type::t_count)if(hasComponent[i])components[hasComponent[i]]->Render();
+	FOR(i,Component::type::t_count){
+		if(hasComponent[i]){
+			components[i]->Render();
+		}
+	}
 }
 
 void GameObject::AddComponent(Component* component){

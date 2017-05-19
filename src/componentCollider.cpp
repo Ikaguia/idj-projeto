@@ -1,6 +1,6 @@
 #include <componentCollider.hpp>
 #include <gameObject.hpp>
-//#include <game.hpp>
+#include <game.hpp>
 //#include <camera.hpp>
 //#include <inputManager.hpp>
 
@@ -40,7 +40,7 @@ Vec2 CompCollider::collides(const CompCollider *other,const Vec2 &move) const{
 
 
 void CompCollider::Update(float time){
-	set<GameObject*> entities = GameObject::GetEntitiesInRange(entity->box.x,entity->box.x+entity->box.w);
+	set<GameObject*> entities = GAMESTATE.GetEntitiesInRange(entity->box.x-10,entity->box.x+entity->box.w+10);
 	for(GameObject* go:entities)if(go->hasComponent[Component::type::t_collider])collisionCheck((CompCollider*)go->components[Component::type::t_collider]);
 }
 

@@ -9,13 +9,14 @@ class State{
 protected:
 	bool popRequested;
 	bool quitRequested;
-	vector<unique_ptr<GameObject>> objectArray;
-
-	vector<unique_ptr<Sound>> sounds;
 
 	virtual void UpdateArray(float time);
 	virtual void RenderArray();
 public:
+	set<unique_ptr<GameObject>> entities;
+	set<GameObject*> GetEntitiesInRange(const float &x1,const float &x2);
+
+
 	State();
 	virtual ~State(){}
 

@@ -1,12 +1,12 @@
 #include <common.hpp>
 
 #include <game.hpp>
-#include <titleState.hpp>
+#include <stateTitle.hpp>
 
-Game game(NOMEPROJETO,1024,600);
+Game game(NOMEPROJETO,1366,768);
 
 int main(){
-	GAMEINST.Push(new TitleState);
+	GAMEINST.Push(new StateTitle);
 	GAMEINST.Run();
 	return 0;
 }

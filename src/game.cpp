@@ -29,7 +29,7 @@ Game::Game(string title,int width,int height):frameStart{0},dt{0},winSize{(float
 		exit(EXIT_FAILURE);
 	}
 
-	window = SDL_CreateWindow(title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,width,height,0);
+	window = SDL_CreateWindow(title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,width,height,SDL_WINDOW_FULLSCREEN);
 	if(!window){
 		cout << "Erro ao instanciar janela da SDL, o programa ira encerrar agora" << endl;
 		exit(EXIT_FAILURE);
@@ -107,6 +107,7 @@ void Game::Run(){
 	if(storedState){
 		stateStack.push(unique_ptr<State>(storedState));
 		storedState=nullptr;
+		GetCurrentState().Resume();
 	}
 	while(stateStack.size() && !(GetCurrentState().QuitRequested())){
 		CalculateDeltaTime();
@@ -118,7 +119,6 @@ void Game::Run(){
 		if(GetCurrentState().PopRequested()){
 			GetCurrentState().Pause();
 			stateStack.pop();
-			GetCurrentState().Resume();
 			Resources::ClearImages();
 			Resources::ClearMusics();
 			Resources::ClearFonts();
@@ -127,8 +127,8 @@ void Game::Run(){
 		if(storedState){
 			GetCurrentState().Pause();
 			stateStack.push(unique_ptr<State>(storedState));
-			GetCurrentState().Resume();
 			storedState=nullptr;
+			GetCurrentState().Resume();
 		}
 
 		SDL_Delay(33);

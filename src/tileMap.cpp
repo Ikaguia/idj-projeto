@@ -2,15 +2,16 @@
 #include <tileSet.hpp>
 #include <gameObject.hpp>
 #include <componentCollider.hpp>
+#include <componentStaticRender.hpp>
 
-TileMap::TileMap(string file,TileSet* ts){
+TileMap::TileMap(string file,TileSet* ts,set<unique_ptr<GameObject>> *entities){
 	SetTileSet(ts);
-	Load(file);
+	Load(file,entities);
 }
 
 
-void TileMap::Load(string file){
-	int x;
+void TileMap::Load(string file,set<unique_ptr<GameObject>> *entities){
+	int x,y;
 	float f;
 	string line;
 	std::ifstream in;
@@ -38,17 +39,41 @@ void TileMap::Load(string file){
 	in.ignore(1);
 	int tileW=tileSet->GetWidth();
 	int tileH=tileSet->GetHeight();
+	map<ii,Rect> mp;
 	FOR(h,mapHeight){
 		FOR(w,mapWidth){
 			in >> x;
 			in.ignore(1);
 			if(x==1 || x==2){
-				GameObject *tile = new GameObject{Rect{(float)tileW*w,((float)tileH*h)+f,(float)w,(float)h}};
-				if(x==1)tile->AddComponent(new CompCollider{CompCollider::collType::t_ground});
-				else if(x==2)tile->AddComponent(new CompCollider{CompCollider::collType::t_h_ground});
-				GameObject::entities->insert(tile);
+				in >> y;
+				in.ignore(1);
+				if(!mp.count(ii{x,y}))mp[ii{x,y}]=Rect{(float)mapWidth+1,(float)mapHeight+1,(float)-1,(float)-1};//default vals to make min and max work
+				else{
+					mp[ii{x,y}].x=min(mp[ii{x,y}].x,(float)w);
+					mp[ii{x,y}].y=min(mp[ii{x,y}].y,(float)h);
+					mp[ii{x,y}].w=max(mp[ii{x,y}].w,(float)w);
+					mp[ii{x,y}].h=max(mp[ii{x,y}].h,(float)h);
+				}
 			}
 		}
+	}
+	for(auto &it:mp){
+		Rect r = it.second;
+		r.w-=r.x;
+		r.h-=r.y;
+		if(it.first.first==2){
+			r.y+=f;
+			r.h-=f;
+		}
+		r.x*=tileW;
+		r.w*=tileW;
+		r.y*=tileH;
+		r.h*=tileH;
+		GameObject *tile = new GameObject{r};
+		if(it.first.first==1 || it.first.first==2)tile->AddComponent(new CompCollider{CompCollider::collType::t_ground});
+		else if                (it.first.first==3)tile->AddComponent(new CompCollider{CompCollider::collType::t_h_ground});
+		tile->AddComponent(new CompStaticRender{Sprite{"img/point_yellow.jpg"},Vec2{0,0}});
+		entities->insert(unique_ptr<GameObject>(tile));
 	}
 	in.close();
 }

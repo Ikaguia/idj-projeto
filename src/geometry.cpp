@@ -111,7 +111,6 @@ std::ostream& operator<<(std::ostream& os, const Vec2& obj){
 
 
 
-Rect::Rect(){}
 Rect::Rect(const float &a,const float &b,const float &c,const float &d):x{a},y{b},w{c},h{d}{}
 Rect::Rect(const Rect &b):x{b.x},y{b.y},w{b.w},h{b.h}{}
 
@@ -194,6 +193,10 @@ bool Rect::collides(const Rect& b) const{
 	if(x+w<b.x)return false;
 	if(y+h<b.y)return false;
 	return true;
+}
+std::ostream& operator<<(std::ostream& os, const Rect& obj){
+	os << "(" << obj.x << "," << obj.y << "," << obj.w << "," << obj.h << ")";
+	return os;
 }
 
 

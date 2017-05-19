@@ -59,8 +59,7 @@ public:
 	float w;
 	float h;
 
-	Rect();
-	Rect(const float &a,const float &b,const float &c,const float &d);
+	Rect(const float &a=0,const float &b=0,const float &c=0,const float &d=0);
 	Rect(const Rect &b);
 
 	Rect operator= (const Rect& b);
@@ -86,6 +85,7 @@ public:
 
 	bool collides(const Rect& b) const;//retorna se o retangulo tem interseção com b
 };
+std::ostream& operator<<(std::ostream& os, const Rect& obj);
 
 class Circle{
 public:

@@ -16,6 +16,10 @@
 #define A_KEY SDLK_a
 #define S_KEY SDLK_s
 #define D_KEY SDLK_d
+#define KEY_W SDLK_w
+#define KEY_A SDLK_a
+#define KEY_S SDLK_s
+#define KEY_D SDLK_d
 #define LEFT_MOUSE_BUTTON SDL_BUTTON_LEFT
 #define RIGHT_MOUSE_BUTTON SDL_BUTTON_RIGHT
 

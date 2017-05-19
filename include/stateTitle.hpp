@@ -6,13 +6,12 @@
 #include <sprite.hpp>
 #include <text.hpp>
 
-class TitleState: public State{
+class StateTitle: public State{
 	Sprite bg;
 public:
-	set<GameObject*> *entities;
 
-	TitleState();
-	~TitleState();
+	StateTitle();
+	~StateTitle();
 
 	virtual void Update(float time);
 	virtual void Render();
