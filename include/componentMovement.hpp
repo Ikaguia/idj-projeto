@@ -10,7 +10,6 @@ class CompMovement : public Component{
 public:
 	//public members
 	Vec2 move;
-	Vec2 speed;
 
 	CompMovement();
 	~CompMovement();

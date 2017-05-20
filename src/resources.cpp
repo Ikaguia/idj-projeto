@@ -20,8 +20,9 @@ shared_ptr<SDL_Texture> Resources::GetImage(string file){
 	return imageTable[file] = shared_ptr<SDL_Texture>(texture,func);
 }
 void Resources::ClearImages(){
-	for(auto i:imageTable){
-		if(i.second.use_count()==1)imageTable.erase(i.first);
+	for(auto i=imageTable.begin();i!=imageTable.end();){
+		if(i->second.unique())i=imageTable.erase(i);
+		else i++;
 	}
 }
 
