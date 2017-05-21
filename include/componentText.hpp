@@ -3,8 +3,8 @@
 
 #include <common.hpp>
 #include <component.hpp>
-#include <text.hpp>
 #include <geometry.hpp>
+#include <text.hpp>
 
 class CompText : public Component{
 	Text txt;

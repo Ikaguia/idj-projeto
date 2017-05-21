@@ -2,16 +2,14 @@
 #define GAMEHPP
 
 #include <common.hpp>
-#include <state.hpp>
+
 #include <geometry.hpp>
+#include <state.hpp>
 
 #define GAMEINST Game::GetInstance()
 #define GAMESTATE GAMEINST.GetCurrentState()
 #define GAMERENDER GAMEINST.GetRenderer()
 #define WINSIZE GAMEINST.winSize
-
-class SDL_Window;
-class SDL_Renderer;
 
 class Game{
 	static Game* instance;

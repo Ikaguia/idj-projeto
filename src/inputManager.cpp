@@ -1,10 +1,14 @@
 #include <inputManager.hpp>
 
+int mouseX, mouseY;
+
 InputManager::InputManager():mouseUpdate{{0}},updateCounter{0},quitRequested{false}{}
 InputManager::~InputManager(){}
 
 void InputManager::Update(){
 	SDL_GetMouseState(&mouseX,&mouseY);
+	mouse.x = mouseX;
+	mouse.y = mouseY;
 	quitRequested=false;
 
 	SDL_Event event;
@@ -60,11 +64,15 @@ bool InputManager::IsMouseDown(int button){
 	return (mouseState[button]);
 }
 
+Vec2 InputManager::GetMouse() {
+	return mouse;
+}
+
 int InputManager::GetMouseX(){
-	return mouseX;
+	return mouse.x;
 }
 int InputManager::GetMouseY(){
-	return mouseY;
+	return mouse.y;
 }
 
 bool InputManager::QuitRequested(){

@@ -1,8 +1,6 @@
 #ifndef GEOMETRYHPP
 #define GEOMETRYHPP
 
-#include <cmath>
-
 #include <common.hpp>
 
 #define PI 3.141592653589793
@@ -75,6 +73,9 @@ public:
 
 	Vec2 corner() const;//retorna o canto do retangulo
 	Vec2 center() const;//retorna o centro do retangulo
+	
+	void setPos(const Vec2& b);
+	void setCenter(const Vec2& b); 
 
 	ConvexPolygon polygon(const float &r=0.0f) const;
 
@@ -85,7 +86,7 @@ public:
 
 	bool collides(const Rect& b) const;//retorna se o retangulo tem interseção com b
 };
-std::ostream& operator<<(std::ostream& os, const Rect& obj);
+ostream& operator<<(ostream& os, const Rect& obj);
 
 class Circle{
 public:

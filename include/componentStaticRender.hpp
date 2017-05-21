@@ -2,9 +2,10 @@
 #define COMPSTATICRENDERHPP
 
 #include <common.hpp>
+
 #include <component.hpp>
-#include <sprite.hpp>
 #include <geometry.hpp>
+#include <sprite.hpp>
 
 class CompStaticRender : public Component{
 	//private members

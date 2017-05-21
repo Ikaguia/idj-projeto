@@ -2,17 +2,16 @@
 #define TITLESTATEHPP
 
 #include <common.hpp>
-
-#include <sprite.hpp>
 #include <state.hpp>
+#include <sprite.hpp>
 #include <text.hpp>
 
-class StateTitle: public State{
+class TitleState: public State{
 	Sprite bg;
+	Text text;
 public:
-
-	StateTitle();
-	~StateTitle();
+	TitleState();
+	~TitleState();
 
 	virtual void Update(float time);
 	virtual void Render();

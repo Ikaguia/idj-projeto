@@ -1,9 +1,8 @@
 #ifndef TEXTHPP
 #define TEXTHPP
 
-#include <SDL2/SDL_ttf.h>
-
 #include <common.hpp>
+
 #include <geometry.hpp>
 
 class Text{
@@ -25,9 +24,10 @@ public:
 	Text(string txt,int fSize,SDL_Color c=SDL_COLOR_WHITE,TextStyle st=TextStyle::BLENDED,string file="font/Call me maybe.ttf",int x=0,int y=0);
 	~Text();
 
-	void Render(int cameraX=0,int cameraY=0);
+	void Render(Vec2 camera = {0,0});
 
 	void SetPos(int x,int y,bool centerX=false,bool centerY=false);
+	void SetPos(Vec2 v,bool centerX=false,bool centerY=false);
 
 	void SetText(string txt);
 	void SetColor(SDL_Color c);

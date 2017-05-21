@@ -1,9 +1,8 @@
 #ifndef TILEMAPHPP
 #define TILEMAPHPP
 
-#include <fstream>
-
 #include <common.hpp>
+
 #include <geometry.hpp>
 
 class TileSet;

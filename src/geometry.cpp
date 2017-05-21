@@ -157,6 +157,17 @@ Vec2 Rect::corner() const{
 Vec2 Rect::center() const{
 	return {x+(w/2),y+(h/2)};
 }
+
+void Rect::setPos(const Vec2& b) {
+	x = b.x;
+	y = b.y;
+}
+
+void Rect::setCenter(const Vec2& b) {
+	x = b.x-(w/2);
+	y = b.y-(h/2);
+}
+
 ConvexPolygon Rect::polygon(const float &r) const{
 	ConvexPolygon pol;
 	pol.AddPoint(Vec2{});

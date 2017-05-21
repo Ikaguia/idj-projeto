@@ -1,5 +1,5 @@
-#ifndef STATESTAGEHPP
-#define STATESTAGEHPP
+#ifndef STATEEDITORHPP
+#define STATEEDITORHPP
 
 #include <common.hpp>
 
@@ -10,7 +10,7 @@
 #include <tileMap.hpp>
 
 
-class StateStage: public State{
+class StateEditor: public State{
 	Sprite bg;
 
 	TileSet tileSet;
@@ -30,4 +30,4 @@ public:
 	virtual void LoadAssets();
 };
 
-#endif//STATESTAGEHPP
+#endif//STATEEDITORHPP

@@ -2,6 +2,7 @@
 #define TILESETHPP
 
 #include <common.hpp>
+
 #include <sprite.hpp>
 
 class TileSet{

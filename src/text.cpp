@@ -14,11 +14,11 @@ Text::~Text(){
 	if(texture)SDL_DestroyTexture(texture);
 }
 
-void Text::Render(int cameraX,int cameraY){
+void Text::Render(Vec2 camera){
 	if(texture){
 		SDL_Rect dest;
-		dest.x=box.x-cameraX;
-		dest.y=box.y-cameraY;
+		dest.x=box.x-camera.x;
+		dest.y=box.y-camera.y;
 		dest.w=box.w;
 		dest.h=box.h;
 		SDL_RenderCopy(GAMERENDER,texture,nullptr,&dest);
@@ -30,6 +30,10 @@ void Text::SetPos(int x,int y,bool centerX,bool centerY){
 	else box.x=x;
 	if(centerY)box.y=y-(box.h/2);
 	else box.y=y;
+}
+
+void Text::SetPos(Vec2 v, bool centerX, bool centerY) {
+	SetPos(v.x, v.y, centerX, centerY);
 }
 
 void Text::SetText(string txt){

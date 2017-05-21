@@ -1,10 +1,9 @@
 #ifndef INPUTMANAGERHPP
 #define INPUTMANAGERHPP
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-
 #include <common.hpp>
+
+#include <geometry.hpp>
 
 #define LEFT_ARROW_KEY SDLK_LEFT
 #define RIGHT_ARROW_KEY SDLK_RIGHT
@@ -12,6 +11,7 @@
 #define DOWN_ARROW_KEY SDLK_DOWN
 #define ESCAPE_KEY SDLK_ESCAPE
 #define SPACEBAR_KEY SDLK_SPACE
+#define KEY(x) SDLK_ ## x
 #define W_KEY SDLK_w
 #define A_KEY SDLK_a
 #define S_KEY SDLK_s
@@ -24,6 +24,7 @@
 #define RIGHT_MOUSE_BUTTON SDL_BUTTON_RIGHT
 
 #define INPUTMAN InputManager::GetInstance()
+#define MOUSE InputManager::GetMouse()
 
 class InputManager{
 	bitset<6> mouseState;//vetor de 6 booleanos //bitset ocupa o menor numero de bytes possivel(char para < 8 bits)
@@ -31,8 +32,7 @@ class InputManager{
 	unordered_map<int,bool> keyState;
 	unordered_map<int,int>  keyUpdate;
 	int updateCounter;
-	int mouseX;
-	int mouseY;
+	Vec2 mouse;
 
 	bool quitRequested;
 
@@ -49,6 +49,7 @@ public:
 	bool MouseRelease(int button);
 	bool IsMouseDown(int button);
 
+	Vec2 GetMouse();
 	int GetMouseX();
 	int GetMouseY();
 
