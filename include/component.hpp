@@ -18,7 +18,7 @@ public:
 		//t_particle_emmiter,
 		//t_ai,
 		//t_timer,
-		//t_life,
+		t_hp,
 		t_movement,
 		t_gravity,
 		t_count,

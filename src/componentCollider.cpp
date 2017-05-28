@@ -28,7 +28,7 @@ void CompCollider::collisionCheck(CompCollider *other){
  		Vec2 totX{totMove.x,0.0f};
 		Vec2 moveX=collides(other,totX,entity->box+move);
 		if(moveX != totX){
-			cout << "collisionX " << entity->box << " with " << other->entity->box << endl;
+			//cout << "collisionX " << entity->box << " with " << other->entity->box << endl;
 			speed.x=0.0f;
 		}
 		move.x=moveX.x;
@@ -36,7 +36,7 @@ void CompCollider::collisionCheck(CompCollider *other){
 		Vec2 totY{0.0f,totMove.y};
 		Vec2 moveY=collides(other,totY,entity->box+move);
 		if(moveY != totY){
-			cout << "collisionY " << entity->box << " with " << other->entity->box << endl;
+			//cout << "collisionY " << entity->box << " with " << other->entity->box << endl;
 			speed.y=0.0f;
 		}
 		move.y=moveY.y;

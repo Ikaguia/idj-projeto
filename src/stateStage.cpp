@@ -32,13 +32,14 @@ StateStage::StateStage(string fileTSet,string fileTMap,string fileBG):State::Sta
 
 		if(INPUTMAN.KeyPress(KEY_Z)){
 			cout << "firing arrow" << endl;
-			GameObject *arrow = new GameObject{{go->box.x+go->box.w+10,go->box.y,75,10}};
+			GameObject *arrow = new GameObject{{go->box.x-100,go->box.y,75,10}};
+			arrow->rotation=180.0f;
 			arrow->AddComponent(new CompStaticRender{Sprite{"img/arrow.png"},Vec2{}});
-			arrow->AddComponent(new CompMovement{1000.0f,CompMovement::moveType::t_bullet});
+			arrow->AddComponent(new CompMovement{-1000.0f,CompMovement::moveType::t_bullet});
 
 			CompCollider *collider = new CompCollider{CompCollider::collType::t_bullet};
 			collider->useDefault[CompCollider::collType::t_bullet] =
-				[](const CompCollider *a,const CompCollider *b){};
+				[](const CompCollider *a,const CompCollider *b){cout << "bullet to bullet collision" << endl;};
 			collider->useDefault[CompCollider::collType::t_any] =
 				[](const CompCollider *a,const CompCollider *b){
 					Vec2 &speed=((CompMovement*)a->entity->components[Component::type::t_movement])->speed;
@@ -49,6 +50,7 @@ StateStage::StateStage(string fileTSet,string fileTMap,string fileBG):State::Sta
 					Vec2 move=a->collides(b,totMove,a->entity->box+move);
 
 					if(move!=totMove){
+						cout << "bullet " << a->entity->box << " with " << b->entity->box << endl;
 						speed=Vec2{};
 						a->entity->RemoveComponent(Component::type::t_gravity);
 						a->entity->RemoveComponent(Component::type::t_collider);
