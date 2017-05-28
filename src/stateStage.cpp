@@ -33,10 +33,11 @@ StateStage::StateStage(string fileTSet,string fileTMap,string fileBG):State::Sta
 
 		if(INPUTMAN.KeyPress(KEY_Z)){
 			cout << "firing arrow" << endl;
-			GameObject *arrow = new GameObject{{go->box.x-100,go->box.y,75,10}};
-			arrow->rotation=180.0f;
+			GameObject *arrow = new GameObject{{go->box.x+go->box.w+10,go->box.y,75,10}};
 			arrow->AddComponent(new CompStaticRender{Sprite{"img/arrow.png"},Vec2{}});
-			arrow->AddComponent(new CompMovement{-1000.0f,CompMovement::moveType::t_bullet});
+			double x=1000 + (1000-rand()%2000)/10;
+			double y=       (1000-rand()%2000)/10;
+			arrow->AddComponent(new CompMovement{Vec2{x,y},CompMovement::moveType::t_bullet});
 
 			CompCollider *collider = new CompCollider{CompCollider::collType::t_bullet};
 			collider->useDefault[CompCollider::collType::t_bullet] =
@@ -52,9 +53,13 @@ StateStage::StateStage(string fileTSet,string fileTMap,string fileBG):State::Sta
 
 					if(move!=totMove){
 						cout << "bullet " << a->entity->box << " with " << b->entity->box << endl;
-						speed=Vec2{};
-						a->entity->RemoveComponent(Component::type::t_gravity);
-						a->entity->RemoveComponent(Component::type::t_collider);
+						//TODO: treat collision
+						a->entity->dead=true;
+
+						GameObject *arrow = new GameObject{a->entity->box + move + totMove/4.0f};
+						arrow->rotation=a->entity->rotation;
+						arrow->AddComponent(new CompStaticRender{Sprite{"img/arrow.png"},Vec2{}});
+						GAMESTATE.AddObject(arrow);
 					}
 				};
 			arrow->AddComponent(collider);
