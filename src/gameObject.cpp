@@ -1,5 +1,6 @@
 #include <gameObject.hpp>
 #include <game.hpp>
+#include <componentMovement.hpp>
 
 GameObject::GameObject(){}
 GameObject::GameObject(const Rect &rec,float r):box{rec},rotation{r},dead{false}{}
@@ -8,7 +9,14 @@ GameObject::~GameObject(){
 }
 
 void GameObject::Update(float time){
-	FOR(i,Component::type::t_count)if(hasComponent[i])components[i]->Update(time);
+	if(hasComponent[Component::type::t_input_control])components[Component::type::t_input_control]->Update(time);
+
+	if(hasComponent[Component::type::t_movement]){
+		CompMovement *compM = (CompMovement*) components[Component::type::t_movement];
+		compM->move=compM->speed*time;
+	}
+
+	FOR2(i,Component::type::t_collider,Component::type::t_count)if(hasComponent[i])components[i]->Update(time);
 }
 
 void GameObject::Render(){

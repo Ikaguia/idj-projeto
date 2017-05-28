@@ -4,7 +4,10 @@ State::State():popRequested{false},quitRequested{false}{}
 
 set<GameObject*> State::GetEntitiesInRange(const float &x1,const float &x2){
 	set<GameObject*> s;
-	for(auto &go:entities)if(go->box.x>=x1 && (go->box.x + go->box.w)<=x2)s.insert(go.get());
+	for(auto &go:entities){
+		Rect &box = go->box;
+		if(box.x<=x2 || box.x+box.w>=x1)s.insert(go.get());
+	}
 	return s;
 }
 void State::AddObject(GameObject* obj){

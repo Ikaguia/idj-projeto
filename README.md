@@ -1,2 +1,2 @@
-# idj-pinguim
-Introducao ao Desenv de jogos, T1 a T7
+# idj-projeto
+Introducao ao Desenv de jogos

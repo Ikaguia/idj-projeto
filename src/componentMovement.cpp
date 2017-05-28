@@ -4,11 +4,12 @@
 //#include <camera.hpp>
 //#include <inputManager.hpp>
 
-CompMovement::CompMovement(){}
+CompMovement::CompMovement(const Vec2& s,moveType t):mType{t},speed{s}{}
 CompMovement::~CompMovement(){}
 
 void CompMovement::Update(float time){
 	entity->box+=move;
+	if(mType==moveType::t_bullet)entity->rotation=speed.angle();
 }
 
 void CompMovement::Render(){}

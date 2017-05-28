@@ -16,7 +16,7 @@ public:
 	//static members
 	static set<CompCollider*> colliders;
 	//members
-	enum collType{t_ground,t_h_ground,t_player,t_bullet,t_count};
+	enum collType{t_any,t_ground,t_h_ground,t_player,t_bullet,t_count};
 	collType cType;
 	map<collType,colliderFunc> useDefault;//use custom collision handler against colliders of _type
 	//constructor/destructor
@@ -25,6 +25,7 @@ public:
 	//functions
 	void collisionCheck(CompCollider *other);
 	Vec2 collides(const CompCollider *other,const Vec2 &move) const;
+	Vec2 collides(const CompCollider *other,const Vec2 &move,const Rect &box) const;
 
 	virtual void Update(float time);
 	virtual void Render();

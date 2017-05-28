@@ -59,8 +59,8 @@ void TileMap::Load(string file,set<unique_ptr<GameObject>> *entities){
 	}
 	for(auto &it:mp){
 		Rect r = it.second;
-		r.w-=r.x;
-		r.h-=r.y;
+		r.w-=r.x;r.w++;
+		r.h-=r.y;r.h++;
 		if(it.first.first==2){
 			r.y+=f;
 			r.h-=f;
@@ -74,6 +74,7 @@ void TileMap::Load(string file,set<unique_ptr<GameObject>> *entities){
 		else if                (it.first.first==3)tile->AddComponent(new CompCollider{CompCollider::collType::t_h_ground});
 		tile->AddComponent(new CompStaticRender{Sprite{"img/point_yellow.jpg"},Vec2{0,0}});
 		entities->insert(unique_ptr<GameObject>(tile));
+		cout << "new rect at " << r << endl;
 	}
 	in.close();
 }

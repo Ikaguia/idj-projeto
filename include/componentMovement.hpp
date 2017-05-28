@@ -9,9 +9,14 @@ class CompMovement : public Component{
 	//private members
 public:
 	//public members
+	enum moveType{t_horizontal,t_bullet,t_count};
+
+	moveType mType;
+
+	Vec2 speed;
 	Vec2 move;
 
-	CompMovement();
+	CompMovement(const Vec2& s=Vec2{},moveType t=t_horizontal);
 	~CompMovement();
 
 	virtual void Update(float time);

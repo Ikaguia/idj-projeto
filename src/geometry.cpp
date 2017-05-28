@@ -188,10 +188,16 @@ bool Rect::contains(const Vec2& b) const{
 	return true;
 }
 bool Rect::collides(const Rect& b) const{
-	if(x>b.x+b.w)return false;
-	if(y>b.y+b.h)return false;
-	if(x+w<b.x)return false;
-	if(y+h<b.y)return false;
+	// if(BETWEEN(x,b.x,b.x+b.w))return true;
+	// if(BETWEEN(b.x,x,x+w))return true;
+	// if(BETWEEN(y,b.y,b.y+b.h))return true;
+	// if(BETWEEN(b.y,y,y+h))return true;
+	// return false;
+
+	if(x>(b.x+b.w))return false;
+	if(y>(b.y+b.h))return false;
+	if((x+w)<b.x)return false;
+	if((y+h)<b.y)return false;
 	return true;
 }
 std::ostream& operator<<(std::ostream& os, const Rect& obj){
