@@ -11,6 +11,7 @@
 #include <componentMovement.hpp>
 #include <componentCollider.hpp>
 #include <componentGravity.hpp>
+#include <componentHP.hpp>
 
 StateStage::StateStage(string fileTSet,string fileTMap,string fileBG):State::State(),
 						bg{Sprite(fileBG)},
@@ -67,6 +68,7 @@ StateStage::StateStage(string fileTSet,string fileTMap,string fileBG):State::Sta
 	player->AddComponent(new CompMovement{});
 	player->AddComponent(new CompCollider{CompCollider::collType::t_player});
 	player->AddComponent(new CompGravity{2500.0f});
+	player->AddComponent(new CompHP{});
 	AddObject(player);
 }
 

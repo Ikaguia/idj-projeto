@@ -13,6 +13,7 @@ void CompHP::Update(float time){
 }
 void CompHP::Render(){
 	Rect box{0,entity->box.w/5.0f + entity->box.w/10.0f,entity->box.w/5.0f,entity->box.h};
+	box+=entity->box.corner();
 	//TODO: draw hp bar
 }
 Component::type CompHP::GetType()const{
