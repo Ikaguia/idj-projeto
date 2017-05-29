@@ -22,6 +22,8 @@ public:
 	Vec2(const float &a=0.0f,const float &b=0.0f);
 	Vec2(const Vec2 &b);
 
+	static Vec2 makeVec2(const float &len,const float &ang);
+
 	Vec2 operator= (const Vec2& b);
 	Vec2 operator+ (const Vec2& b)const;
 	void operator+=(const Vec2& b);

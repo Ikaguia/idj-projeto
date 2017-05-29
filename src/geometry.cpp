@@ -4,6 +4,12 @@ Vec2::Vec2(const float &a,const float &b):x{a},y{b}{}
 Vec2::Vec2(const Vec2 &b):x{b.x},y{b.y}{}
 
 
+Vec2 Vec2::makeVec2(const float &len,const float &ang){
+	Vec2 v{len,0.0f};
+	return v.rotate(ang);
+}
+
+
 Vec2 Vec2::operator=(const Vec2& b){
 	x=b.x;
 	y=b.y;

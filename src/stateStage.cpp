@@ -33,11 +33,11 @@ StateStage::StateStage(string fileTSet,string fileTMap,string fileBG):State::Sta
 
 		if(INPUTMAN.KeyPress(KEY_Z)){
 			cout << "firing arrow" << endl;
-			GameObject *arrow = new GameObject{{go->box.x+go->box.w+10,go->box.y,75,10}};
+			GameObject *arrow = new GameObject{{go->box.x+go->box.w+20,go->box.y,75,10}};
 			arrow->AddComponent(new CompStaticRender{Sprite{"img/arrow.png"},Vec2{}});
-			double x=1000 + (1000-rand()%2000)/10;
-			double y=       (1000-rand()%2000)/10;
-			arrow->AddComponent(new CompMovement{Vec2{x,y},CompMovement::moveType::t_bullet});
+			float strenght=1000 + (1000-rand()%2000)/10.0f;
+			float angle=          (1000-rand()%2000)/100.0f;
+			arrow->AddComponent(new CompMovement{Vec2::makeVec2(strenght,angle),CompMovement::moveType::t_bullet});
 
 			CompCollider *collider = new CompCollider{CompCollider::collType::t_bullet};
 			collider->useDefault[CompCollider::collType::t_bullet] =
