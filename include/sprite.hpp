@@ -12,8 +12,8 @@ class Sprite{
 	SDL_Rect clipRect;
 	float scaleX;
 	float scaleY;
-	bool flipX;
-	bool flipY;
+	bool flipH;
+	bool flipV;
 
 	int frameCount;
 	int currentFrame;
@@ -26,8 +26,8 @@ public:
 
 	void Open(string file,int fCount=1,float fTime=1.0f);
 	void SetClip(int x,int y,int w,int h);
-	void Render(int x,int y,float angle=0.0f);
-	void Render(Vec2 v, float angle=0.0f);
+	void Render(int x,int y,float angle=0.0f, float extScale = 1.0f);
+	void Render(Vec2 v, float angle=0.0f, float extScale = 1.0f);//extScale = External Scale. Example: camera zoom
 
 	void Update(float time);
 	void SetFrame(int frame);
@@ -39,14 +39,18 @@ public:
 
 	bool IsOpen();
 
-	void SetScale(float scale);
+	void SetScale(float scale); //Set both scales
 	void SetScaleX(float scale);
 	void SetScaleY(float scale);
+	void SetScaleToFit(float w, float h);//Set both scales to fit within the dimensions without affecting the aspect ratio
+	void SetScaleToFit(Vec2 v);
+	void StretchToFit(float w, float h);//Set both scales to fit within the dimensions affecting the aspect ratio
+	void StretchToFit(Vec2 v);
 	
-	void FlipX();
-	void FlipY();
-	void SetFlipX(bool f);
-	void SetFlipY(bool f);
+	void FlipH();
+	void FlipV();
+	void SetFlipH(bool f);
+	void SetFlipV(bool f);
 };
 
 #endif//SPRITEHPP

@@ -2,7 +2,7 @@
 #include <game.hpp>
 
 GameObject::GameObject(){}
-GameObject::GameObject(const Rect &rec,float r):box{rec},rotation{r},dead{false}{}
+GameObject::GameObject(const Rect &rec,float r,bool a):box{rec},rotation{r},anchored{a},dead{false}{}
 GameObject::~GameObject(){
 	FOR(i,Component::type::t_count)if(hasComponent[i])delete components[i];
 }

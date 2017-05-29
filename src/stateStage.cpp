@@ -1,6 +1,7 @@
-#include <memory>
-
 #include <stateStage.hpp>
+
+#include <common.hpp>
+
 #include <camera.hpp>
 #include <resources.hpp>
 #include <music.hpp>
@@ -10,10 +11,7 @@
 #include <componentMovement.hpp>
 #include <componentCollider.hpp>
 
-StateStage::StateStage(string fileTSet,string fileTMap,string fileBG):State::State(),
-						bg{Sprite(fileBG)},
-						tileSet{TileSet(64,64,fileTSet)},
-						tileMap{TileMap(fileTMap,&tileSet,&entities)}{
+StateStage::StateStage(string lvl):State::State(), level{Level(lvl)}{
 	LoadAssets();
 
 	player = new GameObject{Rect{100.0f,100.0f,150.0f,250.0f}};
@@ -41,8 +39,8 @@ void StateStage::Update(float time){
 	UpdateArray(time);
 }
 void StateStage::Render(){
-	bg.Render(0,0);
-	tileMap.Render(CAMERA.x,CAMERA.y);
+	level.background.Render(0, 0);
+	level.tileMap.Render();
 	RenderArray();
 }
 

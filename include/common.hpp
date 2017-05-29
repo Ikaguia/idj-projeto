@@ -12,6 +12,7 @@
 #include <memory>
 #include <queue>
 #include <set>
+#include <sstream>
 #include <stack>
 #include <string>
 #include <unordered_map>
@@ -25,21 +26,29 @@
 
 using std::array;
 using std::bitset;
+using std::ceil;
 using std::cout;
 using std::endl;
 using std::find;
+using std::floor;
 using std::function;
+using std::getline;
+using std::ifstream;
 using std::map;
 using std::max;
 using std::min;
 using std::next;
+using std::ofstream;
 using std::ostream;
 using std::pair;
 using std::queue;
+using std::round;
 using std::set;
 using std::shared_ptr;
 using std::stack;
 using std::string;
+using std::stringstream;
+using std::to_string;
 using std::unique_ptr;
 using std::unordered_map;
 using std::vector;
@@ -70,8 +79,12 @@ using ii=pair<int,int>;
 
 #define NOMEPROJETO "IDJ - Projeto"
 
+typedef enum {TOP_LEFT,TOP,TOP_RIGHT,LEFT,CENTER,RIGHT,BOTTOM_LEFT,BOTTOM,BOTTOM_RIGHT} Hotspot; 
+
 SDL_Color MakeColor(int r,int g,int b,int a=255);
 
 bool equals(const float &a,const float &b);
+
+string FloatToStr(float f);
 
 #endif//COMMONHPP

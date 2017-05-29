@@ -3,22 +3,17 @@
 
 #include <common.hpp>
 
+#include <level.hpp>
 #include <music.hpp>
-#include <sprite.hpp>
 #include <state.hpp>
-#include <tileSet.hpp>
-#include <tileMap.hpp>
 
 
 class StateStage: public State{
-	Sprite bg;
-
-	TileSet tileSet;
-	TileMap tileMap;
+	Level level;
 
 	GameObject* player;
 public:
-	StateStage(string fileTSet,string fileTMap,string fileBG);
+	StateStage(string lvl);
 	~StateStage();
 
 	virtual void Update(float time);

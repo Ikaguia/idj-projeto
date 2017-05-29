@@ -13,10 +13,11 @@ public:
 
 	Rect box;
 	float rotation;
+	bool anchored;
 	bool dead;
 
 	GameObject();
-	GameObject(const Rect &rec,float r=0);
+	GameObject(const Rect &rec,float r=0, bool a=false);
 	~GameObject();
 
 	void Update(float time);

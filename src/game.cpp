@@ -104,6 +104,9 @@ void Game::Push(State* state){
 }
 
 void Game::Run(){
+	//SDL_Rect r;
+	//SDL_GetDisplayBounds(0, &r);
+	//cout<<r.x<<endl<<r.y<<endl<<r.w<<endl<<r.h<<endl;
 	if(storedState){
 		stateStack.push(unique_ptr<State>(storedState));
 		storedState=nullptr;
@@ -112,6 +115,7 @@ void Game::Run(){
 	while(stateStack.size() && !(GetCurrentState().QuitRequested())){
 		CalculateDeltaTime();
 		INPUTMAN.Update();
+		//if(INPUTMAN.KeyPress(KEY_F(11))) SwitchWindowMode();
 		GetCurrentState().Update(GetDeltaTime());
 		GetCurrentState().Render();
 		SDL_RenderPresent(renderer);
@@ -140,10 +144,11 @@ float Game::GetDeltaTime(){
 	return dt;
 }
 
-
-
 void Game::CalculateDeltaTime(){
 	int time = SDL_GetTicks();
 	dt = (time - (frameStart))/1000.0f;
 	frameStart = time;
+}
+
+void Game::SwitchWindowMode() {
 }

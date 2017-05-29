@@ -13,8 +13,9 @@ public:
 	//public members
 	Sprite sp;
 	Vec2 pos;
+	bool camScaling;
 
-	CompStaticRender(const Sprite &sp,const Vec2 &p);
+	CompStaticRender(const Sprite &sp,const Vec2 &p, const bool cs = true);
 	~CompStaticRender();
 
 	virtual void Update(float time);

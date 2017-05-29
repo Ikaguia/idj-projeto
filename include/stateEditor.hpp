@@ -3,23 +3,21 @@
 
 #include <common.hpp>
 
-#include <music.hpp>
-#include <sprite.hpp>
+#include <level.hpp>
 #include <state.hpp>
-#include <tileSet.hpp>
-#include <tileMap.hpp>
-
+#include <text.hpp>
 
 class StateEditor: public State{
-	Sprite bg;
-
-	TileSet tileSet;
-	TileMap tileMap;
-
-	GameObject* player;
+	Level level;
+	
+	int tileIndex;
+	bool showGrid;
+	bool showHelp;
+	Text helpText;
+	Text statusText;
 public:
-	StateStage(string fileTSet,string fileTMap,string fileBG);
-	~StateStage();
+	StateEditor();
+	~StateEditor();
 
 	virtual void Update(float time);
 	virtual void Render();
@@ -28,6 +26,13 @@ public:
 	virtual void Resume();
 
 	virtual void LoadAssets();
+	
+	void RenderBackground();
+	void RenderGrid(int x, int y, int w, int h);
+	void RenderBorder();
+	void RenderCursor();
+	
+	Vec2 GetCurrentTile();
 };
 
 #endif//STATEEDITORHPP

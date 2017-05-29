@@ -24,7 +24,7 @@ class Game{
 
 	void CalculateDeltaTime();
 public:
-	const Vec2 winSize;
+	Vec2 winSize;
 
 	Game(string title,int width,int height);
 	~Game();
@@ -38,6 +38,8 @@ public:
 	void Run();
 
 	float GetDeltaTime();
+	
+	void SwitchWindowMode();
 };
 
 #endif//GAMEHPP

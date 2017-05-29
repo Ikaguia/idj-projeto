@@ -11,8 +11,8 @@ class CompText : public Component{
 	Vec2 pos;
 public:
 	//public members
-	CompText(const Text &t,Vec2 p=Vec2{});
-	CompText(string text,int size,SDL_Color c=SDL_COLOR_WHITE,Vec2 p=Vec2{});
+	CompText(const Text &t, Hotspot h=Hotspot::TOP_LEFT, Vec2 p=Vec2{});
+	CompText(string text,int size,SDL_Color c=SDL_COLOR_WHITE, Hotspot h=Hotspot::TOP_LEFT, Vec2 p=Vec2{});
 	~CompText();
 
 	virtual void Update(float time);

@@ -11,6 +11,7 @@
 #define DOWN_ARROW_KEY SDLK_DOWN
 #define ESCAPE_KEY SDLK_ESCAPE
 #define SPACEBAR_KEY SDLK_SPACE
+#define KEY_F(x) SDLK_F ## x
 #define KEY(x) SDLK_ ## x
 #define W_KEY SDLK_w
 #define A_KEY SDLK_a
@@ -20,6 +21,7 @@
 #define KEY_A SDLK_a
 #define KEY_S SDLK_s
 #define KEY_D SDLK_d
+
 #define LEFT_MOUSE_BUTTON SDL_BUTTON_LEFT
 #define RIGHT_MOUSE_BUTTON SDL_BUTTON_RIGHT
 

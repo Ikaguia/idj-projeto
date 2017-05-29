@@ -13,3 +13,9 @@ SDL_Color MakeColor(int r,int g,int b,int a){
 bool equals(const float &a,const float &b){
 	return (std::fabs((a-b))<=PRECISION);
 }
+
+string FloatToStr(float f) {
+	char s[15];
+	sprintf(s,"%.2f",f);
+	return s;
+}	
