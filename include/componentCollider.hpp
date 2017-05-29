@@ -1,9 +1,8 @@
 #ifndef COMPONENTCOLLIDERHPP
 #define COMPONENTCOLLIDERHPP
 
-#include <functional>
-
 #include <common.hpp>
+
 #include <component.hpp>
 #include <tileMap.hpp>
 

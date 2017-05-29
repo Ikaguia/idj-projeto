@@ -1,6 +1,7 @@
-#include <memory>
-
 #include <stateStage.hpp>
+
+#include <common.hpp>
+
 #include <camera.hpp>
 #include <resources.hpp>
 #include <music.hpp>
@@ -13,10 +14,7 @@
 #include <componentGravity.hpp>
 #include <componentHP.hpp>
 
-StateStage::StateStage(string fileTSet,string fileTMap,string fileBG):State::State(),
-						bg{Sprite(fileBG)},
-						tileSet{TileSet(64,64,fileTSet)},
-						tileMap{TileMap(fileTMap,&tileSet,&entities)}{
+StateStage::StateStage(string lvl):State::State(), level{Level(lvl)}{
 	LoadAssets();
 
 	player = new GameObject{Rect{130.0f,130.0f,150.0f,250.0f}};
@@ -24,14 +22,14 @@ StateStage::StateStage(string fileTSet,string fileTMap,string fileBG):State::Sta
 		//TODO change this after adding gravity
 		Vec2 &speed = ((CompMovement*)go->components[Component::type::t_movement])->speed;
 
-		if     (INPUTMAN.KeyPress(KEY_W))speed.y=-1500.0f;
-		if     (INPUTMAN.IsKeyDown(KEY_A) && !INPUTMAN.IsKeyDown(KEY_D))speed.x=max(-400.0f,speed.x-800*time);
-		else if(INPUTMAN.IsKeyDown(KEY_D) && !INPUTMAN.IsKeyDown(KEY_A))speed.x=min( 400.0f,speed.x+800*time);
+		if     (INPUTMAN.KeyPress(KEY(w)))speed.y=-1500.0f;
+		if     (INPUTMAN.IsKeyDown(KEY(a)) && !INPUTMAN.IsKeyDown(KEY(d)))speed.x=max(-400.0f,speed.x-800*time);
+		else if(INPUTMAN.IsKeyDown(KEY(d)) && !INPUTMAN.IsKeyDown(KEY(a)))speed.x=min( 400.0f,speed.x+800*time);
 		else if(speed.x>0.0f)speed.x=max(0.0f,speed.x-800*time);
 		else if(speed.x<0.0f)speed.x=min(0.0f,speed.x+800*time);
 	
 
-		if(INPUTMAN.KeyPress(KEY_Z)){
+		if(INPUTMAN.KeyPress(KEY(z))){
 			cout << "firing arrow" << endl;
 			GameObject *arrow = new GameObject{{go->box.x+go->box.w+20,go->box.y,75,10}};
 			arrow->AddComponent(new CompStaticRender{Sprite{"img/arrow.png"},Vec2{}});
@@ -82,12 +80,12 @@ StateStage::~StateStage(){}
 void StateStage::Update(float time){
 	Camera::Update(time);
 	if(INPUTMAN.QuitRequested())quitRequested=true;
-	if(INPUTMAN.KeyPress(ESCAPE_KEY))popRequested=true;
+	if(INPUTMAN.KeyPress(KEY_ESC))popRequested=true;
 	UpdateArray(time);
 }
 void StateStage::Render(){
-	bg.Render(0,0);
-	tileMap.Render(CAMERA.x,CAMERA.y);
+	level.background.Render(0, 0);
+	level.tileMap.Render();
 	RenderArray();
 }
 

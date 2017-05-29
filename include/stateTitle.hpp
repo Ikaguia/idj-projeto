@@ -2,8 +2,9 @@
 #define TITLESTATEHPP
 
 #include <common.hpp>
-#include <state.hpp>
+
 #include <sprite.hpp>
+#include <state.hpp>
 #include <text.hpp>
 
 class StateTitle: public State{

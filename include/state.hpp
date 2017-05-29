@@ -2,6 +2,7 @@
 #define STATEHPP
 
 #include <common.hpp>
+
 #include <gameObject.hpp>
 #include <sound.hpp>
 

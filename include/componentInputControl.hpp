@@ -2,6 +2,7 @@
 #define COMPONENTINPUTCONTROLHPP
 
 #include <common.hpp>
+
 #include <component.hpp>
 
 class GameObject;

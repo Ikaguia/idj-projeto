@@ -1,10 +1,11 @@
 #ifndef TILEMAPHPP
 #define TILEMAPHPP
 
-#include <fstream>
-
 #include <common.hpp>
+
 #include <geometry.hpp>
+
+#define EMPTY_TILE -1
 
 class TileSet;
 class GameObject;
@@ -16,16 +17,26 @@ class TileMap{
 	int mapHeight;
 	int mapDepth;
 public:
-	TileMap(string file,TileSet* ts,set<unique_ptr<GameObject>> *entities);
-	void Load(string file,set<unique_ptr<GameObject>> *entities);
+	TileMap(int width, int height, TileSet* ts);
+	TileMap(string file,TileSet* ts, set<unique_ptr<GameObject>> *entities);
+	
+	void Load(ifstream& in);
+	void Save(ofstream& out);
+	
 	void SetTileSet(TileSet* ts);
+	
 	int& At(int x,int y,int z);
 	int  At(int x,int y,int z) const;
-	void Render(int cameraX=0,int cameraY=0) const;
-	void RenderLayer(int layer,int cameraX=0,int cameraY=0) const;
+	
+	void Render(Vec2 pos = {0,0});
+	void RenderLayer(int layer,int posX=0,int posY=0);
+	
 	int GetWidth() const;
 	int GetHeight() const;
 	int GetDepth() const;
+	void SetWidth(const int& w);
+	void SetHeight(const int& h);
+	void SetDepth(const int& d);
 };
 
 #endif//TILEMAPHPP

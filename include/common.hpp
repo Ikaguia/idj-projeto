@@ -1,43 +1,57 @@
 #ifndef COMMONHPP
 #define COMMONHPP
 
+#include <algorithm>
 #include <array>
 #include <bitset>
-#include <vector>
-#include <string>
+#include <cmath>
+#include <fstream>
+#include <functional>
+#include <iostream>
+#include <map>
+#include <memory>
 #include <queue>
 #include <set>
-#include <map>
-#include <unordered_map>
+#include <sstream>
 #include <stack>
+#include <string>
+#include <unordered_map>
 #include <utility>
-#include <memory>
-#include <iostream>
-#include <cmath>
-#include <algorithm>
+#include <vector>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
 
 using std::array;
 using std::bitset;
-using std::vector;
-using std::string;
-using std::queue;
-using std::set;
-using std::map;
-using std::unordered_map;
-using std::stack;
-using std::pair;
-using std::unique_ptr;
-using std::shared_ptr;
+using std::ceil;
 using std::cout;
 using std::endl;
-using std::min;
-using std::max;
-using std::next;
 using std::find;
+using std::floor;
 using std::function;
+using std::getline;
+using std::ifstream;
+using std::map;
+using std::max;
+using std::min;
+using std::next;
+using std::ofstream;
+using std::ostream;
+using std::pair;
+using std::queue;
+using std::round;
+using std::set;
+using std::shared_ptr;
+using std::stack;
+using std::string;
+using std::stringstream;
+using std::to_string;
+using std::unique_ptr;
+using std::unordered_map;
+using std::vector;
 
 using ii=pair<int,int>;
 
@@ -65,8 +79,12 @@ using ii=pair<int,int>;
 
 #define NOMEPROJETO "IDJ - Projeto"
 
+typedef enum {TOP_LEFT,TOP,TOP_RIGHT,LEFT,CENTER,RIGHT,BOTTOM_LEFT,BOTTOM,BOTTOM_RIGHT} Hotspot; 
+
 SDL_Color MakeColor(int r,int g,int b,int a=255);
 
 bool equals(const float &a,const float &b);
+
+string FloatToStr(float f);
 
 #endif//COMMONHPP

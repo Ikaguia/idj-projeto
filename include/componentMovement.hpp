@@ -2,6 +2,7 @@
 #define COMPONENTMOVEMENTHPP
 
 #include <common.hpp>
+
 #include <component.hpp>
 #include <geometry.hpp>
 

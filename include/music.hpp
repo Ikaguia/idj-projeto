@@ -1,8 +1,6 @@
 #ifndef MUSICHPP
 #define MUSICHPP
 
-#include <SDL2/SDL_mixer.h>
-
 #include <common.hpp>
 
 class Music{

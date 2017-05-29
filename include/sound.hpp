@@ -1,8 +1,6 @@
 #ifndef SOUNDHPP
 #define SOUNDHPP
 
-#include <SDL2/SDL_mixer.h>
-
 #include <common.hpp>
 
 class Sound{

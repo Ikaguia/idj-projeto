@@ -1,30 +1,26 @@
 #ifndef INPUTMANAGERHPP
 #define INPUTMANAGERHPP
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-
 #include <common.hpp>
 
-#define LEFT_ARROW_KEY SDLK_LEFT
-#define RIGHT_ARROW_KEY SDLK_RIGHT
-#define UP_ARROW_KEY SDLK_UP
-#define DOWN_ARROW_KEY SDLK_DOWN
-#define ESCAPE_KEY SDLK_ESCAPE
-#define SPACEBAR_KEY SDLK_SPACE
-#define W_KEY SDLK_w
-#define A_KEY SDLK_a
-#define S_KEY SDLK_s
-#define D_KEY SDLK_d
-#define KEY_W SDLK_w
-#define KEY_A SDLK_a
-#define KEY_S SDLK_s
-#define KEY_D SDLK_d
-#define KEY_Z SDLK_z
-#define LEFT_MOUSE_BUTTON SDL_BUTTON_LEFT
-#define RIGHT_MOUSE_BUTTON SDL_BUTTON_RIGHT
+#include <geometry.hpp>
+
+#define KEY_LEFT		SDLK_LEFT
+#define KEY_RIGHT		SDLK_RIGHT
+#define KEY_UP			SDLK_UP
+#define KEY_DOWN		SDLK_DOWN
+#define KEY_ESC			SDLK_ESCAPE
+#define KEY_SPACE		SDLK_SPACE
+
+#define KEY_F(x)		SDLK_F ## x
+#define KEY(x)			SDLK_ ## x
+
+#define MBUTTON_LEFT	SDL_BUTTON_LEFT
+#define MBUTTON_RIGHT 	SDL_BUTTON_RIGHT
+// #define MBUTTON_MIDDLE 	SDL_BUTTON_MIDDLE
 
 #define INPUTMAN InputManager::GetInstance()
+#define MOUSE INPUTMAN.GetMouse()
 
 class InputManager{
 	bitset<6> mouseState;//vetor de 6 booleanos //bitset ocupa o menor numero de bytes possivel(char para < 8 bits)
@@ -32,8 +28,7 @@ class InputManager{
 	unordered_map<int,bool> keyState;
 	unordered_map<int,int>  keyUpdate;
 	int updateCounter;
-	int mouseX;
-	int mouseY;
+	Vec2 mouse;
 
 	bool quitRequested;
 
@@ -50,6 +45,7 @@ public:
 	bool MouseRelease(int button);
 	bool IsMouseDown(int button);
 
+	Vec2 GetMouse();
 	int GetMouseX();
 	int GetMouseY();
 

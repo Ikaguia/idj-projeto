@@ -2,9 +2,10 @@
 #define COMPSTATICRENDERHPP
 
 #include <common.hpp>
+
 #include <component.hpp>
-#include <sprite.hpp>
 #include <geometry.hpp>
+#include <sprite.hpp>
 
 class CompStaticRender : public Component{
 	//private members
@@ -12,8 +13,9 @@ public:
 	//public members
 	Sprite sp;
 	Vec2 pos;
+	bool camScaling;
 
-	CompStaticRender(const Sprite &sp,const Vec2 &p);
+	CompStaticRender(const Sprite &sp,const Vec2 &p, const bool cs = true);
 	~CompStaticRender();
 
 	virtual void Update(float time);
