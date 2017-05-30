@@ -35,6 +35,14 @@ public:
 	void UnAttach();
 
 	bool IsDead()const;
+
+
+	static GameObject* MakePlayer(const Vec2 &pos);
+	//static GameObject* MakeTarget(const Vec2 &pos);
+	static GameObject* MakeBullet(const Vec2 &pos,string image,float force,float angle=0.0f,bool stick=true);
+	//static GameObject* Make...(const Vec2 &pos);
 };
+
+
 
 #endif//GAMEOBJECTHPP
