@@ -214,23 +214,26 @@ GameObject* GameObject::MakeMike(const Vec2 &pos){
 		GameObject* player=((StateStage*)&GAMESTATE)->player;
 
 		if(ai->states[0]==CompAI::state::iddling){
+			cout << "ai state is iddling" << endl;
 			if(ai->timers[0].Get()>5){
 				ai->timers[0].Restart();
 				ai->states[0]=CompAI::state::looking;
 			}
 		}
 		else if(ai->states[0]==CompAI::state::looking){
+			cout << "ai state is looking" << endl;
 			if(ai->timers[0].Get()>5){
 				ai->timers[0].Restart();
 				ai->states[0]=CompAI::state::iddling;
 			}
-			else if(ai->entity->box.corner().dist(player->box.corner())<100){
+			else if(ai->entity->box.corner().dist(player->box.corner())<1000){
 				ai->timers[0].Restart();
 				ai->states[0]=CompAI::state::walking;
 				ai->targetPOS[0]=player->box.corner();
 			}
 		}
 		else if(ai->states[0]==CompAI::state::walking){
+			cout << "ai state is walking" << endl;
 			if(ai->timers[0].Get()>5){
 				ai->timers[0].Restart();
 				if(ai->entity->box.corner().dist(player->box.corner())>10)ai->states[0]=CompAI::state::iddling;
@@ -241,13 +244,33 @@ GameObject* GameObject::MakeMike(const Vec2 &pos){
 				}
 			}
 			else{
-				auto movement=(CompMovement*)ai->entity->components[Component::type::t_movement];
-				auto &speed=movement->speed;
-				if(ai->entity->box.x>ai->targetPOS[0].x)speed.x=-10.0f;
-				else speed.x=10.f;
+				if(ai->entity->box.x+10<ai->targetPOS[0].x){
+					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x=min(
+						((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x+10.0f,
+						100.0f
+					);
+				}
+				else if(ai->entity->box.x-10>ai->targetPOS[0].x){
+					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x=max(
+						((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x-10.0f,
+						-100.0f
+					);
+				}
+				else{
+					if(abs(((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x)<10.0f){
+						((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x=0.0f;
+					}
+					else if(((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x>0){
+						((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x-=10.0f;
+					}
+					else{
+						((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x+=10.0f;
+					}
+				}
 			}
 		}
 		else if(ai->states[0]==CompAI::state::attacking){
+			cout << "ai state is attacking" << endl;
 			if(ai->targetGO[0]==nullptr){
 				ai->timers[0].Restart();
 				ai->states[0]=CompAI::state::iddling;
