@@ -7,7 +7,9 @@
 CompStaticRender::CompStaticRender(const Sprite &s,const Vec2 &p, const bool cs):sp{s},pos{p}, camScaling{cs}{}
 CompStaticRender::~CompStaticRender(){}
 
-void CompStaticRender::Update(float time){}
+void CompStaticRender::Update(float time){
+	sp.Update(time);
+}
 void CompStaticRender::Render(){
 	Vec2 p=pos;
 	p=entity->box.corner()+p.rotate(entity->rotation);

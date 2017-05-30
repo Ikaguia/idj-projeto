@@ -10,9 +10,9 @@
 
 class StateStage: public State{
 	Level level;
-
-	GameObject* player;
 public:
+	GameObject* player;
+
 	StateStage(string lvl);
 	~StateStage();
 

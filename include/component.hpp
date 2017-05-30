@@ -10,14 +10,13 @@ public:
 	GameObject* entity;
 	enum type{
 		t_input_control,
+		t_ai,
 		t_collider,
 		t_text,
 		//t_click,
 		t_static_render,
 		//t_animated_render,
 		//t_particle_emmiter,
-		//t_ai,
-		//t_timer,
 		t_hp,
 		t_movement,
 		t_gravity,

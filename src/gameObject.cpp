@@ -3,6 +3,7 @@
 #include <componentMovement.hpp>
 #include <camera.hpp>
 #include <complib.hpp>
+#include <stateStage.hpp>
 
 GameObject::GameObject(){}
 GameObject::GameObject(const Rect &rec,float r,bool a):box{rec},rotation{r},anchored{a}{}
@@ -15,13 +16,15 @@ GameObject::~GameObject(){
 }
 
 void GameObject::Update(float time){
+	//process input control and ai first
 	if(hasComponent[Component::type::t_input_control])components[Component::type::t_input_control]->Update(time);
-
+	if(hasComponent[Component::type::t_ai])components[Component::type::t_ai]->Update(time);
+	//then set move
 	if(hasComponent[Component::type::t_movement]){
 		CompMovement *compM = (CompMovement*) components[Component::type::t_movement];
 		compM->move=compM->speed*time;
 	}
-
+	//and then do the rest
 	FOR2(i,Component::type::t_collider,Component::type::t_count)if(hasComponent[i])components[i]->Update(time);
 }
 
@@ -121,7 +124,7 @@ void PlayerControlFunc(GameObject* go, float time){
 }
 GameObject* GameObject::MakePlayer(const Vec2 &pos){
 	CompStaticRender* img = new CompStaticRender{Sprite{"img/player_static.jpg"},Vec2{}};
-	GameObject* player = new GameObject{Rect{pos.x,pos.x,(float)img->sp.GetWidth(),(float)img->sp.GetHeight()}};
+	GameObject* player = new GameObject{Rect{pos.x,pos.y,(float)img->sp.GetWidth(),(float)img->sp.GetHeight()}};
 	player->AddComponent(new CompInputControl{PlayerControlFunc});
 	player->AddComponent(img);
 	player->AddComponent(new CompMovement{});
@@ -129,6 +132,16 @@ GameObject* GameObject::MakePlayer(const Vec2 &pos){
 	player->AddComponent(new CompGravity{2500.0f});
 	player->AddComponent(new CompHP{100,100,true,false});
 	return player;
+}
+
+
+GameObject* GameObject::MakeTarget(const Vec2 &pos){
+	CompStaticRender* img = new CompStaticRender{Sprite{"img/target.png"},Vec2{}};
+	GameObject* target = new GameObject{Rect{pos.x,pos.y,(float)img->sp.GetWidth(),(float)img->sp.GetHeight()}};
+	target->AddComponent(img);
+	target->AddComponent(new CompCollider{CompCollider::collType::t_player});
+	target->AddComponent(new CompHP{100,100,true,false});
+	return target;
 }
 
 
@@ -186,4 +199,66 @@ GameObject* GameObject::MakeBullet(const Vec2 &pos,string image,float force,floa
 
 	arrow->AddComponent(new CompGravity{500.0f});
 	return arrow;
+}
+
+
+GameObject* GameObject::MakeMike(const Vec2 &pos){
+	CompStaticRender* img = new CompStaticRender{Sprite{"img/mike-andando.png",8,0.125},Vec2{}};
+	GameObject* mike = new GameObject{Rect{pos.x,pos.y,(float)img->sp.GetWidth(),(float)img->sp.GetHeight()}};
+	mike->AddComponent(img);
+	mike->AddComponent(new CompMovement{});
+	mike->AddComponent(new CompCollider{CompCollider::collType::t_player});
+	mike->AddComponent(new CompGravity{2500.0f});
+	mike->AddComponent(new CompHP{100,100,true,false});
+	CompAI* ai = new CompAI{[](CompAI* ai,float time){
+		GameObject* player=((StateStage*)&GAMESTATE)->player;
+
+		if(ai->states[0]==CompAI::state::iddling){
+			if(ai->timers[0].Get()>5){
+				ai->timers[0].Restart();
+				ai->states[0]=CompAI::state::looking;
+			}
+		}
+		else if(ai->states[0]==CompAI::state::looking){
+			if(ai->timers[0].Get()>5){
+				ai->timers[0].Restart();
+				ai->states[0]=CompAI::state::iddling;
+			}
+			else if(ai->entity->box.corner().dist(player->box.corner())<100){
+				ai->timers[0].Restart();
+				ai->states[0]=CompAI::state::walking;
+				ai->targetPOS[0]=player->box.corner();
+			}
+		}
+		else if(ai->states[0]==CompAI::state::walking){
+			if(ai->timers[0].Get()>5){
+				ai->timers[0].Restart();
+				if(ai->entity->box.corner().dist(player->box.corner())>10)ai->states[0]=CompAI::state::iddling;
+				else{
+					ai->states[0]=CompAI::state::attacking;
+					//attack
+					ai->targetGO[0]=player;
+				}
+			}
+			else{
+				auto movement=(CompMovement*)ai->entity->components[Component::type::t_movement];
+				auto &speed=movement->speed;
+				if(ai->entity->box.x>ai->targetPOS[0].x)speed.x=-10.0f;
+				else speed.x=10.f;
+			}
+		}
+		else if(ai->states[0]==CompAI::state::attacking){
+			if(ai->targetGO[0]==nullptr){
+				ai->timers[0].Restart();
+				ai->states[0]=CompAI::state::iddling;
+			}
+			else if(ai->timers[0].Get()>5){
+				ai->timers[0].Restart();
+				ai->states[0]=CompAI::state::iddling;
+			}
+		}
+	},1,1,1,1};
+	mike->AddComponent(ai);
+
+	return mike;
 }

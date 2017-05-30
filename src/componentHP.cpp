@@ -12,7 +12,7 @@ void CompHP::Update(float time){
 	if(current<=0)entity->dead=true;
 }
 void CompHP::Render(){
-	if(showHP && !entity->dead){
+	if(showHP && current>0){
 		Rect box{0,-entity->box.w/5.0f - entity->box.w/10.0f,entity->box.w,entity->box.w/5.0f};
 		box+=entity->box.corner();
 		box.x=RENDERPOSX(box.x);
