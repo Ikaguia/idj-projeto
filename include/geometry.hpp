@@ -80,6 +80,7 @@ public:
 	void setCenter(const Vec2& b); 
 
 	ConvexPolygon polygon(const float &r=0.0f) const;
+	SDL_Rect sdlRect()const;
 
 	float dist(const Rect& b) const;//retorna a distancia entre os centros dos retangulos
 

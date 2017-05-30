@@ -10,17 +10,19 @@
 class Level {
 	string backgroundFilename;
 	string tileSetFilename;
+
+	string remaining;//TODO: remove this after adding collision
 public:
 	Sprite background;
 	TileSet tileSet;
 	TileMap tileMap;
 	
 	Level();
-	Level(string file);
+	Level(string file,set<unique_ptr<GameObject>>* entities=nullptr);
 	~Level();
 	
-	void Load(string file);
-	void Save(string file);
+	void Load(string file,set<unique_ptr<GameObject>>* entities=nullptr);
+	void Save(string file,set<unique_ptr<GameObject>>* entities=nullptr);
 	
 };
 #endif //LEVELHPP

@@ -184,6 +184,15 @@ ConvexPolygon Rect::polygon(const float &r) const{
 	return pol;
 }
 
+SDL_Rect Rect::sdlRect()const{
+	SDL_Rect rect;
+	rect.x = x;
+	rect.y = y;
+	rect.w = w;
+	rect.h = h;
+	return rect;
+}
+
 
 float Rect::dist(const Rect& b) const{
 	return center().dist(b.center());

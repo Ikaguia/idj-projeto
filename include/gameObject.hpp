@@ -11,13 +11,16 @@ public:
 	bitset<Component::type::t_count> hasComponent;
 	array<Component*,Component::type::t_count> components;
 
+	vector<GameObject*> attachedObjs;
+	GameObject* attachedTo=nullptr;
+
 	Rect box;
 	float rotation;
-	bool anchored;
-	bool dead;
+	bool anchored=false;
+	bool dead=false;
 
 	GameObject();
-	GameObject(const Rect &rec,float r=0, bool a=false);
+	GameObject(const Rect &rec,float r=0.0f, bool a=false);
 	~GameObject();
 
 	void Update(float time);
@@ -26,6 +29,10 @@ public:
 	void ReplaceComponent(Component* component);
 	void RemoveComponent(Component::type t);
 
+	void AttachObj(GameObject* obj);
+	void AttachTo(GameObject* obj);
+	void UnAttachObj(GameObject* obj);
+	void UnAttach();
 
 	bool IsDead()const;
 };

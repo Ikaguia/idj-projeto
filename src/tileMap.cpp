@@ -35,26 +35,6 @@ void TileMap::Load(ifstream& in){
 			}
 		}
 	}
-
-	// for(auto &it:mp){
-	// 	Rect r = it.second;
-	// 	r.w-=r.x;r.w++;
-	// 	r.h-=r.y;r.h++;
-	// 	if(it.first.first==2){
-	// 		r.y+=f;
-	// 		r.h-=f;
-	// 	}
-	// 	r.x*=tileW;
-	// 	r.w*=tileW;
-	// 	r.y*=tileH;
-	// 	r.h*=tileH;
-	// 	GameObject *tile = new GameObject{r};
-	// 	if(it.first.first==1 || it.first.first==2)tile->AddComponent(new CompCollider{CompCollider::collType::t_ground});
-	// 	else if                (it.first.first==3)tile->AddComponent(new CompCollider{CompCollider::collType::t_h_ground});
-	// 	tile->AddComponent(new CompStaticRender{Sprite{"img/point_yellow.jpg"},Vec2{0,0}});
-	// 	entities->insert(unique_ptr<GameObject>(tile));
-	// 	cout << "new rect at " << r << endl;
-	// }
 }
 
 void TileMap::Save(ofstream& out) {

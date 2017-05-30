@@ -9,13 +9,15 @@ class CompHP : public Component{
 public:
 	//public members
 	int total,current;
+	bool showHP,showDMG;
 
-	CompHP(int tot=100);
-	CompHP(int tot,int cur);
+	CompHP(int tot=100,bool showHP=false,bool showDMG=false);
+	CompHP(int tot,int cur,bool showHP=false,bool showDMG=false);
 	~CompHP();
 
 	void Update(float time);
 	void Render();
+	void Damage(int dmg);
 	Component::type GetType()const;
 };
 

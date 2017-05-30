@@ -8,7 +8,7 @@
 #include <resources.hpp>
 
 #define HELP_TEXT "Press [H] for help"
-#define HELP_TEXT_OPENED 	"S - Save\nG - Toggle grid\nLMB - Place tile\nRMB - Erase tile\nA - Previous tile\nD - Next tile"
+#define HELP_TEXT_OPEN 	"S - Save\nG - Toggle grid\nLMB - Place tile\nRMB - Erase tile\nA - Previous tile\nD - Next tile"
 
 StateEditor::StateEditor():level{"level/level_0.txt"},tileIndex{0},showGrid{true},showHelp{true},helpText{Text(HELP_TEXT,16)},statusText{Text("test",16)} {
 	LoadAssets();
@@ -50,7 +50,7 @@ void StateEditor::Update(float time){
 	if(INPUTMAN.KeyPress(KEY(h))) {
 		showHelp = (!showHelp);
 		if(showHelp) helpText.SetText(HELP_TEXT);
-		else helpText.SetText(HELP_TEXT_OPENED);
+		else helpText.SetText(HELP_TEXT_OPEN);
 	}
 	
 	if(INPUTMAN.KeyPress(KEY(s))) level.Save("level/level_0.txt");
@@ -61,7 +61,9 @@ void StateEditor::Update(float time){
 }
 void StateEditor::Render(){
 	RenderBackground();
-	level.background.Render(RENDERPOSX(0), RENDERPOSY(0), 0, CAMERAZOOM);
+
+	//Tirei background daqui
+	//level.background.Render(RENDERPOSX(0), RENDERPOSY(0), 0, CAMERAZOOM);
 	level.tileMap.Render();
 	RenderCursor();
 	RenderArray();

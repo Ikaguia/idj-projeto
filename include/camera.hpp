@@ -16,8 +16,8 @@ class GameObject;
 
 
 class Camera{
-	static GameObject* focus;
 public:
+	static GameObject* focus;
 	static Vec2 pos;
 	static Vec2 speed;
 	static float zoom;

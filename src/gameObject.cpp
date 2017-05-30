@@ -1,11 +1,16 @@
 #include <gameObject.hpp>
 #include <game.hpp>
 #include <componentMovement.hpp>
+#include <camera.hpp>
 
 GameObject::GameObject(){}
-GameObject::GameObject(const Rect &rec,float r,bool a):box{rec},rotation{r},anchored{a},dead{false}{}
+GameObject::GameObject(const Rect &rec,float r,bool a):box{rec},rotation{r},anchored{a}{}
 GameObject::~GameObject(){
+	UnAttach();
+	for(GameObject* obj:attachedObjs)obj->dead=true;
+
 	FOR(i,Component::type::t_count)if(hasComponent[i])delete components[i];
+	if(Camera::focus==this)Camera::Unfollow();
 }
 
 void GameObject::Update(float time){
@@ -54,6 +59,39 @@ void GameObject::RemoveComponent(Component::type t){
 		hasComponent[t]=false;
 	}
 }
+
+
+void GameObject::AttachObj(GameObject* obj){
+	if(find(attachedObjs.begin(), attachedObjs.end(),obj)==attachedObjs.end()){
+		attachedObjs.push_back(obj);
+		obj->AttachTo(this);
+	}
+}
+void GameObject::AttachTo(GameObject* obj){
+	if(attachedTo==nullptr){
+		attachedTo=obj;
+		obj->AttachObj(this);
+	}
+	else if(attachedTo!=obj){
+		UnAttach();
+		AttachTo(obj);
+	}
+}
+void GameObject::UnAttachObj(GameObject* obj){
+	auto it=find(attachedObjs.begin(), attachedObjs.end(),obj);
+	if(it!=attachedObjs.end()){
+		attachedObjs.erase(it);
+		obj->UnAttach();
+	}
+}
+void GameObject::UnAttach(){
+	if(attachedTo!=nullptr){
+		auto temp=attachedTo;
+		attachedTo=nullptr;
+		temp->UnAttachObj(this);
+	}
+}
+
 
 bool GameObject::IsDead()const{
 	return false;
