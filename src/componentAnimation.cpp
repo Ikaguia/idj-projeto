@@ -48,8 +48,6 @@ void CompAnim::Update(float time){
 	// entity->SetComponent(Component::type::t_collider,colliders[GetCurFrame()]);
 }
 void CompAnim::Render(){
-	cout << "anim mike = " << entity << endl;
-
 	Vec2 pos=entity->box.corner();
 	pos.x=RENDERPOSX(pos.x);
 	pos.y=RENDERPOSY(pos.y);

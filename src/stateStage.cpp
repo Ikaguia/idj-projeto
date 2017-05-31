@@ -15,8 +15,8 @@ StateStage::StateStage(string lvl):State::State(), level{Level(lvl,&entities)}{
 	player=GameObject::MakePlayer(Vec2{130.0f,130.0f});
 	AddObject(player);
 
-	AddObject(GameObject::MakeMike(Vec2{800.0f,200.0f}));
-	AddObject(GameObject::MakeTarget(Vec2{1000.0f,750.0f}));
+	// AddObject(GameObject::MakeMike(Vec2{850.0f,200.0f}));
+	AddObject(GameObject::MakeBanshee(Vec2{850.0f,200.0f},Vec2{130.0f,130.0f}));
 }
 
 StateStage::~StateStage(){}

@@ -231,43 +231,22 @@ void MikeAIfunc(CompAI* ai,float time){
 	}
 	else if(ai->states[0]==CompAI::state::walking){
 		cout << "ai state is walking" << endl;
-		if(ai->timers[0].Get()>5){
+		float dist = abs(ai->entity->box.x-ai->targetPOS[0].x);
+		float &speed = ((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x;
+		CompAnimControl* ac = ((CompAnimControl*)ai->entity->components[Component::type::t_animation_control]);
+
+		if(dist<1){
+			speed=0;
+			ai->states[0]=CompAI::state::idling;
 			ai->timers[0].Restart();
-			if(ai->entity->box.corner().dist(player->box.corner())>10){
-				ai->states[0]=CompAI::state::idling;
-				((CompAnimControl*)ai->entity->components[Component::type::t_animation_control])->ChangeCur("idle");
-			}
-			else{
-				ai->states[0]=CompAI::state::attacking;
-				//attack
-				ai->targetGO[0]=player;
-			}
+			ac->ChangeCur("idle");
 		}
-		else{
-			if(ai->entity->box.x+10<ai->targetPOS[0].x){
-				((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x=min(
-					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x+10.0f,
-					100.0f
-				);
-			}
-			else if(ai->entity->box.x-10>ai->targetPOS[0].x){
-				((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x=max(
-					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x-10.0f,
-					-100.0f
-				);
-			}
-			else{
-				if(abs(((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x)<10.0f){
-					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x=0.0f;
-				}
-				else if(((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x>0){
-					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x-=10.0f;
-				}
-				else{
-					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x+=10.0f;
-				}
-			}
+		else if(dist<abs(speed)){
+			speed=dist;
+			if(ai->targetPOS[0].x<ai->entity->box.x)speed*=-1;
 		}
+		else if(ai->targetPOS[0].x>ai->entity->box.x)speed=min(speed+10.0f, 100.0f);
+		else                                         speed=max(speed-10.0f,-100.0f);
 	}
 	else if(ai->states[0]==CompAI::state::attacking){
 		cout << "ai state is attacking" << endl;
@@ -305,57 +284,58 @@ void BansheeAIfunc(CompAI* ai,float time){
 	if(ai->states[0]==CompAI::state::idling) {
 		cout << "ai state is idling" << endl;
 		if(ai->timers[0].Get()>2){
-			ai->timers[0].Restart();
 			ai->states[0]=CompAI::state::walking;
 			ai->states[1]=!ai->states[1];
+			((CompAnimControl*)ai->entity->components[Component::type::t_animation_control])->ChangeCur("walk");
 		}
 	}
 	else if(ai->states[0]==CompAI::state::walking){
-		cout << "ai state is walking" << endl;
-		if(ai->timers[0].Get()>5){
+		cout << "ai state is walking to " << ai->states[1] << endl;
+		float dist = abs(ai->entity->box.x - ai->targetPOS[ai->states[1]].x);
+		float &speed = ((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x;
+		CompAnimControl* ac = ((CompAnimControl*)ai->entity->components[Component::type::t_animation_control]);
+
+		cout << "dist " << dist << " speed " << speed << endl;
+
+		if(dist<1){
+			cout << "a" << endl;
+			speed=0;
+			ai->states[0]=CompAI::state::idling;
 			ai->timers[0].Restart();
+			ac->ChangeCur("idle");
+		}
+		else if(dist<abs(speed)){
+			cout << "b" << endl;
+			speed=dist;
+			if(ai->targetPOS[ai->states[1]].x<ai->entity->box.x)speed*=-1;
+		}
+		else if(ai->targetPOS[ai->states[1]].x>ai->entity->box.x){
+			cout << "c" << endl;
+			speed=min(speed+10.0f, 100.0f);
 		}
 		else{
-			if(ai->entity->box.x+10<ai->targetPOS[ai->states[1]].x){
-				((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x=min(
-					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x+10.0f,
-					100.0f
-				);
-			}
-			else if(ai->entity->box.x-10>ai->targetPOS[ai->states[1]].x){
-				((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x=max(
-					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x-10.0f,
-					-100.0f
-				);
-			}
-			else{
-				if(abs(((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x)<10.0f){
-					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x=0.0f;
-				}
-				else if(((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x>0){
-					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x-=10.0f;
-				}
-				else{
-					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x+=10.0f;
-				}
-			}
+			cout << "d" << endl;
+			speed=max(speed-10.0f,-100.0f);
 		}
 	}
 }
 GameObject* GameObject::MakeBanshee(const Vec2 &pos,const Vec2 &pos2){
-	CompStaticRender* img = new CompStaticRender{Sprite{"img/banshee-andando.png",8,0.125},Vec2{}};
-	GameObject* Banshee = new GameObject{Rect{pos.x,pos.y,(float)img->sp.GetWidth(),(float)img->sp.GetHeight()}};
-	Banshee->AddComponent(img);
-	Banshee->AddComponent(new CompMovement{});
-	Banshee->AddComponent(new CompCollider{CompCollider::collType::t_player});
-	Banshee->AddComponent(new CompGravity{2500.0f});
+	CompAnimControl* animControl = new CompAnimControl{"animation/banshee.txt"};
+	float width=animControl->GetCur().sp.GetWidth();
+	float height=animControl->GetCur().sp.GetHeight();
+
+	GameObject* banshee = new GameObject{Rect{pos.x,pos.y,width,height-10}};
+	banshee->AddComponent(animControl);
+	banshee->AddComponent(new CompMovement{});
+	banshee->AddComponent(new CompCollider{CompCollider::collType::t_player});
+	banshee->AddComponent(new CompGravity{2500.0f});
 	// mike->AddComponent(new CompHP{100,100,true,false});
 	CompAI* ai = new CompAI{BansheeAIfunc,2,1,2};
 	ai->targetPOS[0]=pos;
 	ai->targetPOS[1]=pos2;
-	Banshee->AddComponent(ai);
+	banshee->AddComponent(ai);
 
-	return Banshee;
+	return banshee;
 }
 
 GameObject* GameObject::MakeMask(const Vec2 &pos){
