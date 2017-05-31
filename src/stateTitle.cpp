@@ -7,9 +7,11 @@
 #include <stateStage.hpp>
 #include <stateEditor.hpp>
 
+#define BACKGROUND "img/mountain_bg.jpg"
 #define INSTRUCTION_TEXT "IDJ-Projeto\n\nPress [Space] to continue\n[E] Level Editor\n"
 
-StateTitle::StateTitle():State::State(),bg{Sprite("img/title.jpg")}{
+StateTitle::StateTitle():State::State(),bg{Sprite(BACKGROUND)}{
+	bg.StretchToFit(WINSIZE);
 	GameObject* text = new GameObject{Rect{(WINSIZE.x/2),(WINSIZE.y/2),0,0}};
 	text->AddComponent(new CompText{INSTRUCTION_TEXT,36,SDL_COLOR_WHITE,Hotspot::CENTER});
 	AddObject(text);

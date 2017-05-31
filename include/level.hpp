@@ -16,6 +16,7 @@ public:
 	Sprite background;
 	TileSet tileSet;
 	TileMap tileMap;
+	vector<int> collisionLayer;
 	
 	Level();
 	Level(string file,set<unique_ptr<GameObject>>* entities=nullptr);

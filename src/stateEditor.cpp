@@ -8,9 +8,12 @@
 #include <resources.hpp>
 
 #define HELP_TEXT "Press [H] for help"
-#define HELP_TEXT_OPEN 	"S - Save\nG - Toggle grid\nLMB - Place tile\nRMB - Erase tile\nA - Previous tile\nD - Next tile"
+#define HELP_TEXT_OPEN 	"S - Save\nG - Toggle grid\nLMB - Place tile\nRMB - Erase tile\nA - Previous tile\nD - Next tile\nC - Show Collision"
 
-StateEditor::StateEditor():level{"level/level_0.txt"},tileIndex{0},showGrid{true},showHelp{true},helpText{Text(HELP_TEXT,16)},statusText{Text("test",16)} {
+//TODO: Remove placeholder index
+#define COLLISION_BLOCK 0
+
+StateEditor::StateEditor():level{"level/level_0.txt"},tileIndex{0},showGrid{true},showHelp{true},showCollision(false),helpText{Text(HELP_TEXT,16)},statusText{Text("test",16)} {
 	LoadAssets();
 	CAMERA = {-100, -100};
 	CAMERAZOOM = 1.0f;
@@ -38,12 +41,18 @@ void StateEditor::Update(float time){
 	if(INPUTMAN.IsMouseDown(MBUTTON_LEFT)) {
 		Vec2 cursor = GetCurrentTile();
 		Rect canvas(0, 0, level.tileMap.GetWidth()-1, level.tileMap.GetHeight()-1);
-		if(canvas.contains(cursor)) level.tileMap.At(cursor.x, cursor.y, 0) = tileIndex;
+		if(canvas.contains(cursor)) {
+			level.tileMap.At(cursor.x, cursor.y, 0) = tileIndex;
+			level.collisionLayer[(cursor.y*level.tileMap.GetWidth())+cursor.x] = COLLISION_BLOCK;
+		}
 	}
 	if(INPUTMAN.IsMouseDown(MBUTTON_RIGHT)) {
 		Vec2 cursor = GetCurrentTile();
 		Rect canvas(0, 0, level.tileMap.GetWidth()-1, level.tileMap.GetHeight()-1);
-		if(canvas.contains(cursor)) level.tileMap.At(cursor.x, cursor.y, 0) = -1;
+		if(canvas.contains(cursor)) {
+			level.tileMap.At(cursor.x, cursor.y, 0) = -1;
+			level.collisionLayer[(cursor.y*level.tileMap.GetWidth())+cursor.x] = EMPTY_TILE;
+		}
 	}
 	
 	if(INPUTMAN.KeyPress(KEY(g))) showGrid = (!showGrid);
@@ -52,6 +61,7 @@ void StateEditor::Update(float time){
 		if(showHelp) helpText.SetText(HELP_TEXT);
 		else helpText.SetText(HELP_TEXT_OPEN);
 	}
+	if(INPUTMAN.KeyPress(KEY(c))) showCollision = (!showCollision);
 	
 	if(INPUTMAN.KeyPress(KEY(s))) level.Save("level/level_0.txt");
 	
@@ -65,10 +75,11 @@ void StateEditor::Render(){
 	//Tirei background daqui
 	//level.background.Render(RENDERPOSX(0), RENDERPOSY(0), 0, CAMERAZOOM);
 	level.tileMap.Render();
-	RenderCursor();
 	RenderArray();
 	if(showGrid) RenderGrid(0, 0, 64, 64);
 	RenderBorder();
+	if(showCollision) RenderCollision();
+	RenderCursor();
 	
 	helpText.Render();
 	statusText.Render();
@@ -118,20 +129,47 @@ void StateEditor::RenderBorder() {
 }
 
 void StateEditor::RenderCursor() {
-	Vec2 pos = GetCurrentTile();
-	int w = level.tileSet.GetWidth();
-	int h = level.tileSet.GetHeight();
-	level.tileSet.Render(tileIndex, RENDERPOSX(pos.x*w), RENDERPOSY(pos.y*h), CAMERAZOOM);
+	Vec2 cursor = GetCurrentTile();
+	int tileWidth = level.tileSet.GetWidth();
+	int tileHeight = level.tileSet.GetHeight();
+	int mapWidth = level.tileMap.GetWidth();
+	int mapHeight = level.tileMap.GetHeight();
 	
-	SDL_SetRenderDrawColor(GAMERENDER, 255, 255, 255, 255);
+	Rect canvas(0, 0, mapWidth-1, mapHeight-1);
+	if(canvas.contains(cursor)) {
+		level.tileSet.Render(tileIndex, RENDERPOSX(cursor.x*tileWidth), RENDERPOSY(cursor.y*tileHeight), CAMERAZOOM);
 	
+		SDL_SetRenderDrawColor(GAMERENDER, 255, 255, 0, 255);
+	
+		SDL_Rect rect;
+		rect.x = RENDERPOSX(cursor.x*tileWidth);
+		rect.y = RENDERPOSY(cursor.y*tileHeight);
+		rect.w = (tileWidth*CAMERAZOOM)+1;
+		rect.h = (tileHeight*CAMERAZOOM)+1;
+	
+		SDL_RenderDrawRect(GAMERENDER, &rect);
+	}
+}
+
+void StateEditor::RenderCollision() {
+	SDL_SetRenderDrawColor(GAMERENDER, 255, 0, 0, 255);
+	
+	int mapWidth = level.tileMap.GetWidth();
+	int mapHeight = level.tileMap.GetHeight();
+	int tileWidth = level.tileSet.GetWidth();
+	int tileHeight = level.tileSet.GetHeight();
 	SDL_Rect rect;
-	rect.x = RENDERPOSX(0);
-	rect.y = RENDERPOSY(0);
-	rect.w = (level.tileMap.GetWidth()*level.tileSet.GetWidth()*CAMERAZOOM)+1;
-	rect.h = (level.tileMap.GetHeight()*level.tileSet.GetHeight()*CAMERAZOOM)+1;
-	
-	SDL_RenderDrawRect(GAMERENDER, &rect);
+	rect.w = (tileWidth*CAMERAZOOM)+1;
+	rect.h = (tileHeight*CAMERAZOOM)+1;
+	FOR(y,mapHeight) {
+		FOR(x,mapWidth) {
+			if(level.collisionLayer[(y*mapWidth)+x] == COLLISION_BLOCK) {
+				rect.x = RENDERPOSX(x*tileWidth);
+				rect.y = RENDERPOSY(y*tileWidth);
+				SDL_RenderDrawRect(GAMERENDER, &rect);
+			}
+		}
+	}
 }
 
 Vec2 StateEditor::GetCurrentTile() {

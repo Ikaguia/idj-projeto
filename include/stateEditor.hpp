@@ -13,6 +13,7 @@ class StateEditor: public State{
 	int tileIndex;
 	bool showGrid;
 	bool showHelp;
+	bool showCollision;
 	Text helpText;
 	Text statusText;
 public:
@@ -31,6 +32,7 @@ public:
 	void RenderGrid(int x, int y, int w, int h);
 	void RenderBorder();
 	void RenderCursor();
+	void RenderCollision();
 	
 	Vec2 GetCurrentTile();
 };

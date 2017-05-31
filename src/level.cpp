@@ -1,12 +1,29 @@
 #include <level.hpp>
+#include <game.hpp>
 #include <gameObject.hpp>
 #include <complib.hpp>
 
-Level::Level() : background{Sprite("img/stage_bg.jpg")}, tileSet{TileSet(64, 64, "img/tileset.png")}, tileMap{TileMap(50, 50, &tileSet)} {
+#define DEFAULT_BACKGROUND "img/mountain_bg.jpg"
+#define DEFAULT_TILE_SIZE 64
+#define DEFAULT_TILESET "img/tileset.png"
+#define DEFAULT_MAP_WIDTH 50
+#define DEFAULT_MAP_HEIGHT 50
 
+Level::Level() : background{Sprite(DEFAULT_BACKGROUND)}, tileSet{TileSet(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE, DEFAULT_TILESET)}, tileMap{TileMap(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT, &tileSet)} {
+	collisionLayer.clear();
+	collisionLayer.resize(DEFAULT_MAP_WIDTH*DEFAULT_MAP_HEIGHT);
+	FOR(y,DEFAULT_MAP_HEIGHT){
+		FOR(x,DEFAULT_MAP_WIDTH){
+			collisionLayer[(y*DEFAULT_MAP_WIDTH)+x] = EMPTY_TILE;
+		}
+	}
 }
 
-Level::Level(string file,set<unique_ptr<GameObject>>* entities) : tileSet{TileSet()}, tileMap{TileMap(50, 50, &tileSet)} {
+Level::Level(string file,set<unique_ptr<GameObject>>* entities) : tileSet{TileSet()}, tileMap{TileMap(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT, &tileSet)} {
+	//TODO: Remove this when the collision layer is read from the file
+	collisionLayer.clear();
+	collisionLayer.resize(DEFAULT_MAP_WIDTH*DEFAULT_MAP_HEIGHT);
+	
 	Load(file,entities);
 }
 
@@ -27,6 +44,7 @@ void Level::Load(string file,set<unique_ptr<GameObject>>* entities) {
 	getline(in,backgroundFilename);
 	if(!backgroundFilename.empty()) background.Open(backgroundFilename);
 	in.ignore(1);
+	background.StretchToFit(WINSIZE);
 	
 	int tileWidth, tileHeight;
 	getline(in, tileSetFilename);
@@ -36,10 +54,40 @@ void Level::Load(string file,set<unique_ptr<GameObject>>* entities) {
 	in.ignore(1);
 	
 	tileMap.Load(in);
+	
+	int mapWidth = tileMap.GetWidth();
+	int mapHeight = tileMap.GetHeight();
+	collisionLayer.clear();
+	collisionLayer.reserve(mapWidth*mapHeight);
 
+	int t;
+	FOR(y,mapHeight){
+		FOR(x,mapWidth){
+			in >> t;
+			in.ignore(1);
+			collisionLayer[(y*mapWidth)+x] = t-1;
+		}
+	}
+	//in.ignore(1);
+	
+	if(entities!=nullptr) {
+		FOR(y,mapHeight) {
+			FOR(x,mapWidth) {
+				t = collisionLayer[(y*mapWidth)+x];
+				if(t!=EMPTY_TILE) {
+					GameObject *tile = new GameObject{Rect((x*tileWidth),(y*tileHeight),tileWidth,tileHeight)};
+					tile->AddComponent(new CompCollider{CompCollider::collType::t_ground});
+					tile->AddComponent(new CompStaticRender{Sprite{"img/point_yellow.jpg"},Vec2{0,0}});
+					entities->insert(unique_ptr<GameObject>(tile));
+				
+			
+				}
+			}
+		}
+	}
 
 	//TODO: Add collision and remove this
-	char c;
+	/*char c;
 	while(in >> c)remaining+=c;
 
 	if(entities!=nullptr){
@@ -87,7 +135,7 @@ void Level::Load(string file,set<unique_ptr<GameObject>>* entities) {
 			tile->AddComponent(new CompStaticRender{Sprite{"img/point_yellow.jpg"},Vec2{0,0}});
 			entities->insert(unique_ptr<GameObject>(tile));
 		}
-	}
+	}*/
 	in.close();
 }
 
@@ -107,8 +155,21 @@ void Level::Save(string file,set<unique_ptr<GameObject>>* entities) {
 	
 	tileMap.Save(out);
 	
+	int mapWidth = tileMap.GetWidth();
+	int mapHeight = tileMap.GetHeight();
+	
+	//Collision
+	FOR(y,mapHeight){
+		FOR(x,mapWidth){
+			out<<collisionLayer[(y*mapWidth)+x]+1<<",\t";
+		}
+		out<<endl;
+	}
+	out<<endl;
+	
 	//TODO: Add back collision and remove this
-	out << remaining;
+	//out << remaining;
 
 	out.close();
 }
+
