@@ -149,6 +149,7 @@ void PlayerMonsterCollision(const CompCollider* a,const CompCollider* b){
 
 	if(move!=totMove)((CompHP*)a->entity->components[Component::type::t_hp])->Damage(1);
 }
+void EmptyCollision(const CompCollider* a,const CompCollider* b){}
 GameObject* GameObject::MakePlayer(const Vec2 &pos){
 
 	CompAnimControl* animControl = new CompAnimControl{"animation/player.txt"};
@@ -162,6 +163,7 @@ GameObject* GameObject::MakePlayer(const Vec2 &pos){
 	player->AddComponent(new CompMovement{});
 
 	CompCollider *coll = new CompCollider{CompCollider::collType::t_player};
+	coll->useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
 	coll->useDefault[CompCollider::collType::t_monster]=PlayerMonsterCollision;
 	player->AddComponent(coll);
 
@@ -181,7 +183,6 @@ GameObject* GameObject::MakeTarget(const Vec2 &pos){
 }
 
 
-void EmptyCollision(const CompCollider* a,const CompCollider* b){}
 void BulletAnyCollision1(const CompCollider* a,const CompCollider* b){
 	Vec2 &speed=((CompMovement*)a->entity->components[Component::type::t_movement])->speed;
 	if(speed==Vec2{})return;
@@ -306,6 +307,7 @@ GameObject* GameObject::MakeMike(const Vec2 &pos){
 	mike->AddComponent(animControl);
 
 	CompCollider *coll = new CompCollider{CompCollider::collType::t_monster};
+	coll->useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
 	coll->useDefault[CompCollider::collType::t_player]=EmptyCollision;
 	coll->useDefault[CompCollider::collType::t_monster]=EmptyCollision;
 	mike->AddComponent(coll);
@@ -360,13 +362,14 @@ GameObject* GameObject::MakeBanshee(const Vec2 &pos,const Vec2 &pos2){
 	banshee->AddComponent(animControl);
 
 	CompCollider *coll = new CompCollider{CompCollider::collType::t_monster};
+	coll->useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
 	coll->useDefault[CompCollider::collType::t_player]=EmptyCollision;
 	coll->useDefault[CompCollider::collType::t_monster]=EmptyCollision;
 	banshee->AddComponent(coll);
 
 	banshee->AddComponent(new CompMovement{});
 	banshee->AddComponent(new CompGravity{2500.0f});
-	banshee->AddComponent(new CompHP{100,100,true,false});
+	// banshee->AddComponent(new CompHP{100,100,true,false});
 
 	CompAI* ai = new CompAI{BansheeAIfunc,2,1,2};
 	ai->targetPOS[0]=pos;
@@ -452,6 +455,7 @@ GameObject* GameObject::MakeMask(const Vec2 &pos){
 	mask->AddComponent(animControl);
 
 	CompCollider *coll = new CompCollider{CompCollider::collType::t_monster};
+	coll->useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
 	coll->useDefault[CompCollider::collType::t_player]=EmptyCollision;
 	coll->useDefault[CompCollider::collType::t_monster]=EmptyCollision;
 	mask->AddComponent(coll);
