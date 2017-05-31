@@ -77,7 +77,7 @@ void Level::Load(string file,set<unique_ptr<GameObject>>* entities) {
 				if(t!=EMPTY_TILE) {
 					GameObject *tile = new GameObject{Rect((x*tileWidth),(y*tileHeight),tileWidth,tileHeight)};
 					tile->AddComponent(new CompCollider{CompCollider::collType::t_ground});
-					tile->AddComponent(new CompStaticRender{Sprite{"img/point_yellow.jpg"},Vec2{0,0}});
+					//tile->AddComponent(new CompStaticRender{Sprite{"img/point_yellow.jpg"},Vec2{0,0}});
 					entities->insert(unique_ptr<GameObject>(tile));
 				
 			

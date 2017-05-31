@@ -14,9 +14,6 @@ StateStage::StateStage(string lvl):State::State(), level{Level(lvl,&entities)}{
 
 	player=GameObject::MakePlayer(Vec2{130.0f,130.0f});
 	AddObject(player);
-
-	// AddObject(GameObject::MakeMike(Vec2{850.0f,200.0f}));
-	AddObject(GameObject::MakeBanshee(Vec2{850.0f,200.0f},Vec2{130.0f,130.0f}));
 }
 
 StateStage::~StateStage(){}
@@ -25,6 +22,11 @@ void StateStage::Update(float time){
 	Camera::Update(time);
 	if(INPUTMAN.QuitRequested())quitRequested=true;
 	if(INPUTMAN.KeyPress(KEY_ESC))popRequested=true;
+	
+	if(INPUTMAN.KeyPress(KEY(p))) AddObject(GameObject::MakeMike(Vec2{850.0f,200.0f}));
+	if(INPUTMAN.KeyPress(KEY(o))) AddObject(GameObject::MakeBanshee(Vec2{850.0f,200.0f},Vec2{130.0f,130.0f}));
+
+	
 	UpdateArray(time);
 }
 void StateStage::Render(){

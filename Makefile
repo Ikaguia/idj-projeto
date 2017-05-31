@@ -66,9 +66,9 @@ all: $(EXEC)
 $(EXEC): $(OBJ_FILES)
 	$(CC) -o $@ $^ $(LIBS)
 
--#chama all e depois roda o jogo
- run : all
- 	$(CLEAR) && ./$(EXEC) && $(CLEAR)
+#chama all e depois roda o jogo
+run : all
+	$(CLEAR) && ./$(EXEC) && $(CLEAR)
 
 # Regra de inferência para criação dos objetos de compilação: 
 $(BIN_PATH)/%.o: $(SRC_PATH)/%.cpp
