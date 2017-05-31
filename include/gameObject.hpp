@@ -18,6 +18,7 @@ public:
 	float rotation;
 	bool anchored=false;
 	bool dead=false;
+	bool flipped=false;
 
 	GameObject();
 	GameObject(const Rect &rec,float r=0.0f, bool a=false);

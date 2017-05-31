@@ -15,7 +15,7 @@ public:
 	//static members
 	static set<CompCollider*> colliders;
 	//members
-	enum collType{t_any,t_ground,t_h_ground,t_player,t_bullet,t_count};
+	enum collType{t_any,t_ground,t_h_ground,t_player,t_monster,t_bullet,t_solid,t_count};
 	collType cType;
 	map<collType,colliderFunc> useDefault;//use custom collision handler against colliders of _type
 	//constructor/destructor

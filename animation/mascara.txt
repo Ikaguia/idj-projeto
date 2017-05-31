@@ -1,0 +1,4 @@
+idle animation/mascara_idle.txt
+walk animation/mascara_walk.txt
+attack animation/mascara_attack.txt
+die animation/mascara_die.txt

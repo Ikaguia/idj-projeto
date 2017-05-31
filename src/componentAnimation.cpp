@@ -51,6 +51,7 @@ void CompAnim::Render(){
 	Vec2 pos=entity->box.corner();
 	pos.x=RENDERPOSX(pos.x);
 	pos.y=RENDERPOSY(pos.y);
+	sp.SetFlipH(entity->flipped);
 	sp.Render(pos,entity->rotation,Camera::zoom);
 }
 void CompAnim::Own(GameObject* go){

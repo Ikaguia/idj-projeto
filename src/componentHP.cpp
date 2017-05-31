@@ -4,21 +4,25 @@
 #include <camera.hpp>
 //#include <inputManager.hpp>
 
-CompHP::CompHP(int tot,bool showHP,bool showDMG):total{tot},current{tot},showHP{showHP},showDMG{showDMG}{}
-CompHP::CompHP(int tot,int cur,bool showHP,bool showDMG):total{tot},current{cur},showHP{showHP},showDMG{showDMG}{}
+CompHP::CompHP(int tot,bool showHP,bool showDMG,float dmgCD):total{tot},current{tot},showHP{showHP},showDMG{showDMG},cooldown{dmgCD}{}
+CompHP::CompHP(int tot,int cur,bool showHP,bool showDMG,float dmgCD):total{tot},current{cur},showHP{showHP},showDMG{showDMG},cooldown{dmgCD}{}
 CompHP::~CompHP(){}
 
 
 void CompHP::Damage(int dmg){
-	current-=dmg;
-	if(showDMG){
-		//TODO: renderiza dano
+	if(dmgCoolDown.Get()>cooldown){
+		dmgCoolDown.Restart();
+		current-=dmg;
+		if(showDMG){
+			//TODO: renderiza dano
+		}
 	}
 }
 
 
 void CompHP::Update(float time){
 	if(current<=0)entity->dead=true;
+	dmgCoolDown.Update(time);
 }
 void CompHP::Render(){
 	if(showHP && current>0){

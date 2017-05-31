@@ -62,8 +62,6 @@ using ii=pair<int,int>;
 #define ABS(x) (((x)<0)?-(x):(x))
 #define BETWEEN(x,a,b) ((x>=a) && (x<b))
 
-#define RESOURCESFOLDER (string)""
-
 #define SDL_COLOR_BLACK MakeColor(0,0,0)
 #define SDL_COLOR_RED   MakeColor(255,0,0)
 #define SDL_COLOR_GREEN MakeColor(0,255,0)
@@ -84,6 +82,7 @@ typedef enum {TOP_LEFT,TOP,TOP_RIGHT,LEFT,CENTER,RIGHT,BOTTOM_LEFT,BOTTOM,BOTTOM
 SDL_Color MakeColor(int r,int g,int b,int a=255);
 
 bool equals(const float &a,const float &b);
+float closeDist(const float &from,const float &to,const float &change);
 
 string FloatToStr(float f);
 

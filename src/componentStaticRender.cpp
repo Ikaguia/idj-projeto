@@ -14,6 +14,7 @@ void CompStaticRender::Update(float time){
 void CompStaticRender::Render(){
 	Vec2 p=pos;
 	p=entity->box.corner()+p.rotate(entity->rotation);
+	sp.SetFlipH(entity->flipped);
 	if(camScaling) sp.Render((p-CAMERA)*CAMERAZOOM,entity->rotation, CAMERAZOOM);
 	else sp.Render(p,entity->rotation, 1);
 }

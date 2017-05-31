@@ -14,8 +14,15 @@ bool equals(const float &a,const float &b){
 	return (std::fabs((a-b))<=PRECISION);
 }
 
+float closeDist(const float &from,const float &to,const float &change){
+	if(abs(from-to)<change)return to;
+	if(from>to)return from - change;
+	return from + change;
+}
+
 string FloatToStr(float f) {
 	char s[15];
 	sprintf(s,"%.2f",f);
 	return s;
 }	
+
