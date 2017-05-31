@@ -42,6 +42,8 @@ public:
 	static GameObject* MakeTarget(const Vec2 &pos);
 	static GameObject* MakeBullet(const Vec2 &pos,string image,float force,float angle=0.0f,bool stick=true);
 	static GameObject* MakeMike(const Vec2 &pos);
+	static GameObject* MakeBanshee(const Vec2 &pos,const Vec2 &pos2);
+	static GameObject* MakeMask(const Vec2 &pos);
 	//static GameObject* Make...(const Vec2 &pos);
 };
 

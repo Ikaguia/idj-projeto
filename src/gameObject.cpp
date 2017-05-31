@@ -300,7 +300,49 @@ GameObject* GameObject::MakeMike(const Vec2 &pos){
 	return mike;
 }
 
-GameObject* GameObject::MakeBanshee(const Vec2 &pos){
+
+void BansheeAIfunc(CompAI* ai,float time){
+	if(ai->states[0]==CompAI::state::idling) {
+		cout << "ai state is idling" << endl;
+		if(ai->timers[0].Get()>2){
+			ai->timers[0].Restart();
+			ai->states[0]=CompAI::state::walking;
+			ai->states[1]=!ai->states[1];
+		}
+	}
+	else if(ai->states[0]==CompAI::state::walking){
+		cout << "ai state is walking" << endl;
+		if(ai->timers[0].Get()>5){
+			ai->timers[0].Restart();
+		}
+		else{
+			if(ai->entity->box.x+10<ai->targetPOS[ai->states[1]].x){
+				((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x=min(
+					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x+10.0f,
+					100.0f
+				);
+			}
+			else if(ai->entity->box.x-10>ai->targetPOS[ai->states[1]].x){
+				((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x=max(
+					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x-10.0f,
+					-100.0f
+				);
+			}
+			else{
+				if(abs(((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x)<10.0f){
+					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x=0.0f;
+				}
+				else if(((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x>0){
+					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x-=10.0f;
+				}
+				else{
+					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x+=10.0f;
+				}
+			}
+		}
+	}
+}
+GameObject* GameObject::MakeBanshee(const Vec2 &pos,const Vec2 &pos2){
 	CompStaticRender* img = new CompStaticRender{Sprite{"img/banshee-andando.png",8,0.125},Vec2{}};
 	GameObject* Banshee = new GameObject{Rect{pos.x,pos.y,(float)img->sp.GetWidth(),(float)img->sp.GetHeight()}};
 	Banshee->AddComponent(img);
@@ -308,48 +350,9 @@ GameObject* GameObject::MakeBanshee(const Vec2 &pos){
 	Banshee->AddComponent(new CompCollider{CompCollider::collType::t_player});
 	Banshee->AddComponent(new CompGravity{2500.0f});
 	// mike->AddComponent(new CompHP{100,100,true,false});
-	CompAI* ai = new CompAI{[](CompAI* ai,float time){
-		GameObject* player=((StateStage*)&GAMESTATE)->player;
-
-		if(ai->states[0]==CompAI::state::iddling) {
-			cout << "ai state is iddling" << endl;
-			if(ai->timers[0].Get()>2){
-				ai->timers[0].Restart();
-				ai->states[0]=CompAI::state::walking;
-			}
-		}
-		else if(ai->states[0]==CompAI::state::walking){
-			cout << "ai state is walking" << endl;
-			if(ai->timers[0].Get()>5){
-				ai->timers[0].Restart();
-			}
-			else{
-				if(ai->entity->box.x+10<ai->targetPOS[0].x){
-					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x=min(
-						((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x+10.0f,
-						100.0f
-					);
-				}
-				else if(ai->entity->box.x-10>ai->targetPOS[0].x){
-					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x=max(
-						((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x-10.0f,
-						-100.0f
-					);
-				}
-				else{
-					if(abs(((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x)<10.0f){
-						((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x=0.0f;
-					}
-					else if(((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x>0){
-						((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x-=10.0f;
-					}
-					else{
-						((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x+=10.0f;
-					}
-				}
-			}
-		}
-	},1,1};
+	CompAI* ai = new CompAI{BansheeAIfunc,2,1,2};
+	ai->targetPOS[0]=pos;
+	ai->targetPOS[1]=pos2;
 	Banshee->AddComponent(ai);
 
 	return Banshee;
@@ -366,8 +369,8 @@ GameObject* GameObject::MakeMask(const Vec2 &pos){
 	CompAI* ai = new CompAI{[](CompAI* ai,float time){
 		GameObject* player=((StateStage*)&GAMESTATE)->player;
 
-		if(ai->states[0]==CompAI::state::iddling){
-			cout << "ai state is iddling" << endl;
+		if(ai->states[0]==CompAI::state::idling){
+			cout << "ai state is idling" << endl;
 			if(ai->timers[0].Get()>2){
 				ai->timers[0].Restart();
 				ai->states[0]=CompAI::state::walking;
