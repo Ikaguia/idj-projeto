@@ -67,8 +67,12 @@ $(EXEC): $(OBJ_FILES)
 	$(CC) -o $@ $^ $(LIBS)
 
 #chama all e depois roda o jogo
-run : all
-	$(CLEAR) && ./$(EXEC) && $(CLEAR)
+run: all
+ifeq ($(OS),Windows_NT)
+	$(EXEC)
+else 		
+ 	$(CLEAR) && ./$(EXEC) && $(CLEAR)
+endif
 
 # Regra de inferência para criação dos objetos de compilação: 
 $(BIN_PATH)/%.o: $(SRC_PATH)/%.cpp
