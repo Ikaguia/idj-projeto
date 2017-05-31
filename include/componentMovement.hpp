@@ -20,9 +20,10 @@ public:
 	CompMovement(const Vec2& s=Vec2{},moveType t=t_horizontal);
 	~CompMovement();
 
-	virtual void Update(float time);
-	virtual void Render();
-	virtual Component::type GetType()const;
+	void Update(float time);
+	void Render();
+	void Own(GameObject* go);
+	Component::type GetType()const;
 };
 
 #endif//COMPONENTMOVEMENTHPP

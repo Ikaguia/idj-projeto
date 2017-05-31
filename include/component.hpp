@@ -11,6 +11,11 @@ public:
 	enum type{
 		t_input_control,
 		t_ai,
+
+		t__,
+
+		t_animation,
+		t_animation_control,
 		t_collider,
 		t_text,
 		//t_click,
@@ -28,6 +33,7 @@ public:
 
 	virtual void Update(float time)=0;
 	virtual void Render()=0;
+	virtual void Own(GameObject* go)=0;
 	virtual type GetType()const=0;
 };
 

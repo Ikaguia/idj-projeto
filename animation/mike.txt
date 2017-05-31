@@ -1,0 +1,2 @@
+idle animation/mike_idle.txt
+walk animation/mike_walk.txt

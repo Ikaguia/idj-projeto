@@ -9,9 +9,10 @@ CompInputControl::~CompInputControl(){}
 void CompInputControl::Update(float time){
 	func(entity,time);
 }
-
 void CompInputControl::Render(){}
-
+void CompInputControl::Own(GameObject* go){
+	entity=go;
+}
 Component::type CompInputControl::GetType()const{
 	return Component::type::t_input_control;
 }

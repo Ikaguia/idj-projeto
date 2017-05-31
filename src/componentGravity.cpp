@@ -14,9 +14,10 @@ void CompGravity::Update(float time){
 		((CompMovement*)entity->components[Component::type::t_movement])->speed.y+=gravity*time;
 	}
 }
-
 void CompGravity::Render(){}
-
+void CompGravity::Own(GameObject* go){
+	entity=go;
+}
 Component::type CompGravity::GetType() const{
 	return Component::type::t_gravity;
 }

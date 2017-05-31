@@ -14,7 +14,7 @@ class CompAI : public Component{
 	//private members
 public:
 	//public members
-	enum state{iddling,looking,walking,attacking,count};
+	enum state{idling,looking,walking,attacking,count};
 	aiFunc foo;
 
 	vector<int> states;
@@ -27,6 +27,7 @@ public:
 
 	void Update(float time);
 	void Render();
+	void Own(GameObject* go);
 	Component::type GetType()const;
 };
 

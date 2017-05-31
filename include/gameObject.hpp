@@ -28,6 +28,7 @@ public:
 	void AddComponent(Component* component);
 	void ReplaceComponent(Component* component);
 	void RemoveComponent(Component::type t);
+	void SetComponent(Component::type t,Component* component);//override current component, doesnt dealloc
 
 	void AttachObj(GameObject* obj);
 	void AttachTo(GameObject* obj);

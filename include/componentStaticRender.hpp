@@ -18,9 +18,10 @@ public:
 	CompStaticRender(const Sprite &sp,const Vec2 &p, const bool cs = true);
 	~CompStaticRender();
 
-	virtual void Update(float time);
-	virtual void Render();
-	virtual Component::type GetType()const;
+	void Update(float time);
+	void Render();
+	void Own(GameObject* go);
+	Component::type GetType()const;
 };
 
 #endif//COMPSTATICRENDERHPP

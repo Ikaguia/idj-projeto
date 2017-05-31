@@ -12,9 +12,10 @@ public:
 	CompGravity(float g=GRAVITY);
 	~CompGravity();
 
-	virtual void Update(float time);
-	virtual void Render();
-	virtual Component::type GetType() const;
+	void Update(float time);
+	void Render();
+	void Own(GameObject* go);
+	Component::type GetType() const;
 };
 
 #endif//COMPGRAVITYHPP

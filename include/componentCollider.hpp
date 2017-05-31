@@ -26,9 +26,10 @@ public:
 	Vec2 collides(const CompCollider *other,const Vec2 &move) const;
 	Vec2 collides(const CompCollider *other,const Vec2 &move,const Rect &box) const;
 
-	virtual void Update(float time);
-	virtual void Render();
-	virtual Component::type GetType() const;
+	void Update(float time);
+	void Render();
+	void Own(GameObject* go);
+	Component::type GetType() const;
 };
 
 #endif//COMPONENTCOLLIDERHPP

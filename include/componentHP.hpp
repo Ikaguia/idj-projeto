@@ -15,9 +15,11 @@ public:
 	CompHP(int tot,int cur,bool showHP=false,bool showDMG=false);
 	~CompHP();
 
+	void Damage(int dmg);
+
 	void Update(float time);
 	void Render();
-	void Damage(int dmg);
+	void Own(GameObject* go);
 	Component::type GetType()const;
 };
 

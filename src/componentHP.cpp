@@ -8,6 +8,15 @@ CompHP::CompHP(int tot,bool showHP,bool showDMG):total{tot},current{tot},showHP{
 CompHP::CompHP(int tot,int cur,bool showHP,bool showDMG):total{tot},current{cur},showHP{showHP},showDMG{showDMG}{}
 CompHP::~CompHP(){}
 
+
+void CompHP::Damage(int dmg){
+	current-=dmg;
+	if(showDMG){
+		//TODO: renderiza dano
+	}
+}
+
+
 void CompHP::Update(float time){
 	if(current<=0)entity->dead=true;
 }
@@ -34,11 +43,8 @@ void CompHP::Render(){
 		SDL_RenderFillRect(GAMERENDER,&rect);
 	}
 }
-void CompHP::Damage(int dmg){
-	current-=dmg;
-	if(showDMG){
-		//TODO: renderiza dano
-	}
+void CompHP::Own(GameObject* go){
+	entity=go;
 }
 Component::type CompHP::GetType()const{
 	return Component::type::t_hp;

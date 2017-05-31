@@ -12,6 +12,7 @@ CompText::CompText(string text,int size,SDL_Color c,Hotspot h,Vec2 p):txt{text,s
 }
 CompText::~CompText(){}
 
+
 void CompText::Update(float time){}
 void CompText::Render(){
 	Vec2 p=pos+entity->box.corner();
@@ -19,6 +20,9 @@ void CompText::Render(){
 	
 	if(entity->anchored) txt.Render();
 	else txt.Render(CAMERA);
+}
+void CompText::Own(GameObject* go){
+	entity=go;
 }
 Component::type CompText::GetType()const{
 	return Component::type::t_text;

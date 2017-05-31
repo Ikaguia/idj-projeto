@@ -82,6 +82,14 @@ int Sprite::GetHeight(){
 	return (height*scaleY);
 }
 
+int Sprite::GetCurFrame(){
+	return currentFrame;
+}
+
+int Sprite::GetFrameCount(){
+	return frameCount;
+}
+
 bool Sprite::IsOpen(){
 	return (texture!=nullptr);
 }

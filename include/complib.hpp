@@ -2,6 +2,8 @@
 #define COMPLIBHPP
 
 #include <componentAI.hpp>
+#include <componentAnimation.hpp>
+#include <componentAnimationController.hpp>
 #include <componentCollider.hpp>
 #include <componentGravity.hpp>
 #include <componentHP.hpp>

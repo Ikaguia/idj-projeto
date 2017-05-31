@@ -15,9 +15,10 @@ public:
 	CompText(string text,int size,SDL_Color c=SDL_COLOR_WHITE, Hotspot h=Hotspot::TOP_LEFT, Vec2 p=Vec2{});
 	~CompText();
 
-	virtual void Update(float time);
-	virtual void Render();
-	virtual Component::type GetType()const;
+	void Update(float time);
+	void Render();
+	void Own(GameObject* go);
+	Component::type GetType()const;
 };
 
 #endif//COMPONENTTEXTHPP

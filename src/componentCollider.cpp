@@ -67,9 +67,10 @@ void CompCollider::Update(float time){
 	set<GameObject*> entities = GAMESTATE.GetEntitiesInRange(entity->box.x-10,entity->box.x+entity->box.w+10);
 	for(GameObject* go:entities)if(go!=entity && go->hasComponent[Component::type::t_collider])collisionCheck((CompCollider*)go->components[Component::type::t_collider]);
 }
-
 void CompCollider::Render(){};
-
+void CompCollider::Own(GameObject* go){
+	entity=go;
+}
 Component::type CompCollider::GetType() const{
 	return Component::type::t_collider;
 }

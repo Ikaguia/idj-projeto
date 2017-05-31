@@ -36,6 +36,8 @@ public:
 
 	int GetWidth();
 	int GetHeight();
+	int GetCurFrame();
+	int GetFrameCount();
 
 	bool IsOpen();
 
