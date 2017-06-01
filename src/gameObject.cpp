@@ -16,13 +16,15 @@ GameObject::~GameObject(){
 }
 
 void GameObject::Update(float time){
+	//reset move
+	if(hasComponent[Component::type::t_movement])((CompMovement*)components[Component::type::t_movement])->move=0.0f;
 	//process input control and ai first
 	if(hasComponent[Component::type::t_input_control])components[Component::type::t_input_control]->Update(time);
 	if(hasComponent[Component::type::t_ai])components[Component::type::t_ai]->Update(time);
 	//then set move
 	if(hasComponent[Component::type::t_movement]){
 		CompMovement *compM = (CompMovement*) components[Component::type::t_movement];
-		compM->move=compM->speed*time;
+		compM->move+=compM->speed*time;
 	}
 	//and then do the rest
 	FOR2(i,Component::type::t__+1,Component::type::t_count)if(hasComponent[i])components[i]->Update(time);
@@ -254,6 +256,7 @@ void MikeAIfunc(CompAI* ai,float time){
 			ai->timers[0].Restart();
 			ai->states[0]=CompAI::state::idling;
 		}
+		//TODO: make line of sight component
 		else if(ai->entity->box.corner().dist(player->box.corner())<1000){
 			ai->timers[0].Restart();
 			ai->states[0]=CompAI::state::walking;
@@ -262,27 +265,25 @@ void MikeAIfunc(CompAI* ai,float time){
 		}
 	}
 	else if(ai->states[0]==CompAI::state::walking){
-		float dist = abs(ai->entity->box.x-ai->targetPOS[0].x);
-		float &speed = ((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x;
+		float dist = ai->targetPOS[0].x-ai->entity->box.x;
+		CompMovement *movement = ((CompMovement*)ai->entity->components[Component::type::t_movement]);
 		CompAnimControl* ac = ((CompAnimControl*)ai->entity->components[Component::type::t_animation_control]);
 
-		if(dist<1){
-			speed=0;
+		if(abs(dist)<abs(movement->speed.x)*time){
+			movement->speed.x=0;
+			movement->move=dist;
+
 			ai->states[0]=CompAI::state::idling;
 			ai->timers[0].Restart();
 			ac->ChangeCur("idle");
 		}
-		else if(dist<abs(speed)){
-			speed=dist;
-			if(ai->targetPOS[0].x<ai->entity->box.x)speed*=-1;
-		}
-		else if(ai->targetPOS[0].x>ai->entity->box.x){
+		else if(dist>0){
 			ai->entity->flipped=true;
-			speed=min(speed+(100.0f*time), 100.0f);
+			movement->speed.x= 100.0f;
 		}
 		else{
 			ai->entity->flipped=false;
-			speed=max(speed-(100.0f*time),-100.0f);
+			movement->speed.x=-100.0f;
 		}
 	}
 	else if(ai->states[0]==CompAI::state::attacking){
@@ -329,27 +330,25 @@ void BansheeAIfunc(CompAI* ai,float time){
 		}
 	}
 	else if(ai->states[0]==CompAI::state::walking){
-		float dist = abs(ai->entity->box.x - ai->targetPOS[ai->states[1]].x);
-		float &speed = ((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x;
+		float dist = ai->targetPOS[ai->states[1]].x-ai->entity->box.x;
+		CompMovement *movement = ((CompMovement*)ai->entity->components[Component::type::t_movement]);
 		CompAnimControl* ac = ((CompAnimControl*)ai->entity->components[Component::type::t_animation_control]);
 
-		if(dist<1){
-			speed=0;
+		if(abs(dist)<abs(movement->speed.x)*time){
+			movement->speed.x=0;
+			movement->move=dist;
+
 			ai->states[0]=CompAI::state::idling;
 			ai->timers[0].Restart();
 			ac->ChangeCur("idle");
 		}
-		else if(dist<abs(speed)){
-			speed=dist;
-			if(ai->targetPOS[ai->states[1]].x<ai->entity->box.x)speed*=-1;
-		}
-		else if(ai->targetPOS[ai->states[1]].x>ai->entity->box.x){
+		else if(dist>0){
 			ai->entity->flipped=true;
-			speed=min(speed+(100.0f*time), 100.0f);
+			movement->speed.x= 100.0f;
 		}
 		else{
 			ai->entity->flipped=false;
-			speed=max(speed-(100.0f*time),-100.0f);
+			movement->speed.x=-100.0f;
 		}
 	}
 }
