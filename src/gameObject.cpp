@@ -378,64 +378,79 @@ GameObject* GameObject::MakeBanshee(const Vec2 &pos,const Vec2 &pos2){
 	return banshee;
 }
 
+#define MASK_FIRE_DIST 200
+#define MASK_SEE_DIST 500
 void MaskAIfunc(CompAI* ai,float time){
-	if(ai->states[0]==CompAI::state::looking){
+	CompAnimControl* ac = ((CompAnimControl*)ai->entity->components[Component::type::t_animation_control]);
+	cout << "mask ai begin" << endl;
+	if(ai->states[0]==CompAI::state::idling){
+		cout << "mask ai idling" << endl;
+		if(ai->timers[0].Get()>5){
+			ai->timers[0].Restart();
+			ai->states[0]=CompAI::state::looking;
+		}
+	}
+	else if(ai->states[0]==CompAI::state::looking){
+		cout << "mask ai looking" << endl;
+		float dist = ai->entity->box.corner().dist(PLAYER->box.corner());
+
 		if(ai->timers[0].Get()>5){
 			ai->timers[0].Restart();
 			ai->states[0]=CompAI::state::idling;
 		}
-		else if(ai->entity->box.corner().dist(PLAYER->box.corner())<750){
+		//TODO: make line of sight component
+		else if(dist<MASK_SEE_DIST){
 			ai->timers[0].Restart();
-			ai->states[0]=CompAI::state::attacking;
-			ai->targetPOS[0]=PLAYER->box.corner();
+			ai->targetGO[0]=PLAYER;
+			if(dist<MASK_FIRE_DIST)ai->states[0]=CompAI::state::attacking;
+			else                   ai->states[0]=CompAI::state::walking;
 		}
 	}
 	else if(ai->states[0]==CompAI::state::walking){
-		if(ai->timers[0].Get()>5){
+		cout << "mask ai walking" << endl;
+		if(ai->targetGO[0]==nullptr || ai->timers[0].Get()>5){
 			ai->timers[0].Restart();
-			if(ai->entity->box.corner().dist(PLAYER->box.corner())>10)ai->states[0]=CompAI::state::looking;
-			else{
-				ai->states[0]=CompAI::state::attacking;
-				//attack
-				ai->targetGO[0]=PLAYER;
-			}
+			ai->states[0]=CompAI::state::looking;
 		}
 		else{
-			if(ai->entity->box.x+10<ai->targetPOS[0].x){
-				((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x=min(
-					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x+10.0f,
-					100.0f
-				);
+			float dist = ai->targetGO[0]->box.x-ai->entity->box.x;
+			CompMovement *movement = ((CompMovement*)ai->entity->components[Component::type::t_movement]);
+
+			//TODO: if cant see target go looking
+			if(abs(dist) < MASK_FIRE_DIST+abs(movement->speed.x)*time){
+				movement->speed.x=0;
+				if(dist>0)movement->move=dist-MASK_FIRE_DIST;
+				else      movement->move=dist+MASK_FIRE_DIST;
+
+				ai->states[0]=CompAI::state::attacking;
+				ai->timers[0].Restart();
+				ac->ChangeCur("attack");
 			}
-			else if(ai->entity->box.x-10>ai->targetPOS[0].x){
-				((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x=max(
-					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x-10.0f,
-					-100.0f
-				);
+			else if(dist>0){
+				ai->entity->flipped=true;
+				movement->speed.x= 100.0f;
 			}
 			else{
-				if(abs(((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x)<10.0f){
-					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x=0.0f;
-				}
-				else if(((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x>0){
-					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x-=10.0f;
-				}
-				else{
-					((CompMovement*)ai->entity->components[Component::type::t_movement])->speed.x+=10.0f;
-				}
+				ai->entity->flipped=false;
+				movement->speed.x=-100.0f;
 			}
 		}
 	}
 	else if(ai->states[0]==CompAI::state::attacking){
+		cout << "mask ai attacking" << endl;
 		if(ai->targetGO[0]==nullptr){
 			ai->timers[0].Restart();
-			ai->states[0]=CompAI::state::walking;
+			ai->states[0]=CompAI::state::looking;
+			ac->ChangeCur("walk");
 		}
-		else if(ai->timers[0].Get()>5){
+		if(ai->timers[0].Get()>5){
 			ai->timers[0].Restart();
-			ai->states[0]=CompAI::state::walking;
+			ai->states[0]=CompAI::state::idling;
+			ac->ChangeCur("idle");
 		}
+		//fire projectile
 	}
+	cout << "mask ai end" << endl;
 }
 GameObject* GameObject::MakeMask(const Vec2 &pos){
 	CompAnimControl* animControl = new CompAnimControl{"animation/mascara.txt"};
@@ -451,12 +466,10 @@ GameObject* GameObject::MakeMask(const Vec2 &pos){
 	coll->useDefault[CompCollider::collType::t_monster]=EmptyCollision;
 	mask->AddComponent(coll);
 
-	mask->AddComponent(new CompGravity{2500.0f});
+	mask->AddComponent(new CompMovement{});
+	// mask->AddComponent(new CompGravity{2500.0f});
 	mask->AddComponent(new CompHP{50,50,true,false});
-
-	CompAI *ai = new CompAI{MaskAIfunc,1,1,1,1};
-	ai->states[0]=CompAI::state::looking;
-	mask->AddComponent(ai);
+	mask->AddComponent(new CompAI{MaskAIfunc,1,1,0,1});
 
 	return mask;
 }

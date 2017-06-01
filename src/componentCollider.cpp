@@ -15,6 +15,7 @@ CompCollider::~CompCollider(){
 }
 
 void CompCollider::collisionCheck(CompCollider *other){
+	if(entity->dead || other->entity->dead)return;
 	if(useDefault.count(other->cType))useDefault[other->cType](this,other);
 	else if(useDefault.count(collType::t_any))useDefault[collType::t_any](this,other);
 	else if(entity->hasComponent[Component::type::t_movement]){
