@@ -6,7 +6,11 @@
 #include <level.hpp>
 #include <music.hpp>
 #include <state.hpp>
+#include <game.hpp>
 
+
+#define STATESTAGE ((StateStage*)&GAMESTATE)
+#define PLAYER (STATESTAGE->player)
 
 class StateStage: public State{
 	Level level;

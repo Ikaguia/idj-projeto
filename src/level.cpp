@@ -20,10 +20,6 @@ Level::Level() : background{Sprite(DEFAULT_BACKGROUND)}, tileSet{TileSet(DEFAULT
 }
 
 Level::Level(string file,set<unique_ptr<GameObject>>* entities) : tileSet{TileSet()}, tileMap{TileMap(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT, &tileSet)} {
-	//TODO: Remove this when the collision layer is read from the file
-	collisionLayer.clear();
-	collisionLayer.resize(DEFAULT_MAP_WIDTH*DEFAULT_MAP_HEIGHT);
-	
 	Load(file,entities);
 }
 

@@ -195,11 +195,13 @@ void BulletAnyCollision1(const CompCollider* a,const CompCollider* b){
 	if(move!=totMove){
 		a->entity->dead=true;
 
-		GameObject *arrow = new GameObject{a->entity->box + move + totMove/4.0f};
-		arrow->rotation=a->entity->rotation;
-		arrow->AddComponent(new CompStaticRender{Sprite{"img/arrow.png"},Vec2{}});
-		GAMESTATE.AddObject(arrow);
-		arrow->AttachTo(b->entity);
+		if(!b->entity->hasComponent[Component::type::t_movement]){
+			GameObject *arrow = new GameObject{a->entity->box + move + totMove/4.0f};
+			arrow->rotation=a->entity->rotation;
+			arrow->AddComponent(new CompStaticRender{Sprite{"img/arrow.png"},Vec2{}});
+			GAMESTATE.AddObject(arrow);
+			arrow->AttachTo(b->entity);
+		}
 
 		if(b->entity->hasComponent[Component::type::t_hp]){
 			((CompHP*)b->entity->components[Component::type::t_hp])->Damage(7+rand()%6);
@@ -243,8 +245,6 @@ GameObject* GameObject::MakeBullet(const Vec2 &pos,string image,float force,floa
 
 
 void MikeAIfunc(CompAI* ai,float time){
-	GameObject* player=((StateStage*)&GAMESTATE)->player;
-
 	if(ai->states[0]==CompAI::state::idling){
 		if(ai->timers[0].Get()>5){
 			ai->timers[0].Restart();
@@ -257,10 +257,10 @@ void MikeAIfunc(CompAI* ai,float time){
 			ai->states[0]=CompAI::state::idling;
 		}
 		//TODO: make line of sight component
-		else if(ai->entity->box.corner().dist(player->box.corner())<1000){
+		else if(ai->entity->box.corner().dist(PLAYER->box.corner())<1000){
 			ai->timers[0].Restart();
 			ai->states[0]=CompAI::state::walking;
-			ai->targetPOS[0]=player->box.corner();
+			ai->targetPOS[0]=PLAYER->box.corner();
 			((CompAnimControl*)ai->entity->components[Component::type::t_animation_control])->ChangeCur("walk");
 		}
 	}
@@ -379,33 +379,25 @@ GameObject* GameObject::MakeBanshee(const Vec2 &pos,const Vec2 &pos2){
 }
 
 void MaskAIfunc(CompAI* ai,float time){
-	GameObject* player=((StateStage*)&GAMESTATE)->player;
-
-	if(ai->states[0]==CompAI::state::idling){
-		if(ai->timers[0].Get()>2){
-			ai->timers[0].Restart();
-			ai->states[0]=CompAI::state::walking;
-		}
-	}
-	else if(ai->states[0]==CompAI::state::looking){
+	if(ai->states[0]==CompAI::state::looking){
 		if(ai->timers[0].Get()>5){
 			ai->timers[0].Restart();
 			ai->states[0]=CompAI::state::idling;
 		}
-		else if(ai->entity->box.corner().dist(player->box.corner())<750){
+		else if(ai->entity->box.corner().dist(PLAYER->box.corner())<750){
 			ai->timers[0].Restart();
 			ai->states[0]=CompAI::state::attacking;
-			ai->targetPOS[0]=player->box.corner();
+			ai->targetPOS[0]=PLAYER->box.corner();
 		}
 	}
 	else if(ai->states[0]==CompAI::state::walking){
 		if(ai->timers[0].Get()>5){
 			ai->timers[0].Restart();
-			if(ai->entity->box.corner().dist(player->box.corner())>10)ai->states[0]=CompAI::state::looking;
+			if(ai->entity->box.corner().dist(PLAYER->box.corner())>10)ai->states[0]=CompAI::state::looking;
 			else{
 				ai->states[0]=CompAI::state::attacking;
 				//attack
-				ai->targetGO[0]=player;
+				ai->targetGO[0]=PLAYER;
 			}
 		}
 		else{
@@ -461,7 +453,10 @@ GameObject* GameObject::MakeMask(const Vec2 &pos){
 
 	mask->AddComponent(new CompGravity{2500.0f});
 	mask->AddComponent(new CompHP{50,50,true,false});
-	mask->AddComponent(new CompAI{MaskAIfunc,1,1,1,1});
+
+	CompAI *ai = new CompAI{MaskAIfunc,1,1,1,1};
+	ai->states[0]=CompAI::state::looking;
+	mask->AddComponent(ai);
 
 	return mask;
 }
