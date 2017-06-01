@@ -55,6 +55,7 @@ void StateEditor::Update(float time){
 		}
 	}
 	
+	if(INPUTMAN.KeyPress(KEY(r))) RecomputeCollisionRectangles();
 	if(INPUTMAN.KeyPress(KEY(g))) showGrid = (!showGrid);
 	if(INPUTMAN.KeyPress(KEY(h))) {
 		showHelp = (!showHelp);
@@ -63,7 +64,7 @@ void StateEditor::Update(float time){
 	}
 	if(INPUTMAN.KeyPress(KEY(c))) showCollision = (!showCollision);
 	
-	if(INPUTMAN.KeyPress(KEY(s))) level.Save("level/level_0.txt");
+	if(INPUTMAN.KeyPress(KEY(s))) level.Save("level/level_0.txt",grouped);
 	
 	UpdateArray(time);
 	
@@ -185,4 +186,52 @@ Vec2 StateEditor::GetCurrentTile() {
 	//cout<<"mouse "<<INPUTMAN.GetMouseX()<<" "<<INPUTMAN.GetMouseY()<<endl;
 	//cout<<"tile "<<pos.x<<" "<<pos.y<<endl;
 	return pos;
+}
+
+
+void StateEditor::RecomputeCollisionRectangles(){
+
+	TileMap &tm = level.tileMap;
+	vector<int> &coll=level.collisionLayer;
+	int mapWidth=tm.GetWidth();
+	int mapHeight=tm.GetHeight();
+
+	grouped.resize(mapWidth*mapHeight);
+	FOR(j,mapHeight){
+		FOR(i,mapWidth){
+			int ind = i+(j*mapWidth);
+			grouped[ind]=make_pair(ii{i,j},ii{i,j});
+		}
+	}
+
+	auto join = [this,mapWidth,mapHeight](int ind1,int ind2){
+		ii beg=min(grouped[ind1].first, grouped[ind2].first);
+		ii end=max(grouped[ind1].second,grouped[ind2].second);
+
+		int ind3=beg.first+(beg.second*mapWidth);
+		int ind4=end.first+(end.second*mapWidth);
+
+		grouped[ind1]=grouped[ind2]=grouped[ind3]=grouped[ind4]=make_pair(beg,end);
+	};
+
+	FOR(j,mapHeight){
+		FOR(i,mapWidth){
+			int ind = i+(j*mapWidth);
+			if(coll[ind]==-1)grouped[ind]=make_pair(ii{0,0},ii{0,0});
+			else if(i+1 < mapWidth && coll[ind] == coll[1+ind]){
+				join(ind,ind+1);
+			}
+		}
+	}
+
+	FOR(j,mapHeight-1){
+		FOR(i,mapWidth){
+			int ind1 = i+( j   *mapWidth);
+			int ind2 = i+((j+1)*mapWidth);
+			if(grouped[ind1].first.first == grouped[ind2].first.first &&
+				grouped[ind1].second.first == grouped[ind2].second.first){
+				join(ind1,ind2);
+			}
+		}
+	}
 }

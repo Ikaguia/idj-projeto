@@ -60,86 +60,61 @@ void Level::Load(string file,set<unique_ptr<GameObject>>* entities) {
 	collisionLayer.clear();
 	collisionLayer.reserve(mapWidth*mapHeight);
 
-	int t;
+	int t,g;
+	int grouped[mapWidth][mapHeight];
 	FOR(y,mapHeight){
 		FOR(x,mapWidth){
 			in >> t;
 			in.ignore(1);
+			in >> g;
+			in.ignore(1);
 			collisionLayer[(y*mapWidth)+x] = t-1;
+			grouped[x][y]=g;
 		}
 	}
 	//in.ignore(1);
 	
-	if(entities!=nullptr) {
-		FOR(y,mapHeight) {
-			FOR(x,mapWidth) {
-				t = collisionLayer[(y*mapWidth)+x];
-				if(t!=EMPTY_TILE) {
-					GameObject *tile = new GameObject{Rect((x*tileWidth),(y*tileHeight),tileWidth,tileHeight)};
-					tile->AddComponent(new CompCollider{CompCollider::collType::t_ground});
-					//tile->AddComponent(new CompStaticRender{Sprite{"img/point_yellow.jpg"},Vec2{0,0}});
-					entities->insert(unique_ptr<GameObject>(tile));
-				
-			
-				}
-			}
-		}
-	}
-
-	//TODO: Add collision and remove this
-	/*char c;
-	while(in >> c)remaining+=c;
-
 	if(entities!=nullptr){
-		int x,y;
-		float f;
-		stringstream ss(remaining);
-
-		ss >> f;
-		ss.ignore(1);
-		int mapWidth =tileMap.GetWidth();
-		int mapHeight=tileMap.GetHeight();
-		map<ii,Rect> mp;
-		FOR(h,mapHeight){
-			FOR(w,mapWidth){
-				ss >> x;
-				ss.ignore(1);
-				if(x==1 || x==2){
-					ss >> y;
-					ss.ignore(1);
-					if(!mp.count(ii{x,y}))mp[ii{x,y}]=Rect{(float)mapWidth+1,(float)mapHeight+1,(float)-1,(float)-1};//default vals to make min and max work
-					else{
-						mp[ii{x,y}].x=min(mp[ii{x,y}].x,(float)w);
-						mp[ii{x,y}].y=min(mp[ii{x,y}].y,(float)h);
-						mp[ii{x,y}].w=max(mp[ii{x,y}].w,(float)w);
-						mp[ii{x,y}].h=max(mp[ii{x,y}].h,(float)h);
+		map<int,pair<Rect,int>> mp;
+		FOR(y,mapHeight){
+			FOR(x,mapWidth){
+				t = collisionLayer[x+(y*mapWidth)]+1;
+				g = grouped[x][y];
+				if(t){
+					if(!mp.count(g)){
+						mp[g]=make_pair(Rect{(float)mapWidth+1,(float)mapHeight+1,(float)-1,(float)-1},t);//default vals to make min and max work
 					}
+					mp[g].first.x=min(mp[g].first.x,(float)x);
+					mp[g].first.y=min(mp[g].first.y,(float)y);
+					mp[g].first.w=max(mp[g].first.w,(float)x);
+					mp[g].first.h=max(mp[g].first.h,(float)y);
 				}
 			}
 		}
 		for(auto &it:mp){
-			Rect r = it.second;
+			Rect r = it.second.first;
+			t=it.second.second;
+
 			r.w-=r.x-1;
 			r.h-=r.y-1;
-			if(it.first.first==2){
-				r.y+=f;
-				r.h-=f;
-			}
 			r.x*=tileWidth;
 			r.w*=tileWidth;
 			r.y*=tileHeight;
 			r.h*=tileHeight;
-			GameObject *tile = new GameObject{r};
-			if(it.first.first==1 || it.first.first==2)tile->AddComponent(new CompCollider{CompCollider::collType::t_ground});
-			else if                (it.first.first==3)tile->AddComponent(new CompCollider{CompCollider::collType::t_h_ground});
-			tile->AddComponent(new CompStaticRender{Sprite{"img/point_yellow.jpg"},Vec2{0,0}});
-			entities->insert(unique_ptr<GameObject>(tile));
+
+			if(t){
+				GameObject *tile = new GameObject{r};
+				tile->AddComponent(new CompCollider{CompCollider::collType::t_ground});
+				tile->AddComponent(new CompStaticRender{Sprite{"img/point_yellow.jpg"},Vec2{0,0}});
+				entities->insert(unique_ptr<GameObject>(tile));
+			}
 		}
-	}*/
+	}
+
 	in.close();
 }
 
-void Level::Save(string file,set<unique_ptr<GameObject>>* entities) {
+void Level::Save(string file,vector<pair<ii,ii>> grouped) {
 	ofstream out;
 	
 	out.open(file);
@@ -159,16 +134,25 @@ void Level::Save(string file,set<unique_ptr<GameObject>>* entities) {
 	int mapHeight = tileMap.GetHeight();
 	
 	//Collision
+	int id=1;
+	map<ii,int> ids;
 	FOR(y,mapHeight){
 		FOR(x,mapWidth){
-			out<<collisionLayer[(y*mapWidth)+x]+1<<",\t";
+			char s[200];
+			if(collisionLayer[(y*mapWidth)+x]==-1)sprintf(s,"0-000, ");
+			else{
+				auto &group = grouped[x+mapWidth*y];
+				if(group.first.first==x && group.first.second==y)ids[group.first]=id++;
+				sprintf(s,"%d-%03d, ",collisionLayer[(y*mapWidth)+x]+1,ids[group.first]);
+			}
+			string str(s);
+			out << str;
+
+			// out<<collisionLayer[(y*mapWidth)+x]+1 << "-" << grouped[x][y] <<",\t";
 		}
-		out<<endl;
+		out << endl;
 	}
-	out<<endl;
-	
-	//TODO: Add back collision and remove this
-	//out << remaining;
+	out << endl;
 
 	out.close();
 }

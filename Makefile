@@ -70,8 +70,8 @@ $(EXEC): $(OBJ_FILES)
 run: all
 ifeq ($(OS),Windows_NT)
 	$(EXEC)
-else 		
- 	$(CLEAR) && ./$(EXEC) && $(CLEAR)
+else
+	./$(EXEC)
 endif
 
 # Regra de inferência para criação dos objetos de compilação: 

@@ -16,6 +16,8 @@ class StateEditor: public State{
 	bool showCollision;
 	Text helpText;
 	Text statusText;
+
+	vector<pair<ii,ii>> grouped;
 public:
 	StateEditor();
 	~StateEditor();
@@ -35,6 +37,8 @@ public:
 	void RenderCollision();
 	
 	Vec2 GetCurrentTile();
+
+	void RecomputeCollisionRectangles();
 };
 
 #endif//STATEEDITORHPP

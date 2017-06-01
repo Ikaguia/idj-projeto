@@ -23,7 +23,7 @@ public:
 	~Level();
 	
 	void Load(string file,set<unique_ptr<GameObject>>* entities=nullptr);
-	void Save(string file,set<unique_ptr<GameObject>>* entities=nullptr);
+	void Save(string file,vector<pair<ii,ii>> grouped);
 	
 };
 #endif //LEVELHPP
