@@ -55,7 +55,6 @@ void StateEditor::Update(float time){
 		}
 	}
 	
-	if(INPUTMAN.KeyPress(KEY(r))) RecomputeCollisionRectangles();
 	if(INPUTMAN.KeyPress(KEY(g))) showGrid = (!showGrid);
 	if(INPUTMAN.KeyPress(KEY(h))) {
 		showHelp = (!showHelp);
@@ -64,7 +63,10 @@ void StateEditor::Update(float time){
 	}
 	if(INPUTMAN.KeyPress(KEY(c))) showCollision = (!showCollision);
 	
-	if(INPUTMAN.KeyPress(KEY(s))) level.Save("level/level_0.txt",grouped);
+	if(INPUTMAN.KeyPress(KEY(s))) {
+		RecomputeCollisionRectangles();
+		level.Save("level/level_0.txt",grouped);
+	}
 	
 	UpdateArray(time);
 	
@@ -177,7 +179,7 @@ Vec2 StateEditor::GetCurrentTile() {
 	Vec2 pos = CAMERA+(INPUTMAN.GetMouse()/CAMERAZOOM);
 	int tileWidth = level.tileSet.GetWidth();
 	int tileHeight = level.tileSet.GetHeight();
-	
+
 	//if(pos.x<0) pos.x-=tileWidth;
 	pos.x/=tileWidth;
 	//if(pos.y<0) pos.y-=tileHeight;
@@ -190,17 +192,17 @@ Vec2 StateEditor::GetCurrentTile() {
 
 
 void StateEditor::RecomputeCollisionRectangles(){
-
 	TileMap &tm = level.tileMap;
 	vector<int> &coll=level.collisionLayer;
 	int mapWidth=tm.GetWidth();
 	int mapHeight=tm.GetHeight();
-
+	
+	grouped.clear();
 	grouped.resize(mapWidth*mapHeight);
-	FOR(j,mapHeight){
-		FOR(i,mapWidth){
-			int ind = i+(j*mapWidth);
-			grouped[ind]=make_pair(ii{i,j},ii{i,j});
+	FOR(y,mapHeight){
+		FOR(x,mapWidth){
+			int ind = x+(y*mapWidth);
+			grouped[ind]=make_pair(ii{x,y},ii{x,y});
 		}
 	}
 
@@ -214,20 +216,20 @@ void StateEditor::RecomputeCollisionRectangles(){
 		grouped[ind1]=grouped[ind2]=grouped[ind3]=grouped[ind4]=make_pair(beg,end);
 	};
 
-	FOR(j,mapHeight){
-		FOR(i,mapWidth){
-			int ind = i+(j*mapWidth);
-			if(coll[ind]==-1)grouped[ind]=make_pair(ii{0,0},ii{0,0});
-			else if(i+1 < mapWidth && coll[ind] == coll[1+ind]){
+	FOR(y,mapHeight){
+		FOR(x,mapWidth){
+			int ind = x+(y*mapWidth);
+			if(coll[ind]==EMPTY_TILE)grouped[ind]=make_pair(ii{0,0},ii{0,0});
+			else if(x+1 < mapWidth && coll[ind] == coll[1+ind]){
 				join(ind,ind+1);
 			}
 		}
 	}
 
-	FOR(j,mapHeight-1){
-		FOR(i,mapWidth){
-			int ind1 = i+( j   *mapWidth);
-			int ind2 = i+((j+1)*mapWidth);
+	FOR(y,mapHeight-1){
+		FOR(x,mapWidth){
+			int ind1 = x+( y   *mapWidth);
+			int ind2 = x+((y+1)*mapWidth);
 			if(grouped[ind1].first.first == grouped[ind2].first.first &&
 				grouped[ind1].second.first == grouped[ind2].second.first){
 				join(ind1,ind2);

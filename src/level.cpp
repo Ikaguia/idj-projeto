@@ -66,8 +66,9 @@ void Level::Load(string file,set<unique_ptr<GameObject>>* entities) {
 			in >> t;
 			in.ignore(1);
 			collisionLayer[(y*mapWidth)+x] = t-1;
-			if(t == EMPTY_TILE)
+			if(t == EMPTY_TILE) {
 				grouped[x][y] = 0;
+			}
 			else {
 				in >> g;
 				in.ignore(1);
