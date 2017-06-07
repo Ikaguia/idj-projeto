@@ -3,12 +3,14 @@
 
 #include <common.hpp>
 
+#include <gui.hpp>
 #include <sprite.hpp>
 #include <state.hpp>
 #include <text.hpp>
 
 class StateTitle: public State{
 	Sprite bg;
+	GUI_CheckButton b;
 public:
 
 	StateTitle();

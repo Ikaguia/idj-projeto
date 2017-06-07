@@ -55,6 +55,7 @@ using std::vector;
 using std::make_pair;
 
 using ii=pair<int,int>;
+using uint=unsigned int;
 
 #define FOR(  cont,    max) for(int (cont)=0 	       ,_max_=(max);(cont)< _max_;(cont)++)
 #define FOR2( cont,min,max) for(int (cont)=(int)(min)  ,_max_=(max);(cont)< _max_;(cont)++)

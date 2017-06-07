@@ -17,6 +17,9 @@ class StateEditor: public State{
 	Text helpText;
 	Text statusText;
 
+	Vec2 clickPos;
+	Vec2 camPos;
+
 	vector<pair<ii,ii>> grouped;
 public:
 	StateEditor();

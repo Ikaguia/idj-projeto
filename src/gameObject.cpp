@@ -115,12 +115,12 @@ void PlayerControlFunc(GameObject* go, float time){
 	Vec2 &speed = ((CompMovement*)go->components[Component::type::t_movement])->speed;
 
 	//TODO change this to prevent infinite jump
-	if(INPUTMAN.KeyPress(KEY_UP))speed.y=-1500.0f;
-	if(INPUTMAN.IsKeyDown(KEY_LEFT) && !INPUTMAN.IsKeyDown(KEY_RIGHT)){
+	if(INPUT.KeyPress(KEY_UP))speed.y=-1500.0f;
+	if(INPUT.IsKeyDown(KEY_LEFT) && !INPUT.IsKeyDown(KEY_RIGHT)){
 		speed.x=max(-400.0f,speed.x-800*time);
 		go->flipped=true;
 	}
-	else if(INPUTMAN.IsKeyDown(KEY_RIGHT) && !INPUTMAN.IsKeyDown(KEY_LEFT)){
+	else if(INPUT.IsKeyDown(KEY_RIGHT) && !INPUT.IsKeyDown(KEY_LEFT)){
 		speed.x=min( 400.0f,speed.x+800*time);
 		go->flipped=false;
 	}
@@ -128,7 +128,7 @@ void PlayerControlFunc(GameObject* go, float time){
 	else if(speed.x<0.0f)speed.x=min(0.0f,speed.x+800*time);
 
 
-	if(INPUTMAN.KeyPress(KEY(z))){
+	if(INPUT.KeyPress(KEY_SPACE)){
 		//TODO: prevent firing arrows inside other objects
 		float force=1000 + (1000-rand()%2000)/10.0f;
 		float angle=       (1000-rand()%2000)/100.0f;

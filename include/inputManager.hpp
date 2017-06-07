@@ -17,10 +17,10 @@
 
 #define MBUTTON_LEFT	SDL_BUTTON_LEFT
 #define MBUTTON_RIGHT 	SDL_BUTTON_RIGHT
-// #define MBUTTON_MIDDLE 	SDL_BUTTON_MIDDLE
+#define MBUTTON_MIDDLE 	SDL_BUTTON_MIDDLE
 
-#define INPUTMAN InputManager::GetInstance()
-#define MOUSE INPUTMAN.GetMouse()
+#define INPUT InputManager::GetInstance()
+#define MOUSE INPUT.GetMouse()
 
 class InputManager{
 	bitset<6> mouseState;//vetor de 6 booleanos //bitset ocupa o menor numero de bytes possivel(char para < 8 bits)

@@ -10,6 +10,7 @@ class GameObject;
 
 #define CAMERA Camera::pos
 #define CAMERAZOOM Camera::zoom
+#define CAMERALOCK Camera::lock
 #define RENDERPOS Camera::RenderPos
 #define RENDERPOSX Camera::RenderPosX
 #define RENDERPOSY Camera::RenderPosY
@@ -21,6 +22,7 @@ public:
 	static Vec2 pos;
 	static Vec2 speed;
 	static float zoom;
+	static bool lock;
 	
 	static void Follow(GameObject* newFocus);
 	static void Unfollow();

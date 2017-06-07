@@ -19,14 +19,14 @@ Level::Level() : background{Sprite(DEFAULT_BACKGROUND)}, tileSet{TileSet(DEFAULT
 	}
 }
 
-Level::Level(string file,set<unique_ptr<GameObject>>* entities) : tileSet{TileSet()}, tileMap{TileMap(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT, &tileSet)} {	
-	Load(file,entities);
+Level::Level(string file,State* scene) : tileSet{TileSet()}, tileMap{TileMap(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT, &tileSet)} {	
+	Load(file,scene);
 }
 
 Level::~Level() {
 }
 
-void Level::Load(string file,set<unique_ptr<GameObject>>* entities) {
+void Level::Load(string file,State* scene) {
 	ifstream in;
 	
 	in.open(file);
@@ -78,7 +78,7 @@ void Level::Load(string file,set<unique_ptr<GameObject>>* entities) {
 	}
 	
 	//Setting the collision boxes:
-	if(entities!=nullptr){
+	if(scene!=nullptr){
 		map<int,pair<Rect,int>> mp;
 		FOR(y,mapHeight){
 			FOR(x,mapWidth){
@@ -110,7 +110,7 @@ void Level::Load(string file,set<unique_ptr<GameObject>>* entities) {
 				GameObject *tile = new GameObject{r};
 				tile->AddComponent(new CompCollider{CompCollider::collType::t_ground});
 				tile->AddComponent(new CompStaticRender{Sprite{"img/point_yellow.jpg"},Vec2{0,0}});
-				entities->insert(unique_ptr<GameObject>(tile));
+				scene->AddObject(tile);
 			}
 		}
 	}

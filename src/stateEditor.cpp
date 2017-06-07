@@ -8,7 +8,17 @@
 #include <resources.hpp>
 
 #define HELP_TEXT "Press [H] for help"
-#define HELP_TEXT_OPEN 	"S - Save\nG - Toggle grid\nLMB - Place tile\nRMB - Erase tile\nA - Previous tile\nD - Next tile\nC - Show Collision"
+#define HELP_TEXT_OPEN \
+"S - Save\n\
+G - Toggle grid\n\
+LMB - Place tile\n\
+RMB - Erase tile\n\
+A - Previous tile\n\
+D - Next tile\n\
+C - Show Collision \n\
+ARROW KEYS, MMB - Move Camera\n\
+Z - Zoom In\n\
+X - Zoom Out"
 
 //TODO: Remove placeholder index
 #define COLLISION_BLOCK 0
@@ -31,14 +41,17 @@ void StateEditor::LoadAssets(){
 
 void StateEditor::Update(float time){
 	Camera::Update(time);
-	if(INPUTMAN.QuitRequested())quitRequested=true;
-	if(INPUTMAN.KeyPress(KEY_ESC))popRequested=true;
+	if(INPUT.QuitRequested())quitRequested=true;
+	if(INPUT.KeyPress(KEY_ESC))popRequested=true;
 	
 	int tileCount = level.tileSet.GetTileCount();
-	if(INPUTMAN.KeyPress(KEY(a))) tileIndex = (tileIndex + tileCount-1)%tileCount;
-	if(INPUTMAN.KeyPress(KEY(d))) tileIndex = (tileIndex + 1)%tileCount;
+	//Select next tile
+	if(INPUT.KeyPress(KEY(a))) tileIndex = (tileIndex + tileCount-1)%tileCount;
+	//Select previous tile
+	if(INPUT.KeyPress(KEY(d))) tileIndex = (tileIndex + 1)%tileCount;
 	
-	if(INPUTMAN.IsMouseDown(MBUTTON_LEFT)) {
+	//Place a tile
+	if(INPUT.IsMouseDown(MBUTTON_LEFT)) {
 		Vec2 cursor = GetCurrentTile();
 		Rect canvas(0, 0, level.tileMap.GetWidth()-1, level.tileMap.GetHeight()-1);
 		if(canvas.contains(cursor)) {
@@ -46,7 +59,8 @@ void StateEditor::Update(float time){
 			level.collisionLayer[(cursor.y*level.tileMap.GetWidth())+cursor.x] = COLLISION_BLOCK;
 		}
 	}
-	if(INPUTMAN.IsMouseDown(MBUTTON_RIGHT)) {
+	//Erase a tile
+	if(INPUT.IsMouseDown(MBUTTON_RIGHT)) {
 		Vec2 cursor = GetCurrentTile();
 		Rect canvas(0, 0, level.tileMap.GetWidth()-1, level.tileMap.GetHeight()-1);
 		if(canvas.contains(cursor)) {
@@ -55,22 +69,40 @@ void StateEditor::Update(float time){
 		}
 	}
 	
-	if(INPUTMAN.KeyPress(KEY(g))) showGrid = (!showGrid);
-	if(INPUTMAN.KeyPress(KEY(h))) {
+	
+	//Toggle grid
+	if(INPUT.KeyPress(KEY(g))) showGrid = (!showGrid);
+	//Toggle instructions menu
+	if(INPUT.KeyPress(KEY(h))) {
 		showHelp = (!showHelp);
 		if(showHelp) helpText.SetText(HELP_TEXT);
 		else helpText.SetText(HELP_TEXT_OPEN);
 	}
-	if(INPUTMAN.KeyPress(KEY(c))) showCollision = (!showCollision);
+	//Toggle collision boxes
+	if(INPUT.KeyPress(KEY(c))) showCollision = (!showCollision);
 	
-	if(INPUTMAN.KeyPress(KEY(s))) {
+	//Save
+	if(INPUT.KeyPress(KEY(s))) {
 		RecomputeCollisionRectangles();
 		level.Save("level/level_0.txt",grouped);
 	}
 	
+	//Pan view
+	if(INPUT.MousePress(MBUTTON_MIDDLE)) {
+		clickPos = INPUT.GetMouse();
+		camPos = CAMERA;
+		CAMERALOCK = true;
+	}
+	else if(INPUT.IsMouseDown(MBUTTON_MIDDLE)) {
+		CAMERA = camPos - ((INPUT.GetMouse()-clickPos)/CAMERAZOOM);
+	}
+	if(INPUT.MouseRelease(MBUTTON_MIDDLE)) {
+		CAMERALOCK = false;
+	}
+	
 	UpdateArray(time);
 	
-	statusText.SetText("Mouse:("+to_string(INPUTMAN.GetMouseX())+","+to_string(INPUTMAN.GetMouseY())+")  Zoom:"+FloatToStr(100*CAMERAZOOM)+"%");
+	statusText.SetText("Mouse:("+to_string(INPUT.GetMouseX())+","+to_string(INPUT.GetMouseY())+")  Zoom:"+FloatToStr(100*CAMERAZOOM)+"%");
 }
 void StateEditor::Render(){
 	RenderBackground();
@@ -176,7 +208,7 @@ void StateEditor::RenderCollision() {
 }
 
 Vec2 StateEditor::GetCurrentTile() {
-	Vec2 pos = CAMERA+(INPUTMAN.GetMouse()/CAMERAZOOM);
+	Vec2 pos = CAMERA+(INPUT.GetMouse()/CAMERAZOOM);
 	int tileWidth = level.tileSet.GetWidth();
 	int tileHeight = level.tileSet.GetHeight();
 
@@ -185,7 +217,7 @@ Vec2 StateEditor::GetCurrentTile() {
 	//if(pos.y<0) pos.y-=tileHeight;
 	pos.y/=tileHeight;
 	pos.floor();
-	//cout<<"mouse "<<INPUTMAN.GetMouseX()<<" "<<INPUTMAN.GetMouseY()<<endl;
+	//cout<<"mouse "<<INPUT.GetMouseX()<<" "<<INPUT.GetMouseY()<<endl;
 	//cout<<"tile "<<pos.x<<" "<<pos.y<<endl;
 	return pos;
 }

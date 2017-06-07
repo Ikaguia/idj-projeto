@@ -14,6 +14,7 @@ GameObject* Camera::focus=nullptr;
 Vec2 Camera::pos;
 Vec2 Camera::speed;
 float Camera::zoom = 1.0f;
+bool Camera::lock = false;
 
 void Camera::Follow(GameObject* newFocus){
 	focus=newFocus;
@@ -23,13 +24,13 @@ void Camera::Unfollow(){
 }
 void Camera::Update(float time){
 	Vec2 center = pos + (WINSIZE/2/zoom);
-	if(INPUTMAN.IsKeyDown(KEY(z))) {
+	if(INPUT.IsKeyDown(KEY(z))) {
 		zoom += 0.5*time;
 		if(zoom > MAX_ZOOM)
 			zoom = MAX_ZOOM;
 		//cout<<"zoom: "<<zoom<<endl;
 	}
-	if(INPUTMAN.IsKeyDown(KEY(x))) {
+	if(INPUT.IsKeyDown(KEY(x))) {
 		zoom -= 0.5*time;
 		if(zoom < MIN_ZOOM)
 			zoom = MIN_ZOOM;
@@ -37,18 +38,18 @@ void Camera::Update(float time){
 	}
 	CenterTo(center);
 	
-	if(!focus){
+	if(focus) CenterTo(focus->box.center());
+	else if(!lock){
 		speed=Vec2(0,0);
-		if(INPUTMAN.IsKeyDown(KEY_LEFT)) speed.x-=CAMERA_SPEED;
-		if(INPUTMAN.IsKeyDown(KEY_RIGHT))speed.x+=CAMERA_SPEED;
-		if(INPUTMAN.IsKeyDown(KEY_UP))   speed.y-=CAMERA_SPEED;
-		if(INPUTMAN.IsKeyDown(KEY_DOWN)) speed.y+=CAMERA_SPEED;
+		if(INPUT.IsKeyDown(KEY_LEFT)) speed.x-=CAMERA_SPEED;
+		if(INPUT.IsKeyDown(KEY_RIGHT))speed.x+=CAMERA_SPEED;
+		if(INPUT.IsKeyDown(KEY_UP))   speed.y-=CAMERA_SPEED;
+		if(INPUT.IsKeyDown(KEY_DOWN)) speed.y+=CAMERA_SPEED;
 		speed/=zoom;
 		speed*=time;
 		pos+=speed;
 		//if(speed != Vec2(0,0)) cout<<"camera x= "<<pos.x<<"\t y= "<<pos.y<<endl;
 	}
-	else CenterTo(focus->box.center());
 }
 
 void Camera::CenterTo(const Vec2& v) {

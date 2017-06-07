@@ -10,13 +10,13 @@ class State{
 protected:
 	bool popRequested;
 	bool quitRequested;
+	uint uid;
 
 	virtual void UpdateArray(float time);
 	virtual void RenderArray();
 public:
-	set<unique_ptr<GameObject>> entities;
-	set<GameObject*> GetEntitiesInRange(const float &x1,const float &x2);
-
+	unordered_map<uint, unique_ptr<GameObject>> entities;
+	map<ii,set<uint>> group;
 
 	State();
 	virtual ~State(){}
@@ -29,12 +29,13 @@ public:
 
 	virtual void LoadAssets()=0;
 
-	virtual void AddObject(GameObject* obj);
+	virtual void AddObject(GameObject* obj, int layer=0, int area=0);
 
 	void AddSound(string file,int times);
 
 	bool PopRequested();
 	bool QuitRequested();
+	set<GameObject*> GetEntitiesInRange(const float &x1,const float &x2);
 };
 
 #endif//STATEHPP

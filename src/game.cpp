@@ -29,8 +29,8 @@ Game::Game(string title,int width,int height):frameStart{0},dt{0},winSize{(float
 		exit(EXIT_FAILURE);
 	}
 
-	//window = SDL_CreateWindow(title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,width,height,SDL_WINDOW_FULLSCREEN);
-	window = SDL_CreateWindow(title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,width,height,0);
+	window = SDL_CreateWindow(title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,width,height,SDL_WINDOW_FULLSCREEN);
+	//window = SDL_CreateWindow(title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,width,height,0);
 	if(!window){
 		cout << "Erro ao instanciar janela da SDL, o programa ira encerrar agora" << endl;
 		exit(EXIT_FAILURE);
@@ -115,8 +115,8 @@ void Game::Run(){
 	}
 	while(stateStack.size() && !(GetCurrentState().QuitRequested())){
 		CalculateDeltaTime();
-		INPUTMAN.Update();
-		//if(INPUTMAN.KeyPress(KEY_F(11))) SwitchWindowMode();
+		INPUT.Update();
+		//if(INPUT.KeyPress(KEY_F(11))) SwitchWindowMode();
 		GetCurrentState().Update(GetDeltaTime());
 		GetCurrentState().Render();
 		SDL_RenderPresent(renderer);
