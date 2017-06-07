@@ -77,6 +77,11 @@ using uint=unsigned int;
 //#define GRAVITY 9.80665//m/s
 #define GRAVITY 15.0//m/s
 
+#define DATA_PATH (string)"data/"
+#define ANIMATION_PATH DATA_PATH+"animation/"
+#define BLUEPRINT_PATH DATA_PATH+"blueprint/"
+#define LEVEL_PATH DATA_PATH+"level/"
+
 #define NOMEPROJETO "IDJ - Projeto"
 
 typedef enum {TOP_LEFT,TOP,TOP_RIGHT,LEFT,CENTER,RIGHT,BOTTOM_LEFT,BOTTOM,BOTTOM_RIGHT} Hotspot; 

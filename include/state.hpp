@@ -15,7 +15,7 @@ protected:
 	virtual void UpdateArray(float time);
 	virtual void RenderArray();
 public:
-	unordered_map<uint, unique_ptr<GameObject>> entities;
+	map<uint, unique_ptr<GameObject>> entities;
 	map<ii,set<uint>> group;
 
 	State();

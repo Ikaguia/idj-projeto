@@ -1,2 +1,0 @@
-idle animation/banshee_idle.txt
-walk animation/banshee_walk.txt

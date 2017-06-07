@@ -1,0 +1,8 @@
+aiControl hostile melee 1000
+animationController mike.txt
+collider monster
+gravity 2500
+hitpoints 100 1 0 1.0
+melee 1.0 -0.5 0.5 0.5 0.0 1.25 2.0
+movement
+

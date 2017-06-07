@@ -1,0 +1,2 @@
+idle mike_idle.txt
+walk mike_walk.txt

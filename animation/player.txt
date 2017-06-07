@@ -1,2 +1,0 @@
-idle animation/player_idle.txt
-walk animation/player_walk.txt

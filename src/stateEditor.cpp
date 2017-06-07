@@ -23,7 +23,7 @@ X - Zoom Out"
 //TODO: Remove placeholder index
 #define COLLISION_BLOCK 0
 
-StateEditor::StateEditor():level{"level/level_0.txt"},tileIndex{0},showGrid{true},showHelp{true},showCollision(false),helpText{Text(HELP_TEXT,16)},statusText{Text("test",16)} {
+StateEditor::StateEditor():level{"data/level/level_0.txt"},tileIndex{0},showGrid{true},showHelp{true},showCollision(false),helpText{Text(HELP_TEXT,16)},statusText{Text("test",16)} {
 	LoadAssets();
 	CAMERA = {-100, -100};
 	CAMERAZOOM = 1.0f;

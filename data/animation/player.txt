@@ -1,0 +1,2 @@
+idle player_idle.txt
+walk player_walk.txt

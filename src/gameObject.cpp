@@ -154,7 +154,7 @@ void PlayerMonsterCollision(const CompCollider* a,const CompCollider* b){
 void EmptyCollision(const CompCollider* a,const CompCollider* b){}
 GameObject* GameObject::MakePlayer(const Vec2 &pos){
 
-	CompAnimControl* animControl = new CompAnimControl{"animation/player.txt"};
+	CompAnimControl* animControl = new CompAnimControl{"data/animation/player.txt"};
 	float width=animControl->GetCur().sp.GetWidth();
 	float height=animControl->GetCur().sp.GetHeight();
 
@@ -299,7 +299,7 @@ void MikeAIfunc(CompAI* ai,float time){
 }
 GameObject* GameObject::MakeMike(const Vec2 &pos){
 
-	CompAnimControl* animControl = new CompAnimControl{"animation/mike.txt"};
+	CompAnimControl* animControl = new CompAnimControl{"data/animation/mike.txt"};
 	float width=animControl->GetCur().sp.GetWidth();
 	float height=animControl->GetCur().sp.GetHeight();
 
@@ -353,7 +353,7 @@ void BansheeAIfunc(CompAI* ai,float time){
 	}
 }
 GameObject* GameObject::MakeBanshee(const Vec2 &pos,const Vec2 &pos2){
-	CompAnimControl* animControl = new CompAnimControl{"animation/banshee.txt"};
+	CompAnimControl* animControl = new CompAnimControl{"data/animation/banshee.txt"};
 	float width=animControl->GetCur().sp.GetWidth();
 	float height=animControl->GetCur().sp.GetHeight();
 
@@ -453,7 +453,7 @@ void MaskAIfunc(CompAI* ai,float time){
 	cout << "mask ai end" << endl;
 }
 GameObject* GameObject::MakeMask(const Vec2 &pos){
-	CompAnimControl* animControl = new CompAnimControl{"animation/mascara.txt"};
+	CompAnimControl* animControl = new CompAnimControl{"data/animation/mascara.txt"};
 	float width=animControl->GetCur().sp.GetWidth();
 	float height=animControl->GetCur().sp.GetHeight();
 

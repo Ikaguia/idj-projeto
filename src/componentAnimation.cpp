@@ -11,7 +11,7 @@ CompAnim::CompAnim(string file){
 	int fCount;
 	float fTime,x,y,w,h,r;
 
-	ifstream in(file);
+	ifstream in(ANIMATION_PATH+file);
 	if(!in.is_open())cout << "Erro ao abrir arquivo de animação '" << file << "'" << endl;
 	else{
 		while(in >> imgFile >> fCount >> fTime){

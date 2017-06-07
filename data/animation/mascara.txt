@@ -1,0 +1,4 @@
+idle mascara_idle.txt
+walk mascara_walk.txt
+attack mascara_attack.txt
+die mascara_die.txt

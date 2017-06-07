@@ -1,0 +1,2 @@
+idle banshee_idle.txt
+walk banshee_walk.txt
