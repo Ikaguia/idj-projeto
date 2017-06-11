@@ -222,8 +222,8 @@ bool Rect::collides(const Rect& b) const{
 
 	if(x>(b.x+b.w))return false;
 	if(y>(b.y+b.h))return false;
-	if((x+w)<b.x)return false;
-	if((y+h)<b.y)return false;
+	if(b.x>(x+w))return false;
+	if(b.y>(y+h))return false;
 	return true;
 }
 std::ostream& operator<<(std::ostream& os, const Rect& obj){

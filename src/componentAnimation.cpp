@@ -2,14 +2,16 @@
 #include <gameObject.hpp>
 #include <camera.hpp>
 #include <complib.hpp>
-//#include <game.hpp>
+#include <game.hpp>
+#include <stateStage.hpp>
 //#include <inputManager.hpp>
 
 CompAnim::CompAnim(){}
 CompAnim::CompAnim(string file){
-	string name,imgFile;
-	int fCount;
+	string name,imgFile,func;
+	int fCount,dmgLow,dmgHigh;
 	float fTime,x,y,w,h,r;
+	bool dmgSelf;
 
 	ifstream in(ANIMATION_PATH+file);
 	if(!in.is_open())cout << "Erro ao abrir arquivo de animação '" << file << "'" << endl;
@@ -19,9 +21,34 @@ CompAnim::CompAnim(string file){
 			// colliders.resize(fCount,nullptr);
 			FOR(i,fCount){
 				//TODO: make colliders use this
-				in >> x >> y >> w >> h >> r;
+				in >> x >> y >> w >> h >> r >> func;
 				// colliders[i]=new CompCollider{CompCollider::collType::t_player};
 				// colliders[i]->entity=entity;
+				if(func=="damageArea"){
+					in >> x >> y >> w >> h >> r >> dmgLow >> dmgHigh >> dmgSelf;
+					Rect rect{x,y,w,h};
+					dmgHigh=max(dmgHigh,dmgLow+1);
+					frameFunc[i] = [rect,r,dmgLow,dmgHigh,dmgSelf](GameObject* self){
+						Rect area = self->box;
+						area.w *= rect.w;
+						area.h *= rect.h;
+						if(self->flipped)area.x += self->box.w * rect.x;
+						else area.x += (self->box.w * (1 - rect.x)) - area.w;
+						area.y += self->box.h * rect.y;
+
+						cout << "dmging area " << area << " from " << self->box << endl;
+						cout << "player at " << PLAYER->box << " collides? " << area.collides(PLAYER->box) << endl;
+						set<GameObject*> gos = GAMESTATE.GetEntitiesInRange(rect.x,rect.x+rect.w);
+						for(GameObject* go:gos){
+							if(dmgSelf || go != self){
+								//TODO: change collision to work with rotation
+								if(go->hasComponent[Component::type::t_hp] && area.collides(go->box)){
+									((CompHP*)go->components[Component::type::t_hp])->Damage(dmgLow+(rand()%(dmgHigh-dmgLow)));
+								}
+							}
+						}
+					};
+				}
 			}
 		}
 		in.close();
@@ -44,7 +71,10 @@ int CompAnim::GetFrameCount(){
 
 
 void CompAnim::Update(float time){
+	int frame1=sp.GetCurFrame();
 	sp.Update(time);
+	int frame2=sp.GetCurFrame();
+	if(frame1 != frame2 && frameFunc.count(frame2))frameFunc[frame2](entity);
 	// entity->SetComponent(Component::type::t_collider,colliders[GetCurFrame()]);
 }
 void CompAnim::Render(){

@@ -25,7 +25,7 @@ void StateStage::Update(float time){
 	
 	if(INPUT.KeyPress(KEY(p))) AddObject(GameObject::MakeMike(Vec2{850.0f,200.0f}));
 	if(INPUT.KeyPress(KEY(o))) AddObject(GameObject::MakeBanshee(Vec2{850.0f,200.0f},Vec2{130.0f,130.0f}));
-	if(INPUT.KeyPress(KEY(i))) AddObject(GameObject::MakeMask(Vec2{850.0f,200.0f}));
+	if(INPUT.KeyPress(KEY(i))) AddObject(GameObject::MakeMask(Vec2{850.0f,261.0f}));
 
 	
 	UpdateArray(time);

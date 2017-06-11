@@ -1,5 +1,3 @@
-#include "gameException.hpp"
+#include <gameException.hpp>
 
-GameException::GameException(string msg) : msg(msg) {
-
-}
+GameException::GameException(string msg):msg(msg){}

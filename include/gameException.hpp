@@ -2,19 +2,17 @@
 #define GAMEEXCEPTIONHPP
 
 #include <exception>
-#include <string>
+
+#include <common.hpp>
 
 
 class GameException : public std::exception {
-    string msg;
+	string msg;
 public:
-
-    GameException(string msg);
-
-
-    virtual const char* what() const noexcept {
-        return msg.c_str();
-    };
+	GameException(string msg);
+	virtual const char* what() const noexcept {
+		return msg.c_str();
+	};
 };
 
 

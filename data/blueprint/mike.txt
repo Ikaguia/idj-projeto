@@ -1,3 +1,4 @@
+pos ?
 aiControl hostile melee 1000
 animationController mike.txt
 collider monster

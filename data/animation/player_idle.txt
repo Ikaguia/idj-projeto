@@ -1,3 +1,3 @@
-img/player_static.jpg
+img/player_static.png
 1 1
-0 0 1.0 1.0 0
+0 0 1.0 1.0 0	0

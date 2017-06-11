@@ -11,6 +11,7 @@
 class CompAnim : public Component{
 public:
 	vector<CompCollider*> colliders;
+	map<int,function<void(GameObject*)>> frameFunc;
 	Sprite sp;
 
 	//public members

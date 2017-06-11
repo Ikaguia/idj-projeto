@@ -28,6 +28,7 @@ using std::array;
 using std::bitset;
 using std::ceil;
 using std::cout;
+using std::cerr;
 using std::endl;
 using std::find;
 using std::floor;
