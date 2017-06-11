@@ -36,8 +36,6 @@ CompAnim::CompAnim(string file){
 						else area.x += (self->box.w * (1 - rect.x)) - area.w;
 						area.y += self->box.h * rect.y;
 
-						cout << "dmging area " << area << " from " << self->box << endl;
-						cout << "player at " << PLAYER->box << " collides? " << area.collides(PLAYER->box) << endl;
 						set<GameObject*> gos = GAMESTATE.GetEntitiesInRange(rect.x,rect.x+rect.w);
 						for(GameObject* go:gos){
 							if(dmgSelf || go != self){

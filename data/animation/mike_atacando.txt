@@ -1,5 +1,5 @@
-img/mascara-atacando.png
-9 0.175
+img/mike-atacando.png
+8 0.175
 0 0 1.0 1.0 0	0
 0 0 1.0 1.0 0	0
 0 0 1.0 1.0 0	0
@@ -8,4 +8,3 @@ img/mascara-atacando.png
 0 0 1.0 1.0 0	0
 0 0 1.0 1.0 0	0
 0 0 1.0 1.0 0	damageArea 1.0 0.0 0.5 0.5 0.0 10 16 0
-0 0 1.0 1.0 0	0

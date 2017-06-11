@@ -236,7 +236,10 @@ GameObject* GameObject::MakeBullet(const Vec2 &pos,string image,GameObject* go,f
 }
 
 
+#define MIKE_ATTACK_DIST 100
+#define MIKE_SEE_DIST 500
 void MikeAIfunc(CompAI* ai,float time){
+	CompAnimControl* ac = ((CompAnimControl*)ai->entity->components[Component::type::t_animation_control]);
 	if(ai->states[0]==CompAI::state::idling){
 		if(ai->timers[0].Get()>5){
 			ai->timers[0].Restart();
@@ -244,48 +247,60 @@ void MikeAIfunc(CompAI* ai,float time){
 		}
 	}
 	else if(ai->states[0]==CompAI::state::looking){
+		float dist = ai->entity->box.corner().dist(PLAYER->box.corner());
+
 		if(ai->timers[0].Get()>5){
 			ai->timers[0].Restart();
 			ai->states[0]=CompAI::state::idling;
 		}
 		//TODO: make line of sight component
-		else if(ai->entity->box.corner().dist(PLAYER->box.corner())<1000){
+		else if(dist<MIKE_SEE_DIST){
 			ai->timers[0].Restart();
-			ai->states[0]=CompAI::state::walking;
-			ai->targetPOS[0]=PLAYER->box.corner();
-			((CompAnimControl*)ai->entity->components[Component::type::t_animation_control])->ChangeCur("walk");
+			ai->targetGO[0]=PLAYER;
+			if(dist<MIKE_ATTACK_DIST)ai->states[0]=CompAI::state::attacking,ac->ChangeCur("attack");
+			else ai->states[0]=CompAI::state::walking,ac->ChangeCur("walk");
 		}
 	}
 	else if(ai->states[0]==CompAI::state::walking){
-		float dist = ai->targetPOS[0].x-ai->entity->box.x;
-		CompMovement *movement = ((CompMovement*)ai->entity->components[Component::type::t_movement]);
-		CompAnimControl* ac = ((CompAnimControl*)ai->entity->components[Component::type::t_animation_control]);
-
-		if(abs(dist)<abs(movement->speed.x)*time){
-			movement->speed.x=0;
-			movement->move=dist;
-
-			ai->states[0]=CompAI::state::idling;
+		if(ai->targetGO[0]==nullptr || ai->timers[0].Get()>5){
 			ai->timers[0].Restart();
+			ai->states[0]=CompAI::state::looking;
 			ac->ChangeCur("idle");
 		}
-		else if(dist>0){
-			ai->entity->flipped=true;
-			movement->speed.x= 100.0f;
-		}
 		else{
-			ai->entity->flipped=false;
-			movement->speed.x=-100.0f;
+			float dist = ai->targetGO[0]->box.x - ai->entity->box.x;
+			CompMovement *movement = ((CompMovement*)ai->entity->components[Component::type::t_movement]);
+
+			//TODO: if cant see target go looking
+			if(abs(dist) < MIKE_ATTACK_DIST+abs(movement->speed.x)*time){
+				movement->speed.x=0;
+				if(dist>0)movement->move=dist-MIKE_ATTACK_DIST;
+				else      movement->move=dist+MIKE_ATTACK_DIST;
+
+				ai->states[0]=CompAI::state::attacking;
+				ai->timers[0].Restart();
+				ac->ChangeCur("attack");
+			}
+			else if(dist>0){
+				ai->entity->flipped=true;
+				movement->speed.x= 100.0f;
+			}
+			else{
+				ai->entity->flipped=false;
+				movement->speed.x=-100.0f;
+			}
 		}
 	}
 	else if(ai->states[0]==CompAI::state::attacking){
 		if(ai->targetGO[0]==nullptr){
 			ai->timers[0].Restart();
-			ai->states[0]=CompAI::state::idling;
+			ai->states[0]=CompAI::state::looking;
+			ac->ChangeCur("walk");
 		}
-		else if(ai->timers[0].Get()>5){
+		if(ai->timers[0].Get()>5){
 			ai->timers[0].Restart();
 			ai->states[0]=CompAI::state::idling;
+			ac->ChangeCur("idle");
 		}
 	}
 }
@@ -370,7 +385,7 @@ GameObject* GameObject::MakeBanshee(const Vec2 &pos,const Vec2 &pos2){
 	return banshee;
 }
 
-#define MASK_FIRE_DIST 200
+#define MASK_ATTACK_DIST 200
 #define MASK_SEE_DIST 500
 void MaskAIfunc(CompAI* ai,float time){
 	CompAnimControl* ac = ((CompAnimControl*)ai->entity->components[Component::type::t_animation_control]);
@@ -391,24 +406,25 @@ void MaskAIfunc(CompAI* ai,float time){
 		else if(dist<MASK_SEE_DIST){
 			ai->timers[0].Restart();
 			ai->targetGO[0]=PLAYER;
-			if(dist<MASK_FIRE_DIST)ai->states[0]=CompAI::state::attacking;
-			else                   ai->states[0]=CompAI::state::walking;
+			if(dist<MASK_ATTACK_DIST)ai->states[0]=CompAI::state::attacking,ac->ChangeCur("attack");
+			else ai->states[0]=CompAI::state::walking,ac->ChangeCur("walk");
 		}
 	}
 	else if(ai->states[0]==CompAI::state::walking){
 		if(ai->targetGO[0]==nullptr || ai->timers[0].Get()>5){
 			ai->timers[0].Restart();
 			ai->states[0]=CompAI::state::looking;
+			ac->ChangeCur("idle");
 		}
 		else{
-			float dist = ai->targetGO[0]->box.x-ai->entity->box.x;
+			float dist = ai->targetGO[0]->box.x - ai->entity->box.x;
 			CompMovement *movement = ((CompMovement*)ai->entity->components[Component::type::t_movement]);
 
 			//TODO: if cant see target go looking
-			if(abs(dist) < MASK_FIRE_DIST+abs(movement->speed.x)*time){
+			if(abs(dist) < MASK_ATTACK_DIST+abs(movement->speed.x)*time){
 				movement->speed.x=0;
-				if(dist>0)movement->move=dist-MASK_FIRE_DIST;
-				else      movement->move=dist+MASK_FIRE_DIST;
+				if(dist>0)movement->move=dist-MASK_ATTACK_DIST;
+				else      movement->move=dist+MASK_ATTACK_DIST;
 
 				ai->states[0]=CompAI::state::attacking;
 				ai->timers[0].Restart();
@@ -435,7 +451,6 @@ void MaskAIfunc(CompAI* ai,float time){
 			ai->states[0]=CompAI::state::idling;
 			ac->ChangeCur("idle");
 		}
-		//fire projectile
 	}
 }
 GameObject* GameObject::MakeMask(const Vec2 &pos){
