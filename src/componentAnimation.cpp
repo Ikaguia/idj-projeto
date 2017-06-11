@@ -8,10 +8,10 @@
 
 CompAnim::CompAnim(){}
 CompAnim::CompAnim(string file){
-	string name,imgFile,func;
+	string name,imgFile,func,animFile;
 	int fCount,dmgLow,dmgHigh;
-	float fTime,x,y,w,h,r;
-	bool dmgSelf;
+	float fTime,x,y,w,h,r,f;
+	bool dmgSelf,stick;
 
 	ifstream in(ANIMATION_PATH+file);
 	if(!in.is_open())cout << "Erro ao abrir arquivo de animação '" << file << "'" << endl;
@@ -45,6 +45,20 @@ CompAnim::CompAnim(string file){
 								}
 							}
 						}
+					};
+				}
+				if(func=="fireProjectile"){
+					in >> x >> y >> f >> r >> dmgLow >> dmgHigh >> animFile >> stick;
+					dmgHigh=max(dmgHigh,dmgLow+1);
+					frameFunc[i] = [x,y,f,r,dmgLow,dmgHigh,animFile,stick](GameObject* self){
+						Vec2 pos = self->box.corner();
+						float ang=r;
+						if(self->flipped)pos.x += self->box.w * x;
+						else pos.x += (self->box.w * (1 - x)),ang+=180;
+						pos.y += self->box.h * y;
+
+						GameObject* bullet = GameObject::MakeBullet(pos,animFile+".txt",self,f,ang,dmgLow,dmgHigh,stick);
+						GAMESTATE.AddObject(bullet);
 					};
 				}
 			}

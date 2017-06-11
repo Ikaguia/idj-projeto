@@ -118,11 +118,11 @@ void PlayerControlFunc(GameObject* go, float time){
 	if(INPUT.KeyPress(KEY_UP))speed.y=-1500.0f;
 	if(INPUT.IsKeyDown(KEY_LEFT) && !INPUT.IsKeyDown(KEY_RIGHT)){
 		speed.x=max(-400.0f,speed.x-800*time);
-		go->flipped=true;
+		go->flipped=false;
 	}
 	else if(INPUT.IsKeyDown(KEY_RIGHT) && !INPUT.IsKeyDown(KEY_LEFT)){
 		speed.x=min( 400.0f,speed.x+800*time);
-		go->flipped=false;
+		go->flipped=true;
 	}
 	else if(speed.x>0.0f)speed.x=max(0.0f,speed.x-800*time);
 	else if(speed.x<0.0f)speed.x=min(0.0f,speed.x+800*time);
@@ -137,13 +137,13 @@ void PlayerControlFunc(GameObject* go, float time){
 		//TODO: prevent firing arrows inside other objects
 		float force=1000 + (1000-rand()%2000)/10.0f;
 		float angle=       (1000-rand()%2000)/100.0f;
-		if(go->flipped){
+		if(!go->flipped){
 			Vec2 pos{go->box.x-150-5,go->box.y+85};
-			GAMESTATE.AddObject(GameObject::MakeBullet(pos,"img/arrow.png",go,force,180+angle+10,true));
+			GAMESTATE.AddObject(GameObject::MakeBullet(pos,"player_projectile.txt",go,force,180+angle+10,10,16,true));
 		}
 		else{
 			Vec2 pos{go->box.x+go->box.w+5,go->box.y+85};
-			GAMESTATE.AddObject(GameObject::MakeBullet(pos,"img/arrow.png",go,force,angle-10,true));
+			GAMESTATE.AddObject(GameObject::MakeBullet(pos,"player_projectile.txt",go,force,angle-10,10,16,true));
 		}
 	}
 }
@@ -190,20 +190,23 @@ GameObject* GameObject::MakeTarget(const Vec2 &pos){
 }
 
 
-GameObject* GameObject::MakeBullet(const Vec2 &pos,string image,GameObject* go,float force,float angle,bool stick){
-	CompStaticRender* img = new CompStaticRender{Sprite{image},Vec2{}};
-	float width=img->sp.GetWidth();
-	float height=img->sp.GetHeight();
+GameObject* GameObject::MakeBullet(const Vec2 &pos,string animFile,GameObject* go,float force,float angle,int dmgLow,int dmgHigh,bool stick){
+	dmgHigh=max(dmgHigh,dmgLow+1);
+
+	CompAnim* anim = new CompAnim{animFile};
+	float width=anim->sp.GetWidth();
+	float height=anim->sp.GetHeight();
 
 	GameObject *arrow = new GameObject{{pos.x,pos.y,width,height}};
+	arrow->flipped=true;
 	arrow->rotation=angle;
-	arrow->AddComponent(img);
+	arrow->AddComponent(anim);
 	arrow->AddComponent(new CompMovement{Vec2::makeVec2(force,angle),CompMovement::moveType::t_bullet});
 
 	CompCollider *collider = new CompCollider{CompCollider::collType::t_bullet};
 	collider->useDefault[CompCollider::collType::t_bullet] = EmptyCollision;
 
-	auto foo = [image,stick,go](const CompCollider* a,const CompCollider* b){
+	auto foo = [stick,go,dmgLow,dmgHigh](const CompCollider* a,const CompCollider* b){
 		if(go==b->entity)return;
 
 		Vec2 &speed=((CompMovement*)a->entity->components[Component::type::t_movement])->speed;
@@ -217,14 +220,18 @@ GameObject* GameObject::MakeBullet(const Vec2 &pos,string image,GameObject* go,f
 
 			if(stick && !b->entity->hasComponent[Component::type::t_movement]){
 				GameObject *arrow = new GameObject{a->entity->box + move + totMove/4.0f};
+				arrow->flipped=true;
 				arrow->rotation=a->entity->rotation;
-				arrow->AddComponent(new CompStaticRender{Sprite{image},Vec2{}});
+				Sprite sp = ((CompAnim*)a->entity->components[Component::type::t_animation])->sp;
+				sp.SetFrameTime(-1.0f);
+				arrow->AddComponent(new CompStaticRender{sp,Vec2{}});
 				GAMESTATE.AddObject(arrow);
 				arrow->AttachTo(b->entity);
 			}
 
 			if(b->entity->hasComponent[Component::type::t_hp]){
-				((CompHP*)b->entity->components[Component::type::t_hp])->Damage(7+rand()%6);
+				int dmg = dmgLow+rand()%(dmgHigh-dmgLow);
+				((CompHP*)b->entity->components[Component::type::t_hp])->Damage(dmg);
 			}
 		}
 	};
@@ -385,8 +392,8 @@ GameObject* GameObject::MakeBanshee(const Vec2 &pos,const Vec2 &pos2){
 	return banshee;
 }
 
-#define MASK_ATTACK_DIST 200
-#define MASK_SEE_DIST 500
+#define MASK_ATTACK_DIST 500
+#define MASK_SEE_DIST 1000
 void MaskAIfunc(CompAI* ai,float time){
 	CompAnimControl* ac = ((CompAnimControl*)ai->entity->components[Component::type::t_animation_control]);
 	if(ai->states[0]==CompAI::state::idling){

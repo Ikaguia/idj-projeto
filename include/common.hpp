@@ -64,6 +64,7 @@ using uint=unsigned int;
 #define FOR2R(cont,min,max) for(int (cont)=(int)(max-1),_min_=(min);(cont)>=_min_;(cont)--)
 #define ABS(x) (((x)<0)?-(x):(x))
 #define BETWEEN(x,a,b) ((x>=a) && (x<b))
+#define DEBUG(x) cerr << #x << " = " << x << endl;
 
 #define SDL_COLOR_BLACK MakeColor(0,0,0)
 #define SDL_COLOR_RED   MakeColor(255,0,0)

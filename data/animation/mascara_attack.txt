@@ -7,5 +7,5 @@ img/mascara-atacando.png
 0 0 1.0 1.0 0	0
 0 0 1.0 1.0 0	0
 0 0 1.0 1.0 0	0
-0 0 1.0 1.0 0	damageArea 1.0 0.0 0.5 0.5 0.0 10 16 0
+0 0 1.0 1.0 0	fireProjectile 1.0 0.75 1000 0 10 16 mascara_projectile 0
 0 0 1.0 1.0 0	0
