@@ -175,7 +175,7 @@ GameObject* GameObject::MakePlayer(const Vec2 &pos){
 	player->AddComponent(coll);
 
 	player->AddComponent(new CompGravity{2500.0f});
-	player->AddComponent(new CompHP{100,100,true,false,1.0f});
+	player->AddComponent(new CompHP{100,100,true,false,0.25f});
 	return player;
 }
 
@@ -243,7 +243,7 @@ GameObject* GameObject::MakeBullet(const Vec2 &pos,string animFile,GameObject* g
 }
 
 
-#define MIKE_ATTACK_DIST 100
+#define MIKE_ATTACK_DIST 5
 #define MIKE_SEE_DIST 500
 void MikeAIfunc(CompAI* ai,float time){
 	CompAnimControl* ac = ((CompAnimControl*)ai->entity->components[Component::type::t_animation_control]);
@@ -254,7 +254,7 @@ void MikeAIfunc(CompAI* ai,float time){
 		}
 	}
 	else if(ai->states[0]==CompAI::state::looking){
-		float dist = ai->entity->box.corner().dist(PLAYER->box.corner());
+		float dist = ai->entity->box.distEdge(PLAYER->box).x;
 
 		if(ai->timers[0].Get()>5){
 			ai->timers[0].Restart();
@@ -275,20 +275,20 @@ void MikeAIfunc(CompAI* ai,float time){
 			ac->ChangeCur("idle");
 		}
 		else{
-			float dist = ai->targetGO[0]->box.x - ai->entity->box.x;
+			float dist = ai->entity->box.distEdge(PLAYER->box).x;
 			CompMovement *movement = ((CompMovement*)ai->entity->components[Component::type::t_movement]);
 
 			//TODO: if cant see target go looking
-			if(abs(dist) < MIKE_ATTACK_DIST+abs(movement->speed.x)*time){
+			if(dist < MIKE_ATTACK_DIST+abs(movement->speed.x)*time){
 				movement->speed.x=0;
-				if(dist>0)movement->move=dist-MIKE_ATTACK_DIST;
-				else      movement->move=dist+MIKE_ATTACK_DIST;
+				if(ai->entity->box.x < PLAYER->box.x)movement->move=dist-MIKE_ATTACK_DIST;
+				else      movement->move=-dist+MIKE_ATTACK_DIST;
 
 				ai->states[0]=CompAI::state::attacking;
 				ai->timers[0].Restart();
 				ac->ChangeCur("attack");
 			}
-			else if(dist>0){
+			else if(ai->entity->box.x < PLAYER->box.x){
 				ai->entity->flipped=true;
 				movement->speed.x= 100.0f;
 			}
@@ -299,7 +299,7 @@ void MikeAIfunc(CompAI* ai,float time){
 		}
 	}
 	else if(ai->states[0]==CompAI::state::attacking){
-		if(ai->targetGO[0]==nullptr){
+		if(ai->targetGO[0]==nullptr || ai->entity->box.distEdge(PLAYER->box).x > MIKE_ATTACK_DIST){
 			ai->timers[0].Restart();
 			ai->states[0]=CompAI::state::looking;
 			ac->ChangeCur("walk");

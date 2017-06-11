@@ -82,7 +82,8 @@ public:
 	ConvexPolygon polygon(const float &r=0.0f) const;
 	SDL_Rect sdlRect()const;
 
-	float dist(const Rect& b) const;//retorna a distancia entre os centros dos retangulos
+	Vec2 distCenter(const Rect& b) const;//retorna a distancia entre os centros dos retangulos
+	Vec2 distEdge(const Rect& b) const;//retorna a distancia entre os pontos mais proximos dos retangulos
 
 	bool contains(const float &i,const float &j) const;//retorna se o ponto pertence ao retangulo
 	bool contains(const Vec2& b) const;//retorna se o ponto pertence ao retangulo

@@ -194,8 +194,16 @@ SDL_Rect Rect::sdlRect()const{
 }
 
 
-float Rect::dist(const Rect& b) const{
-	return center().dist(b.center());
+Vec2 Rect::distCenter(const Rect& b) const{
+	return center() - b.center();
+}
+Vec2 Rect::distEdge(const Rect& b) const{
+	Vec2 ret;
+	if(!collides(b)){
+		ret.x = min(abs(x-(b.x+b.w)),abs((x+w)-b.x));
+		ret.y = min(abs(y-(b.y+b.h)),abs((y+h)-b.y));
+	}
+	return ret;
 }
 
 
