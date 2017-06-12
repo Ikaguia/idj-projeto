@@ -13,8 +13,8 @@ set<GameObject*> State::GetEntitiesInRange(const float &x1,const float &x2){
 void State::AddObject(GameObject* obj, int layer, int area){
 	ii key(layer,area);
 	if(!group.count(key)) group[key] = set<uint>{};
-	group[key].insert(uid++);
-	entities[uid]=unique_ptr<GameObject>(obj);
+	group[key].insert(uid);
+	entities[uid++]=unique_ptr<GameObject>(obj);
 }
 
 bool State::PopRequested(){

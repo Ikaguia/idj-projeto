@@ -10,12 +10,12 @@
 
 
 #define STATESTAGE ((StateStage*)&GAMESTATE)
-#define PLAYER (STATESTAGE->player)
+#define PLAYER (STATESTAGE->entities[STATESTAGE->player].get())
 
 class StateStage: public State{
 	Level level;
 public:
-	GameObject* player;
+	uint player;
 
 	StateStage(string lvl);
 	~StateStage();

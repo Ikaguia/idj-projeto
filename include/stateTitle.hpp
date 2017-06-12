@@ -10,7 +10,8 @@
 
 class StateTitle: public State{
 	Sprite bg;
-	GUI_CheckButton b;
+	GUI_TextButton b;
+	GUI_TextBox tb;
 public:
 
 	StateTitle();

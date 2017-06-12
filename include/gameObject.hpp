@@ -7,6 +7,7 @@
 #include <geometry.hpp>
 
 class GameObject{
+	uint uid;
 public:
 	bitset<Component::type::t_count> hasComponent;
 	array<Component*,Component::type::t_count> components;

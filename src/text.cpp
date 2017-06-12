@@ -18,7 +18,7 @@ Text::~Text(){
 		if(i.texture)SDL_DestroyTexture(i.texture);
 }
 
-void Text::Render(Vec2 camera){
+void Text::Render(Vec2 camera, Rect* clipRect){
 	int x = box.x-(camera.x*CAMERAZOOM);
 	int y = box.y-(camera.y*CAMERAZOOM);
 	
@@ -31,13 +31,58 @@ void Text::Render(Vec2 camera){
 	else if(hotspot == Hotspot::BOTTOM) 		{x-=(box.w/2);	y-=(box.h);}
 	else if(hotspot == Hotspot::BOTTOM_RIGHT)	{x-=(box.w);	y-=(box.h);}
 	
-	for(auto& i : lineArray) {
-		SDL_Rect dest;
-		dest.x=x+i.box.x;
-		dest.y=y+i.box.y;
-		dest.w=i.box.w;
-		dest.h=i.box.h;
-		SDL_RenderCopy(GAMERENDER,i.texture,nullptr,&dest);
+	if(clipRect) {
+		Vec2 clipRectEnd(clipRect->x+clipRect->w-1, clipRect->y+clipRect->h-1);
+		for(auto& i : lineArray) {
+			if(clipRectEnd.y < i.box.y)
+				break;	
+			Vec2 lineBoxEnd(i.box.x+i.box.w-1, i.box.y+i.box.h-1);
+			if(lineBoxEnd.y < clipRect->y)
+				continue;
+			
+			SDL_Rect clip;
+			SDL_Rect dest;
+			if(clipRect->x > i.box.x) {
+				clip.x = clipRect->x - i.box.x;
+				dest.x = x + clipRect->x;
+			}
+			else {
+				clip.x = 0;
+				dest.x = x + i.box.x;
+			}
+			if(clipRect->y > i.box.y) {
+				clip.y = clipRect->y - i.box.y;
+				dest.y = y + clipRect->y;
+			}
+			else {
+				clip.y = 0;
+				dest.y = y + i.box.y;
+			}
+			if(clipRectEnd.x < lineBoxEnd.x) {
+				clip.w = dest.w = clipRectEnd.x - i.box.x - clip.x +1;
+			}
+			else {
+				clip.w = dest.w = lineBoxEnd.x - i.box.x - clip.x +1;	
+			}
+			if(clipRectEnd.y < lineBoxEnd.y) {
+				clip.h = dest.h = clipRectEnd.y - i.box.y - clip.y +1;
+			}
+			else {
+				clip.h = dest.h = lineBoxEnd.y - i.box.y - clip.y +1;	
+			}
+			
+			SDL_RenderCopy(GAMERENDER,i.texture,&clip,&dest);
+		}
+	}
+	else {
+		for(auto& i : lineArray) {
+			SDL_Rect dest;
+			dest.x=x+i.box.x;
+			dest.y=y+i.box.y;
+			dest.w=i.box.w;
+			dest.h=i.box.h;
+			SDL_RenderCopy(GAMERENDER,i.texture,nullptr,&dest);
+		}
 	}
 }
 

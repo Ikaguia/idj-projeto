@@ -12,7 +12,7 @@ GameObject::~GameObject(){
 	for(GameObject* obj:attachedObjs)obj->dead=true;
 
 	FOR(i,Component::type::t_count)if(hasComponent[i])delete components[i];
-	if(Camera::focus==this)Camera::Unfollow();
+	if(Camera::focus==uid)Camera::Unfollow();
 }
 
 void GameObject::Update(float time){

@@ -20,10 +20,16 @@ ARROW KEYS, MMB - Move Camera\n\
 Z - Zoom In\n\
 X - Zoom Out"
 
+#define EDITOR_BG_COLOR 127,127,127,255
+#define GRID_COLOR 255,255,255,63
+#define LEVEL_BORDER_COLOR 255,255,255,255
+#define TILE_CURSOR_COLOR 255,255,0,255
+#define COLLISION_COLOR 255,0,0,255
+
 //TODO: Remove placeholder index
 #define COLLISION_BLOCK 0
 
-StateEditor::StateEditor():level{"data/level/level_0.txt"},tileIndex{0},showGrid{true},showHelp{true},showCollision(false),helpText{Text(HELP_TEXT,16)},statusText{Text("test",16)} {
+StateEditor::StateEditor():level{"data/level/level_0.txt"},tileIndex{0},showGrid{true},showHelp{true},showCollision{false},helpText{HELP_TEXT,16},statusText{"test",16} {
 	LoadAssets();
 	CAMERA = {-100, -100};
 	CAMERAZOOM = 1.0f;
@@ -84,7 +90,7 @@ void StateEditor::Update(float time){
 	//Save
 	if(INPUT.KeyPress(KEY(s))) {
 		RecomputeCollisionRectangles();
-		level.Save("level/level_0.txt",grouped);
+		level.Save("data/level/level_0.txt",grouped);
 	}
 	
 	//Pan view
@@ -127,32 +133,31 @@ void StateEditor::Resume(){
 }
 
 void StateEditor::RenderBackground() {
-	SDL_SetRenderDrawColor(GAMERENDER, 127, 127, 127, 255);
-	SDL_RenderClear(GAMERENDER);
+	SET_COLOR(EDITOR_BG_COLOR);
+	CLEAR_SCREEN();
 }
 
 void StateEditor::RenderGrid(int x, int y, int w, int h) {
-	SDL_SetRenderDrawColor(GAMERENDER, 255, 255, 255, 63);
-	SDL_SetRenderDrawBlendMode(GAMERENDER, SDL_BLENDMODE_BLEND);
+	SET_COLOR(GRID_COLOR);
 	
 	if(w > 0) {
 		int first = floor(CAMERA.x/w)*w;
 		if(first>0) first+=w;
 		int lim = CAMERA.x+(WINSIZE.x/CAMERAZOOM);
 		for(int i=first;i<=lim;i+=w)
-			SDL_RenderDrawLine(GAMERENDER, RENDERPOSX(i), 0, RENDERPOSX(i), WINSIZE.y);
+			DRAW_LINE(RENDERPOSX(i), 0, RENDERPOSX(i), WINSIZE.y);
 	}	
 	if(h > 0) {
 		int first = floor(CAMERA.y/h)*h;
 		if(first>0) first+=h;
 		int lim = CAMERA.y+(WINSIZE.y/CAMERAZOOM);
 		for(int i=first;i<=lim;i+=h)
-			SDL_RenderDrawLine(GAMERENDER, 0, RENDERPOSY(i), WINSIZE.x, RENDERPOSY(i));
+			DRAW_LINE(0, RENDERPOSY(i), WINSIZE.x, RENDERPOSY(i));
 	}
 }
 
 void StateEditor::RenderBorder() {
-	SDL_SetRenderDrawColor(GAMERENDER, 255, 255, 255, 255);
+	SET_COLOR(LEVEL_BORDER_COLOR);
 	
 	SDL_Rect rect;
 	rect.x = RENDERPOSX(0);
@@ -160,7 +165,7 @@ void StateEditor::RenderBorder() {
 	rect.w = (level.tileMap.GetWidth()*level.tileSet.GetWidth()*CAMERAZOOM)+1;
 	rect.h = (level.tileMap.GetHeight()*level.tileSet.GetHeight()*CAMERAZOOM)+1;
 	
-	SDL_RenderDrawRect(GAMERENDER, &rect);
+	DRAW_RECT(&rect);
 }
 
 void StateEditor::RenderCursor() {
@@ -174,7 +179,7 @@ void StateEditor::RenderCursor() {
 	if(canvas.contains(cursor)) {
 		level.tileSet.Render(tileIndex, RENDERPOSX(cursor.x*tileWidth), RENDERPOSY(cursor.y*tileHeight), CAMERAZOOM);
 	
-		SDL_SetRenderDrawColor(GAMERENDER, 255, 255, 0, 255);
+		SET_COLOR(TILE_CURSOR_COLOR);
 	
 		SDL_Rect rect;
 		rect.x = RENDERPOSX(cursor.x*tileWidth);
@@ -182,12 +187,12 @@ void StateEditor::RenderCursor() {
 		rect.w = (tileWidth*CAMERAZOOM)+1;
 		rect.h = (tileHeight*CAMERAZOOM)+1;
 	
-		SDL_RenderDrawRect(GAMERENDER, &rect);
+		DRAW_RECT(&rect);
 	}
 }
 
 void StateEditor::RenderCollision() {
-	SDL_SetRenderDrawColor(GAMERENDER, 255, 0, 0, 255);
+	SET_COLOR(COLLISION_COLOR);
 	
 	int mapWidth = level.tileMap.GetWidth();
 	int mapHeight = level.tileMap.GetHeight();
@@ -201,7 +206,7 @@ void StateEditor::RenderCollision() {
 			if(level.collisionLayer[(y*mapWidth)+x] == COLLISION_BLOCK) {
 				rect.x = RENDERPOSX(x*tileWidth);
 				rect.y = RENDERPOSY(y*tileWidth);
-				SDL_RenderDrawRect(GAMERENDER, &rect);
+				DRAW_RECT(&rect);
 			}
 		}
 	}

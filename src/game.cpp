@@ -66,6 +66,7 @@ Game::Game(string title,int width,int height):frameStart{0},dt{0},winSize{(float
 	}
 
 	storedState = nullptr;
+	SDL_SetRenderDrawBlendMode(GAMERENDER, SDL_BLENDMODE_BLEND);
 };
 
 Game::~Game(){
@@ -107,7 +108,7 @@ void Game::Push(State* state){
 void Game::Run(){
 	//SDL_Rect r;
 	//SDL_GetDisplayBounds(0, &r);
-	//cout<<r.x<<endl<<r.y<<endl<<r.w<<endl<<r.h<<endl;
+	//cout<<r<<endl;
 	if(storedState){
 		stateStack.push(unique_ptr<State>(storedState));
 		storedState=nullptr;

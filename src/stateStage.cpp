@@ -11,9 +11,9 @@
 
 StateStage::StateStage(string lvl):State::State(), level{Level(lvl,this)}{
 	LoadAssets();
-
-	player=GameObject::MakePlayer(Vec2{130.0f,130.0f});
-	AddObject(player);
+	
+	player = uid;
+	AddObject(GameObject::MakePlayer(Vec2{130.0f,130.0f}));
 }
 
 StateStage::~StateStage(){}
