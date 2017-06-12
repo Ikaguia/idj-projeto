@@ -120,10 +120,13 @@ make_new_file: make_class/make_new_file.cpp
 	$(CC) -o make_class/make_new_file make_class/make_new_file.cpp -std=c++11
 
 make_class-%-hpp: make_new_file
-	./make_class/make_new_file $* a && subl include/$*.hpp && subl src/$*.cpp
+	./make_class/make_new_file $* a && xdg-open include/$*.hpp && xdg-open src/$*.cpp
 
 make_class-%-cpp: make_new_file
-	./make_class/make_new_file $* a a && subl include/$*.hpp && subl src/$*.cpp
+	./make_class/make_new_file $* a a && xdg-open include/$*.hpp && xdg-open src/$*.cpp
 
 make_class-%: make_new_file
-	./make_class/make_new_file $* && subl include/$*.hpp && subl src/$*.cpp
+	./make_class/make_new_file $* && xdg-open include/$*.hpp && xdg-open src/$*.cpp
+
+make_component-%: make_new_file
+	./make_class/make_new_file $* a a a && xdg-open include/component$*.hpp && xdg-open src/component$*.cpp

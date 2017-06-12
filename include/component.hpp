@@ -26,6 +26,7 @@ public:
 		t_movement,
 		t_gravity,
 		t_count,
+		t_memory,
 	};
 
 	Component(){};
