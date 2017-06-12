@@ -65,6 +65,7 @@ using uint=unsigned int;
 #define ABS(x) (((x)<0)?-(x):(x))
 #define BETWEEN(x,a,b) ((x>=a) && (x<b))
 #define DEBUG(x) cerr << #x << " = " << x << endl;
+#define UNUSED(x) ((void)(x))
 
 #define SDL_COLOR_BLACK MakeColor(0,0,0)
 #define SDL_COLOR_RED   MakeColor(255,0,0)

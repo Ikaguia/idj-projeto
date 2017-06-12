@@ -34,7 +34,7 @@ public:
 	virtual void LoadAssets();
 	
 	void RenderBackground();
-	void RenderGrid(int x, int y, int w, int h);
+	void RenderGrid(int w, int h);
 	void RenderBorder();
 	void RenderCursor();
 	void RenderCollision();

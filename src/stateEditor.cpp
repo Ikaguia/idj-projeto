@@ -111,7 +111,7 @@ void StateEditor::Render(){
 	//level.background.Render(RENDERPOSX(0), RENDERPOSY(0), 0, CAMERAZOOM);
 	level.tileMap.Render();
 	RenderArray();
-	if(showGrid) RenderGrid(0, 0, 64, 64);
+	if(showGrid) RenderGrid(64, 64);
 	RenderBorder();
 	if(showCollision) RenderCollision();
 	RenderCursor();
@@ -131,7 +131,7 @@ void StateEditor::RenderBackground() {
 	SDL_RenderClear(GAMERENDER);
 }
 
-void StateEditor::RenderGrid(int x, int y, int w, int h) {
+void StateEditor::RenderGrid(int w, int h) {
 	SDL_SetRenderDrawColor(GAMERENDER, 255, 255, 255, 63);
 	SDL_SetRenderDrawBlendMode(GAMERENDER, SDL_BLENDMODE_BLEND);
 	

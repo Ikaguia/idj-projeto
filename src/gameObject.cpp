@@ -156,7 +156,7 @@ void PlayerMonsterCollision(const CompCollider* a,const CompCollider* b){
 
 	if(move!=totMove)COMPHPp(a->entity)->Damage(1);
 }
-void EmptyCollision(const CompCollider* a,const CompCollider* b){}
+void EmptyCollision(const CompCollider* a,const CompCollider* b){UNUSED(a);UNUSED(b);}
 GameObject* GameObject::MakePlayer(const Vec2 &pos){
 
 	CompAnimControl* animControl = new CompAnimControl{"data/animation/player.txt"};
