@@ -24,6 +24,10 @@ void Camera::Follow(uint newFocus){
 void Camera::Unfollow(){
 	following=false;
 }
+uint Camera::GetFocus(){
+	return focus;
+}
+
 void Camera::Update(float time){
 	Vec2 center = pos + (WINSIZE/2/zoom);
 	if(INPUT.IsKeyDown(KEY(z))) {
@@ -41,7 +45,7 @@ void Camera::Update(float time){
 	CenterTo(center);
 	
 	if(following) {
-		if(GAMESTATE.entities.count(focus)) CenterTo(GAMESTATE.entities[focus]->box.center());
+		CenterTo(GAMESTATE.entities[focus]->box.center());
 	}
 	else if(!lock){
 		speed=Vec2(0,0);

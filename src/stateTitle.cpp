@@ -14,11 +14,16 @@ StateTitle::StateTitle():State::State(),bg{Sprite(BACKGROUND)}, b{{50, 50},"PRES
 	LoadAssets();
 	
 	bg.StretchToFit(WINSIZE);
+	
+}
+StateTitle::~StateTitle(){}
+
+void StateTitle::Begin(){
+	//Create gameObjects here
 	GameObject* text = new GameObject{Rect{(WINSIZE.x/2),(WINSIZE.y/2),0,0}};
 	text->AddComponent(new CompText{INSTRUCTION_TEXT,36,SDL_COLOR_WHITE,Hotspot::CENTER});
 	AddObject(text);
 }
-StateTitle::~StateTitle(){}
 
 void StateTitle::Update(float time){
 	if(INPUT.QuitRequested() || INPUT.KeyPress(KEY_ESC))quitRequested=true;

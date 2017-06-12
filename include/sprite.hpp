@@ -10,14 +10,14 @@ class Sprite{
 	int width;
 	int height;
 	SDL_Rect clipRect;
-	float scaleX;
-	float scaleY;
-	bool flipH;
-	bool flipV;
+	float scaleX=1.0f;
+	float scaleY=1.0f;
+	bool flipH=false;
+	bool flipV=false;
 
 	int frameCount;
 	int currentFrame;
-	float timeElapsed;
+	float timeElapsed=0.0f;
 	float frameTime;
 public:
 	Sprite();

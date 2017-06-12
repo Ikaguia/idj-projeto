@@ -29,8 +29,17 @@ X - Zoom Out"
 //TODO: Remove placeholder index
 #define COLLISION_BLOCK 0
 
-StateEditor::StateEditor():level{"data/level/level_0.txt"},tileIndex{0},showGrid{true},showHelp{true},showCollision{false},helpText{HELP_TEXT,16},statusText{"test",16} {
+StateEditor::StateEditor():helpText{HELP_TEXT,16},statusText{"test",16} {
 	LoadAssets();
+}
+
+StateEditor::~StateEditor(){}
+
+void StateEditor::LoadAssets(){
+}
+
+void StateEditor::Begin(){
+	level.Load("data/level/level_0.txt", false);
 	CAMERA = {-100, -100};
 	CAMERAZOOM = 1.0f;
 	
@@ -38,11 +47,6 @@ StateEditor::StateEditor():level{"data/level/level_0.txt"},tileIndex{0},showGrid
 	statusText.SetPos(WINSIZE);
 	statusText.SetAlignment(Text::Align::RIGHT);
 	statusText.SetHotspot(Hotspot::BOTTOM_RIGHT);
-}
-
-StateEditor::~StateEditor(){}
-
-void StateEditor::LoadAssets(){
 }
 
 void StateEditor::Update(float time){

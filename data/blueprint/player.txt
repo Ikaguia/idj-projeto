@@ -1,3 +1,4 @@
+pos ?
 animationController player.txt
 collider player
 gravity 2500

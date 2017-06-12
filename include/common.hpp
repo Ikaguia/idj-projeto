@@ -28,6 +28,7 @@ using std::array;
 using std::bitset;
 using std::ceil;
 using std::cout;
+using std::cerr;
 using std::endl;
 using std::find;
 using std::floor;
@@ -63,6 +64,7 @@ using uint=unsigned int;
 #define FOR2R(cont,min,max) for(int (cont)=(int)(max-1),_min_=(min);(cont)>=_min_;(cont)--)
 #define ABS(x) (((x)<0)?-(x):(x))
 #define BETWEEN(x,a,b) ((x>=a) && (x<b))
+#define DEBUG(x) cerr << #x << " = " << x << endl;
 
 #define SET_COLOR(color) SDL_SetRenderDrawColor(GAMERENDER,color)
 #define SET_COLOR4(r,g,b,a) SDL_SetRenderDrawColor(GAMERENDER,(r),(g),(b),(a))

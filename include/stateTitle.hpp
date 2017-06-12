@@ -20,6 +20,7 @@ public:
 	virtual void Update(float time);
 	virtual void Render();
 
+	virtual void Begin();
 	virtual void Pause();
 	virtual void Resume();
 

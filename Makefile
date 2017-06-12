@@ -67,7 +67,7 @@ $(EXEC): $(OBJ_FILES)
 	$(CC) -o $@ $^ $(LIBS)
 
 #chama all e depois roda o jogo
-run: all
+run: clear all
 ifeq ($(OS),Windows_NT)
 	$(EXEC)
 else
@@ -111,6 +111,10 @@ debug: all
 # Regra que inclui diretivas de compilação otimizada
 release: DIRECTIVES += -Ofast -mtune=native
 release: all
+
+clear:
+	clear && clear
+remake: clear clean all
 
 make_new_file: make_class/make_new_file.cpp
 	$(CC) -o make_class/make_new_file make_class/make_new_file.cpp -std=c++11

@@ -39,16 +39,12 @@ void Sprite::Render(int x,int y,float angle, float extScale){
 	dest.h=ceil(clipRect.h * scaleY * extScale);
 	
 	SDL_RendererFlip flip = SDL_FLIP_NONE;
-	float ang = angle;
-	if(flipH && flipV)
-		ang += (angle<180?180:-180);
-	else if(flipH && !flipV)
-		flip = SDL_FLIP_HORIZONTAL;
-	else if(!flipH && flipV)
-		flip = SDL_FLIP_VERTICAL;
+	if(flipH && flipV)angle += (angle<180?180:-180);
+	else if(flipH)flip = SDL_FLIP_HORIZONTAL;
+	else if(flipV)flip = SDL_FLIP_VERTICAL;
 	//cout << "rendering with size " << dest.w << "," << dest.h << " fCount = " << frameCount << endl;
 	//SDL_RenderCopyEx(GAMERENDER,texture,nullptr,nullptr,angle,nullptr,SDL_FLIP_NONE);
-	SDL_RenderCopyEx(GAMERENDER,texture.get(),&clipRect,&dest,ang,nullptr,flip);
+	SDL_RenderCopyEx(GAMERENDER,texture.get(),&clipRect,&dest,angle,nullptr,flip);
 }
 
 void Sprite::Render(Vec2 v, float angle, float extScale) {
@@ -56,7 +52,7 @@ void Sprite::Render(Vec2 v, float angle, float extScale) {
 }
 
 void Sprite::Update(float time){
-	if(frameCount==1)return;
+	if(frameCount==1 || frameTime<0)return;
 	timeElapsed+=time;
 	if(timeElapsed>frameTime){
 		timeElapsed-=frameTime;

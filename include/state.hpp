@@ -8,9 +8,9 @@
 
 class State{
 protected:
-	bool popRequested;
-	bool quitRequested;
-	uint uid;
+	bool popRequested=false;
+	bool quitRequested=false;
+	uint uid=0;
 
 	virtual void UpdateArray(float time);
 	virtual void RenderArray();
@@ -24,6 +24,7 @@ public:
 	virtual void Update(float time)=0;
 	virtual void Render()=0;
 
+	virtual void Begin()=0;
 	virtual void Pause()=0;
 	virtual void Resume()=0;
 
@@ -35,7 +36,10 @@ public:
 
 	bool PopRequested();
 	bool QuitRequested();
+	
 	set<GameObject*> GetEntitiesInRange(const float &x1,const float &x2);
+
+	uint GetUID();
 };
 
 #endif//STATEHPP

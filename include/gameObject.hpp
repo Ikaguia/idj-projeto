@@ -7,8 +7,8 @@
 #include <geometry.hpp>
 
 class GameObject{
-	uint uid;
 public:
+	const uint uid;
 	bitset<Component::type::t_count> hasComponent;
 	array<Component*,Component::type::t_count> components;
 
@@ -42,7 +42,7 @@ public:
 
 	static GameObject* MakePlayer(const Vec2 &pos);
 	static GameObject* MakeTarget(const Vec2 &pos);
-	static GameObject* MakeBullet(const Vec2 &pos,string image,float force,float angle=0.0f,bool stick=true);
+	static GameObject* MakeBullet(const Vec2 &pos,string image,GameObject* go,float force,float angle=0.0f,int dmgLow=10,int dmgHigh=-1,bool stick=true);
 	static GameObject* MakeMike(const Vec2 &pos);
 	static GameObject* MakeBanshee(const Vec2 &pos,const Vec2 &pos2);
 	static GameObject* MakeMask(const Vec2 &pos);
