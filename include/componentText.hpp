@@ -6,6 +6,9 @@
 #include <geometry.hpp>
 #include <text.hpp>
 
+#define COMPTEXT(x)  ((CompText*)x. components[Component::type::t_text])
+#define COMPTEXTp(x) ((CompText*)x->components[Component::type::t_text])
+
 class CompText : public Component{
 	Text txt;
 	Vec2 pos;

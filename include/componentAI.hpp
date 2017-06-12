@@ -10,6 +10,9 @@
 class CompAI;
 using aiFunc=function<void(CompAI*,float)>;
 
+#define COMPAI(x)  ((CompAI*)x. components[Component::type::t_ai])
+#define COMPAIp(x) ((CompAI*)x->components[Component::type::t_ai])
+
 class CompAI : public Component{
 	//private members
 public:

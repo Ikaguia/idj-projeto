@@ -11,7 +11,7 @@ CompGravity::~CompGravity(){}
 
 void CompGravity::Update(float time){
 	if(entity->hasComponent[Component::type::t_movement]){
-		((CompMovement*)entity->components[Component::type::t_movement])->speed.y+=gravity*time;
+		COMPMOVEp(entity)->speed.y+=gravity*time;
 	}
 }
 void CompGravity::Render(){}

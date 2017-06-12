@@ -41,7 +41,7 @@ CompAnim::CompAnim(string file){
 							if(dmgSelf || go != self){
 								//TODO: change collision to work with rotation
 								if(go->hasComponent[Component::type::t_hp] && area.collides(go->box)){
-									((CompHP*)go->components[Component::type::t_hp])->Damage(dmgLow+(rand()%(dmgHigh-dmgLow)));
+									COMPHPp(go)->Damage(dmgLow+(rand()%(dmgHigh-dmgLow)));
 								}
 							}
 						}

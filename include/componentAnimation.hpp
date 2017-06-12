@@ -8,6 +8,9 @@
 #include <sprite.hpp>
 #include <componentCollider.hpp>
 
+#define COMPANIM(x)  ((CompAnim*)x. components[Component::type::t_animation])
+#define COMPANIMp(x) ((CompAnim*)x->components[Component::type::t_animation])
+
 class CompAnim : public Component{
 public:
 	vector<CompCollider*> colliders;

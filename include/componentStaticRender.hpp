@@ -7,6 +7,9 @@
 #include <geometry.hpp>
 #include <sprite.hpp>
 
+#define COMPSTATICRENDER(x)  ((CompStaticRender*)x. components[Component::type::t_static_render])
+#define COMPSTATICRENDERp(x) ((CompStaticRender*)x->components[Component::type::t_static_render])
+
 class CompStaticRender : public Component{
 	//private members
 public:

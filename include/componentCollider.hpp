@@ -10,6 +10,9 @@ class CompCollider;
 
 using colliderFunc=std::function<void(const CompCollider *a,const CompCollider *b)>;
 
+#define COMPCOLLIDER(x)  ((CompCollider*)x. components[Component::type::t_collider])
+#define COMPCOLLIDERp(x) ((CompCollider*)x->components[Component::type::t_collider])
+
 class CompCollider : public Component{
 public:
 	//static members

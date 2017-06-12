@@ -19,11 +19,11 @@ void CompCollider::collisionCheck(CompCollider *other){
 	if(useDefault.count(other->cType))useDefault[other->cType](this,other);
 	else if(useDefault.count(collType::t_any))useDefault[collType::t_any](this,other);
 	else if(entity->hasComponent[Component::type::t_movement]){
-		Vec2 &speed=((CompMovement*)entity->components[Component::type::t_movement])->speed;
+		Vec2 &speed=COMPMOVEp(entity)->speed;
 
 		if(speed==Vec2{})return;
 
-		Vec2 &totMove=((CompMovement*)entity->components[Component::type::t_movement])->move;
+		Vec2 &totMove=COMPMOVEp(entity)->move;
 		Vec2 move;
 
  		Vec2 totX{totMove.x,0.0f};
@@ -66,7 +66,9 @@ Vec2 CompCollider::collides(const CompCollider *other,const Vec2 &move,const Rec
 
 void CompCollider::Update(float time){
 	set<GameObject*> entities = GAMESTATE.GetEntitiesInRange(entity->box.x-10,entity->box.x+entity->box.w+10);
-	for(GameObject* go:entities)if(go!=entity && go->hasComponent[Component::type::t_collider])collisionCheck((CompCollider*)go->components[Component::type::t_collider]);
+	for(GameObject* go:entities)if(go!=entity && go->hasComponent[Component::type::t_collider]){
+		collisionCheck(COMPCOLLIDERp(go));
+	}
 }
 void CompCollider::Render(){};
 void CompCollider::Own(GameObject* go){

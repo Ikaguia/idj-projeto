@@ -6,6 +6,9 @@
 #include <component.hpp>
 #include <geometry.hpp>
 
+#define COMPMOVE(x)  ((CompMovement*)x. components[Component::type::t_movement])
+#define COMPMOVEp(x) ((CompMovement*)x->components[Component::type::t_movement])
+
 class CompMovement : public Component{
 	//private members
 public:
