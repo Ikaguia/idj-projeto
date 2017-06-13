@@ -12,8 +12,10 @@
 StateStage::StateStage(string lvl):State::State(), level{Level(lvl,this)}{
 	LoadAssets();
 
-	player=GameObject::MakePlayer(Vec2{130.0f,130.0f});
-	AddObject(player);
+
+	GameObject* go = GameObject::MakePlayer(Vec2{130.0f,130.0f});
+	AddObject(go);
+	player = go->uid;
 }
 
 StateStage::~StateStage(){}
@@ -40,7 +42,7 @@ void StateStage::Pause(){
 	Camera::Unfollow();
 }
 void StateStage::Resume(){
-	Camera::Follow(player);
+	Camera::Follow(PLAYER_UID);
 }
 
 void StateStage::LoadAssets(){}

@@ -1,8 +1,9 @@
-#ifndef MEMORYHPP
-#define MEMORYHPP
+#ifndef COMPMEMORYHPP
+#define COMPMEMORYHPP
 
 #include <common.hpp>
 #include <component.hpp>
+#include <timer.hpp>
 
 #define COMPMEMORY(x)  ((CompMemory*)x. components[Component::type::t_memory])
 #define COMPMEMORYp(x) ((CompMemory*)x->components[Component::type::t_memory])
@@ -12,8 +13,9 @@ class CompMemory : public Component{
 public:
 	//public members
 	map<string,string> strings;
-	map<string,int> integers;
+	map<string,int> ints;
 	map<string,float> floats;
+	map<string,Timer> timers;
 
 	CompMemory();
 	~CompMemory();
@@ -23,4 +25,4 @@ public:
 	Component::type GetType()const;
 };
 
-#endif//MEMORYHPP
+#endif//COMPMEMORYHPP

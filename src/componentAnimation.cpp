@@ -8,7 +8,7 @@
 
 CompAnim::CompAnim(){}
 CompAnim::CompAnim(string file){
-	string name,imgFile,func,animFile;
+	string name,imgFile,func,animFile,type;
 	int fCount,dmgLow,dmgHigh;
 	float fTime,x,y,w,h,r,f;
 	bool dmgSelf,stick;
@@ -60,6 +60,39 @@ CompAnim::CompAnim(string file){
 						GameObject* bullet = GameObject::MakeBullet(pos,animFile+".txt",self,f,ang,dmgLow,dmgHigh,stick);
 						GAMESTATE.AddObject(bullet);
 					};
+				}
+				if(func=="changeVar"){
+					in >> type >> name;
+					if(type=="string"){
+						string val;
+						in >> val;
+						frameFunc[i] = [name,val](GameObject* self){
+							if(!self->hasComponent[Component::type::t_memory])self->AddComponent(new CompMemory{});
+							COMPMEMORYp(self)->strings[name]=val;
+						};
+					}
+					if(type=="int"){
+						int val;
+						in >> val;
+						frameFunc[i] = [name,val](GameObject* self){
+							if(!self->hasComponent[Component::type::t_memory])self->AddComponent(new CompMemory{});
+							COMPMEMORYp(self)->ints[name]=val;
+						};
+					}
+					if(type=="float"){
+						float val;
+						in >> val;
+						frameFunc[i] = [name,val](GameObject* self){
+							if(!self->hasComponent[Component::type::t_memory])self->AddComponent(new CompMemory{});
+							COMPMEMORYp(self)->floats[name]=val;
+						};
+					}
+					if(type=="timer"){
+						frameFunc[i] = [name](GameObject* self){
+							if(!self->hasComponent[Component::type::t_memory])self->AddComponent(new CompMemory{});
+							COMPMEMORYp(self)->timers[name].Restart();
+						};
+					}
 				}
 			}
 		}

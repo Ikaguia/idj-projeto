@@ -113,7 +113,11 @@ release: DIRECTIVES += -Ofast -mtune=native
 release: all
 
 clear:
+ifeq ($(OS),Windows_NT)
+	cls && cls
+else
 	clear && clear
+endif
 remake: clear clean all
 
 make_new_file: make_class/make_new_file.cpp

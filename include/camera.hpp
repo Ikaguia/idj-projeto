@@ -18,13 +18,13 @@ class GameObject;
 
 class Camera{
 public:
-	static GameObject* focus;
+	static uint focus;
 	static Vec2 pos;
 	static Vec2 speed;
 	static float zoom;
 	static bool lock;
 	
-	static void Follow(GameObject* newFocus);
+	static void Follow(uint uid);
 	static void Unfollow();
 	static void Update(float time);
 	
