@@ -8,8 +8,7 @@
 
 class GameObject{
 public:
-	uint uid;
-
+	const uint uid;
 	bitset<Component::type::t_count> hasComponent;
 	array<Component*,Component::type::t_count> components;
 

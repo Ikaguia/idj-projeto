@@ -85,6 +85,7 @@ Game::Game(string title,int width,int height):frameStart{0},dt{0},winSize{(float
 	if(!renderer)throw GameException("Erro ao instanciar renderizador da SDL!");
 
 	storedState = nullptr;
+	SDL_SetRenderDrawBlendMode(GAMERENDER, SDL_BLENDMODE_BLEND);
 };
 
 Game::~Game(){
@@ -126,11 +127,11 @@ void Game::Push(State* state){
 void Game::Run(){
 	//SDL_Rect r;
 	//SDL_GetDisplayBounds(0, &r);
-	//cout<<r.x<<endl<<r.y<<endl<<r.w<<endl<<r.h<<endl;
+	//cout<<r<<endl;
 	if(storedState){
 		stateStack.push(unique_ptr<State>(storedState));
 		storedState=nullptr;
-		GetCurrentState().Resume();
+		GetCurrentState().Begin();
 	}
 	while(stateStack.size() && !(GetCurrentState().QuitRequested())){
 		CalculateDeltaTime();
@@ -142,6 +143,7 @@ void Game::Run(){
 
 		if(GetCurrentState().PopRequested()){
 			GetCurrentState().Pause();
+			GetCurrentState().End();
 			stateStack.pop();
 			Resources::ClearImages();
 			Resources::ClearMusics();
@@ -152,12 +154,15 @@ void Game::Run(){
 			GetCurrentState().Pause();
 			stateStack.push(unique_ptr<State>(storedState));
 			storedState=nullptr;
-			GetCurrentState().Resume();
+			GetCurrentState().Begin();
 		}
 
 		SDL_Delay(33);
 	}
-	while(stateStack.size())stateStack.pop();
+	while(stateStack.size()){
+		GetCurrentState().End();
+		stateStack.pop();
+	}
 }
 
 float Game::GetDeltaTime(){

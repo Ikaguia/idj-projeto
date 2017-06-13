@@ -19,10 +19,10 @@ public:
 	vector<int> collisionLayer;
 	
 	Level();
-	Level(string file,State* state=nullptr);
+	Level(string file,bool collisors=true);
 	~Level();
 	
-	void Load(string file,State* state=nullptr);
+	void Load(string file,bool collisors=true);
 	void Save(string file,vector<pair<ii,ii>> grouped);
 	
 };

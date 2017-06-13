@@ -29,6 +29,11 @@ class InputManager{
 	unordered_map<int,int>  keyUpdate;
 	int updateCounter;
 	Vec2 mouse;
+	
+	string text;
+	string composition;
+	Sint32 cursor;
+	Sint32 selection_len;
 
 	bool quitRequested;
 
@@ -48,6 +53,12 @@ public:
 	Vec2 GetMouse();
 	int GetMouseX();
 	int GetMouseY();
+	
+	void StartTextInput();
+	void StopTextInput();
+	string GetText();	
+	string GetComposition();
+ 
 
 	bool QuitRequested();
 

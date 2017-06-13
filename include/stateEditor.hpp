@@ -10,10 +10,10 @@
 class StateEditor: public State{
 	Level level;
 	
-	int tileIndex;
-	bool showGrid;
-	bool showHelp;
-	bool showCollision;
+	int tileIndex=0;
+	bool showGrid=true;
+	bool showHelp=true;
+	bool showCollision=false;
 	Text helpText;
 	Text statusText;
 
@@ -28,6 +28,7 @@ public:
 	virtual void Update(float time);
 	virtual void Render();
 
+	virtual void Begin();
 	virtual void Pause();
 	virtual void Resume();
 

@@ -10,7 +10,8 @@
 
 class StateTitle: public State{
 	Sprite bg;
-	GUI_CheckButton b;
+	GUI_TextButton b;
+	GUI_TextBox tb;
 public:
 
 	StateTitle();
@@ -19,6 +20,7 @@ public:
 	virtual void Update(float time);
 	virtual void Render();
 
+	virtual void Begin();
 	virtual void Pause();
 	virtual void Resume();
 

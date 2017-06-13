@@ -17,15 +17,18 @@ class GameObject;
 
 
 class Camera{
-public:
+	static bool following;
 	static uint focus;
+public:
 	static Vec2 pos;
 	static Vec2 speed;
 	static float zoom;
 	static bool lock;
 	
-	static void Follow(uint uid);
+	static void Follow(uint newFocus);
 	static void Unfollow();
+	static uint GetFocus();
+	
 	static void Update(float time);
 	
 	static void CenterTo(const Vec2& v);

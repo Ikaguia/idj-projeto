@@ -10,18 +10,24 @@
 #define MAX_ZOOM 1.0f
 #define MIN_ZOOM 0.2f
 
-uint Camera::focus=0;
+uint Camera::focus = 0;
 Vec2 Camera::pos;
 Vec2 Camera::speed;
 float Camera::zoom = 1.0f;
 bool Camera::lock = false;
+bool Camera::following = false;
 
-void Camera::Follow(uint uid){
-	focus=uid;
+void Camera::Follow(uint newFocus){
+	following=true;
+	focus=newFocus;
 }
 void Camera::Unfollow(){
-	focus=0;
+	following=false;
 }
+uint Camera::GetFocus(){
+	return focus;
+}
+
 void Camera::Update(float time){
 	Vec2 center = pos + (WINSIZE/2/zoom);
 	if(INPUT.IsKeyDown(KEY(z))) {
@@ -36,7 +42,7 @@ void Camera::Update(float time){
 	}
 	CenterTo(center);
 	
-	if(GAMESTATE.entities[focus]!=nullptr) CenterTo(GAMESTATE.entities[focus]->box.center());
+	if(following)CenterTo(GAMESTATE.entities[focus]->box.center());
 	else if(!lock){
 		speed=Vec2(0,0);
 		if(INPUT.IsKeyDown(KEY_LEFT)) speed.x-=CAMERA_SPEED;

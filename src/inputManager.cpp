@@ -1,6 +1,6 @@
 #include <inputManager.hpp>
 
-InputManager::InputManager():mouseUpdate{{0}},updateCounter{0},quitRequested{false}{}
+InputManager::InputManager():mouseUpdate{{0}},updateCounter{0},text{""},composition{""},quitRequested{false}{}
 InputManager::~InputManager(){}
 
 void InputManager::Update(){
@@ -39,6 +39,14 @@ void InputManager::Update(){
 			keyState[event.key.keysym.sym]=false;
 			keyUpdate[event.key.keysym.sym]=updateCounter;
 		}
+		else if(event.type==SDL_TEXTINPUT) {
+			text+=string(event.text.text);
+		}
+		else if(event.type==SDL_TEXTEDITING) {
+			composition = string(event.edit.text);
+			cursor = event.edit.start;
+			selection_len = event.edit.length;
+		}
 	}
 	updateCounter++;
 }
@@ -73,6 +81,20 @@ int InputManager::GetMouseX(){
 int InputManager::GetMouseY(){
 	return mouse.y;
 }
+
+void InputManager::StartTextInput() {
+	SDL_StartTextInput();
+}
+void InputManager::StopTextInput() {
+	SDL_StopTextInput();
+}
+string InputManager::GetText() {
+	return text;
+}
+string InputManager::GetComposition() {
+	return composition;
+}
+
 
 bool InputManager::QuitRequested(){
 	return quitRequested;

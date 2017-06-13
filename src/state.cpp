@@ -1,6 +1,6 @@
 #include <state.hpp>
 
-State::State():popRequested{false},quitRequested{false},uid{0}{}
+State::State(){}
 
 set<GameObject*> State::GetEntitiesInRange(const float &x1,const float &x2){
 	//TODO: change this to just iterate trought the areas
@@ -11,13 +11,17 @@ set<GameObject*> State::GetEntitiesInRange(const float &x1,const float &x2){
 	}
 	return s;
 }
+
+void State::End(){
+	ending=true;
+	entities.clear();
+}
+
 void State::AddObject(GameObject* obj, int layer, int area){
 	ii key(layer,area);
-	//if(!group.count(key)) group[key] = set<uint>{};//map faz isso automaticamente 
 
-	obj->uid=uid;
-	group[key].insert(uid++);
-	entities[uid]=unique_ptr<GameObject>(obj);
+	group[key].insert(obj->uid);
+	entities[obj->uid]=unique_ptr<GameObject>(obj);
 }
 
 bool State::PopRequested(){
@@ -25,6 +29,10 @@ bool State::PopRequested(){
 }
 bool State::QuitRequested(){
 	return quitRequested;
+}
+
+uint State::GetUID(){
+	return ++uid;
 }
 
 void State::UpdateArray(float time){

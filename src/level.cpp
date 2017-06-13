@@ -19,14 +19,14 @@ Level::Level() : background{Sprite(DEFAULT_BACKGROUND)}, tileSet{TileSet(DEFAULT
 	}
 }
 
-Level::Level(string file,State* scene) : tileSet{TileSet()}, tileMap{TileMap(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT, &tileSet)} {	
-	Load(file,scene);
+Level::Level(string file,bool collisors) : tileSet{TileSet()}, tileMap{TileMap(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT, &tileSet)} {	
+	Load(file,collisors);
 }
 
 Level::~Level() {
 }
 
-void Level::Load(string file,State* scene) {
+void Level::Load(string file,bool collisors) {
 	ifstream in;
 	
 	in.open(LEVEL_PATH + file + ".txt");
@@ -78,7 +78,7 @@ void Level::Load(string file,State* scene) {
 	}
 	
 	//Setting the collision boxes:
-	if(scene!=nullptr){
+	if(collisors){
 		map<int,pair<Rect,int>> mp;
 		FOR(y,mapHeight){
 			FOR(x,mapWidth){
@@ -110,7 +110,7 @@ void Level::Load(string file,State* scene) {
 				GameObject *tile = new GameObject{r};
 				tile->AddComponent(new CompCollider{CompCollider::collType::t_ground});
 				tile->AddComponent(new CompStaticRender{Sprite{"img/point_yellow.jpg"},Vec2{0,0}});
-				scene->AddObject(tile);
+				GAMESTATE.AddObject(tile);
 			}
 		}
 	}
@@ -121,7 +121,7 @@ void Level::Load(string file,State* scene) {
 void Level::Save(string file,vector<pair<ii,ii>> grouped) {
 	ofstream out;
 	
-	out.open(file);
+	out.open(LEVEL_PATH + file + ".txt");
 	if(!out.is_open()) {
 		cout<< "Erro ao abrir o arquivo \"" << file << "\", o programa ira encerrar agora" << endl;
 		exit(EXIT_FAILURE);

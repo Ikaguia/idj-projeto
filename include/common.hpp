@@ -67,6 +67,13 @@ using uint=unsigned int;
 #define DEBUG(x) cerr << #x << " = " << x << endl;
 #define UNUSED(x) ((void)(x))
 
+#define SET_COLOR(color) SDL_SetRenderDrawColor(GAMERENDER,color)
+#define SET_COLOR4(r,g,b,a) SDL_SetRenderDrawColor(GAMERENDER,(r),(g),(b),(a))
+#define CLEAR_SCREEN() SDL_RenderClear(GAMERENDER)
+#define DRAW_RECT(r) SDL_RenderDrawRect(GAMERENDER, (r))
+#define FILL_RECT(r) SDL_RenderFillRect(GAMERENDER, (r))
+#define DRAW_LINE(x0,y0,x,y) SDL_RenderDrawLine(GAMERENDER,(x0),(y0),(x),(y))
+
 #define SDL_COLOR_BLACK MakeColor(0,0,0)
 #define SDL_COLOR_RED   MakeColor(255,0,0)
 #define SDL_COLOR_GREEN MakeColor(0,255,0)

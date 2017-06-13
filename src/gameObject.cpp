@@ -5,14 +5,18 @@
 #include <complib.hpp>
 #include <stateStage.hpp>
 
-GameObject::GameObject(){}
-GameObject::GameObject(const Rect &rec,float r,bool a):box{rec},rotation{r},anchored{a}{}
+GameObject::GameObject():uid{GAMESTATE.GetUID()}{}
+GameObject::GameObject(const Rect &rec,float r,bool a):uid{GAMESTATE.GetUID()},box{rec},rotation{r},anchored{a}{
+}
 GameObject::~GameObject(){
 	UnAttach();
 	for(GameObject* obj:attachedObjs)obj->dead=true;
 
 	FOR(i,Component::type::t_count)if(hasComponent[i])delete components[i];
-	if(Camera::focus==uid)Camera::Unfollow();
+
+	if(Camera::GetFocus()==uid)Camera::Unfollow();
+	
+	if(!GAMESTATE.ending)GAMESTATE.entities[uid]=nullptr;
 }
 
 void GameObject::Update(float time){

@@ -28,7 +28,7 @@ public:
 	Text(string txt,int fSize,SDL_Color c=SDL_COLOR_WHITE,Style st=Style::BLENDED,string file="font/arial.ttf",int x=0,int y=0);
 	~Text();
 
-	void Render(Vec2 camera = {0,0});
+	void Render(Vec2 camera = {0,0}, Rect* clipRect=nullptr);
 
 	void SetPos(int x,int y);
 	void SetPos(Vec2 v);

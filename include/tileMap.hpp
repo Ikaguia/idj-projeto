@@ -18,7 +18,7 @@ class TileMap{
 	int mapDepth;
 public:
 	TileMap(int width, int height, TileSet* ts);
-	TileMap(string file,TileSet* ts, set<unique_ptr<GameObject>> *entities);
+	TileMap(TileSet* ts);
 	
 	void Load(ifstream& in);
 	void Save(ofstream& out);
