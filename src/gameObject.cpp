@@ -16,7 +16,7 @@ GameObject::~GameObject(){
 
 	if(Camera::GetFocus()==uid)Camera::Unfollow();
 	
-	if(!GAMESTATE.ending)GAMESTATE.entities[uid]=nullptr;
+	if(!GAMESTATE.ending)GAMESTATE.entities.erase(uid);
 }
 
 void GameObject::Update(float time){
