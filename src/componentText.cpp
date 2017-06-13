@@ -13,7 +13,9 @@ CompText::CompText(string text,int size,SDL_Color c,Hotspot h,Vec2 p):txt{text,s
 CompText::~CompText(){}
 
 
-void CompText::Update(float time){}
+void CompText::Update(float time){
+	UNUSED(time);
+}
 void CompText::Render(){
 	Vec2 p=pos+entity->box.corner();
 	txt.SetPos(p);

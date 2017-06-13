@@ -12,8 +12,7 @@ TileMap::TileMap(int width, int height, TileSet* ts) : tileSet{ts},mapWidth{widt
 		FOR(w, mapWidth)
 			At(w, h, 0) = EMPTY_TILE;
 }
-
-TileMap::TileMap(string file,TileSet* ts,set<unique_ptr<GameObject>> *entities):tileSet{ts}{
+TileMap::TileMap(TileSet* ts):tileSet{ts}{
 }
 
 void TileMap::Load(ifstream& in){
@@ -36,7 +35,6 @@ void TileMap::Load(ifstream& in){
 		}
 	}
 }
-
 void TileMap::Save(ofstream& out) {
 	out<<mapWidth<<","<<mapHeight<<","<<mapDepth<<endl<<endl;
 	
@@ -58,7 +56,6 @@ void TileMap::SetTileSet(TileSet* ts){
 int& TileMap::At(int x,int y,int z){
 	return tileMatrix[x+(y*mapWidth)+(z*mapWidth*mapHeight)];
 }
-
 int TileMap::At(int x,int y,int z) const{
 	return tileMatrix[x+(y*mapWidth)+(z*mapWidth*mapHeight)];
 }
@@ -75,7 +72,6 @@ void TileMap::RenderLayer(int layer,int posX ,int posY){
 		}
 	}
 }
-
 void TileMap::Render(Vec2 pos){
 	FOR(i,mapDepth){
 		RenderLayer(i,pos.x,pos.y);
@@ -85,11 +81,9 @@ void TileMap::Render(Vec2 pos){
 int TileMap::GetWidth() const{
 	return mapWidth;
 }
-
 int TileMap::GetHeight() const{
 	return mapHeight;
 }
-
 int TileMap::GetDepth() const{
 	return mapDepth;
 }
@@ -97,11 +91,9 @@ int TileMap::GetDepth() const{
 void TileMap::SetWidth(const int& w) {
 	mapWidth = w;
 }
-
 void TileMap::SetHeight(const int& h) {
 	mapHeight = h;
 }
-
 void TileMap::SetDepth(const int& d) {
 	mapDepth = d;
 }

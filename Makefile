@@ -11,7 +11,7 @@ RM = rm -f
 # "Flags" para a geração automática das dependências
 DEP_FLAGS = -MT $@ -MMD -MP -MF $(DEP_PATH)/$*.d
 # Diretivas que são utilizadas na compilação de cada objeto
-DIRECTIVES = -std=c++11 -Wall -Wextra -c -I $(HEADER_PATH) -Wno-unused-result -Wno-unused-parameter
+DIRECTIVES = -std=c++11 -Wall -Wextra -c -I $(HEADER_PATH)
 # Diretivas que são utilizadas na "linkagem" dos objetos gerando o executável
 LIBS = -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lm
 
@@ -120,10 +120,13 @@ make_new_file: make_class/make_new_file.cpp
 	$(CC) -o make_class/make_new_file make_class/make_new_file.cpp -std=c++11
 
 make_class-%-hpp: make_new_file
-	./make_class/make_new_file $* a && subl include/$*.hpp && subl src/$*.cpp
+	./make_class/make_new_file $* a && xdg-open include/$*.hpp && xdg-open src/$*.cpp
 
 make_class-%-cpp: make_new_file
-	./make_class/make_new_file $* a a && subl include/$*.hpp && subl src/$*.cpp
+	./make_class/make_new_file $* a a && xdg-open include/$*.hpp && xdg-open src/$*.cpp
 
 make_class-%: make_new_file
-	./make_class/make_new_file $* && subl include/$*.hpp && subl src/$*.cpp
+	./make_class/make_new_file $* && xdg-open include/$*.hpp && xdg-open src/$*.cpp
+
+make_component-%: make_new_file
+	./make_class/make_new_file $* a a a && xdg-open include/component$*.hpp && xdg-open src/component$*.cpp

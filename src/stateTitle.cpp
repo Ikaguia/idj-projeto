@@ -31,14 +31,14 @@ void StateTitle::Update(float time){
 	if(INPUT.KeyPress(KEY_SPACE))GAMEINST.Push(new StateStage{"data/level/level_0.txt"});
 	if(INPUT.KeyPress(KEY(e)))GAMEINST.Push(new StateEditor{});
 	UpdateArray(time);
-	b.Update();
-	tb.Update();
+	//b.Update();
+	//tb.Update();
 }
 void StateTitle::Render(){
 	bg.Render(0,0);
 	RenderArray();
-	b.Render();
-	tb.Render();
+	//b.Render();
+	//tb.Render();
 }
 
 void StateTitle::Pause(){}

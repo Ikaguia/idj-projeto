@@ -7,6 +7,9 @@
 
 class GameObject;
 
+#define COMPINPUTCONT(x)  ((CompInputControl*)x. components[Component::type::t_input_control])
+#define COMPINPUTCONTp(x) ((CompInputControl*)x->components[Component::type::t_input_control])
+
 class CompInputControl : public Component{
 	function<void(GameObject*,float)> func;
 public:

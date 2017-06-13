@@ -7,12 +7,15 @@ void GUIManager::Update(){
 }
 
 bool GUIManager::ButtonPress(int key){
+	UNUSED(key);
 	return (buttonState && updateCounter==0);
 }
 bool GUIManager::ButtonRelease(int key){
+	UNUSED(key);
 	return ((!buttonState) && updateCounter==0);
 }
 bool GUIManager::IsButtonDown(int key){
+	UNUSED(key);
 	return buttonState;
 }
 

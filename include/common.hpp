@@ -65,6 +65,7 @@ using uint=unsigned int;
 #define ABS(x) (((x)<0)?-(x):(x))
 #define BETWEEN(x,a,b) ((x>=a) && (x<b))
 #define DEBUG(x) cerr << #x << " = " << x << endl;
+#define UNUSED(x) ((void)(x))
 
 #define SET_COLOR(color) SDL_SetRenderDrawColor(GAMERENDER,color)
 #define SET_COLOR4(r,g,b,a) SDL_SetRenderDrawColor(GAMERENDER,(r),(g),(b),(a))

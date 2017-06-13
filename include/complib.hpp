@@ -8,6 +8,7 @@
 #include <componentGravity.hpp>
 #include <componentHP.hpp>
 #include <componentInputControl.hpp>
+#include <componentMemory.hpp>
 #include <componentMovement.hpp>
 #include <componentStaticRender.hpp>
 #include <componentText.hpp>

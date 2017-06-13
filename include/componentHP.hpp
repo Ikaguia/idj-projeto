@@ -5,6 +5,9 @@
 #include <component.hpp>
 #include <timer.hpp>
 
+#define COMPHP(x)  ((CompHP*)x. components[Component::type::t_hp])
+#define COMPHPp(x) ((CompHP*)x->components[Component::type::t_hp])
+
 class CompHP : public Component{
 	//private members
 public:

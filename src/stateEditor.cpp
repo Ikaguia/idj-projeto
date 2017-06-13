@@ -121,7 +121,7 @@ void StateEditor::Render(){
 	//level.background.Render(RENDERPOSX(0), RENDERPOSY(0), 0, CAMERAZOOM);
 	level.tileMap.Render();
 	RenderArray();
-	if(showGrid) RenderGrid(0, 0, 64, 64);
+	if(showGrid) RenderGrid(64, 64);
 	RenderBorder();
 	if(showCollision) RenderCollision();
 	RenderCursor();
@@ -141,7 +141,7 @@ void StateEditor::RenderBackground() {
 	CLEAR_SCREEN();
 }
 
-void StateEditor::RenderGrid(int x, int y, int w, int h) {
+void StateEditor::RenderGrid(int w, int h) {
 	SET_COLOR(GRID_COLOR);
 	
 	if(w > 0) {
