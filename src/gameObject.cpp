@@ -245,12 +245,16 @@ void PlayerControlFunc(GameObject* go, float time){
 		float force=1000 + (1000-rand()%2000)/10.0f;
 		float angle=       (1000-rand()%2000)/100.0f;
 		if(!go->flipped){
-			Vec2 pos{go->box.x-150-5,go->box.y+85};
-			GAMESTATE.AddObject(GameObject::MakeBullet(pos,"player_projectile.txt",go,force,180+angle+10,10,16,true));
+			Vec2 pos{go->box.x,go->box.y+85};
+			GameObject* bullet = GameObject::MakeBullet(pos,"player_projectile",go,force,180+angle+10,10,16,true);
+			bullet->box.x+=bullet->box.w - 25;
+			GAMESTATE.AddObject(bullet);
 		}
 		else{
-			Vec2 pos{go->box.x+go->box.w+5,go->box.y+85};
-			GAMESTATE.AddObject(GameObject::MakeBullet(pos,"player_projectile.txt",go,force,angle-10,10,16,true));
+			Vec2 pos{go->box.x,go->box.y+85};
+			GameObject* bullet = GameObject::MakeBullet(pos,"player_projectile",go,force,angle-10,10,16,true);
+			bullet->box.x+=go->box.w - bullet->box.w;
+			GAMESTATE.AddObject(bullet);
 		}
 	}
 }
@@ -269,7 +273,7 @@ void EmptyCollision(const CompCollider* a,const CompCollider* b){UNUSED(a);UNUSE
 
 GameObject* GameObject::MakePlayer(const Vec2 &pos){
 
-	CompAnimControl* animControl = new CompAnimControl{"data/animation/player.txt"};
+	CompAnimControl* animControl = new CompAnimControl{"player"};
 	float width=animControl->GetCur().sp.GetWidth();
 	float height=animControl->GetCur().sp.GetHeight();
 
@@ -356,7 +360,7 @@ GameObject* GameObject::MakeBullet(const Vec2 &pos,string animFile,GameObject* g
 
 GameObject* GameObject::MakeMike(const Vec2 &pos){
 
-	CompAnimControl* animControl = new CompAnimControl{"data/animation/mike.txt"};
+	CompAnimControl* animControl = new CompAnimControl{"mike"};
 	float width=animControl->GetCur().sp.GetWidth();
 	float height=animControl->GetCur().sp.GetHeight();
 
@@ -385,7 +389,7 @@ GameObject* GameObject::MakeMike(const Vec2 &pos){
 
 
 GameObject* GameObject::MakeBanshee(const Vec2 &pos,const Vec2 &pos2){
-	CompAnimControl* animControl = new CompAnimControl{"data/animation/banshee.txt"};
+	CompAnimControl* animControl = new CompAnimControl{"banshee"};
 	float width=animControl->GetCur().sp.GetWidth();
 	float height=animControl->GetCur().sp.GetHeight();
 
@@ -415,7 +419,7 @@ GameObject* GameObject::MakeBanshee(const Vec2 &pos,const Vec2 &pos2){
 }
 
 GameObject* GameObject::MakeMask(const Vec2 &pos){
-	CompAnimControl* animControl = new CompAnimControl{"data/animation/mascara.txt"};
+	CompAnimControl* animControl = new CompAnimControl{"mascara"};
 	float width=animControl->GetCur().sp.GetWidth();
 	float height=animControl->GetCur().sp.GetHeight();
 

@@ -48,7 +48,7 @@ void Camera::Update(float time){
 		pos+=speed;
 		//if(speed != Vec2(0,0)) cout<<"camera x= "<<pos.x<<"\t y= "<<pos.y<<endl;
 	}
-	DEBUG(pos);
+	// DEBUG(pos);
 }
 
 void Camera::CenterTo(const Vec2& v) {

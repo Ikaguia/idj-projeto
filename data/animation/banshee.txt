@@ -1,2 +1,2 @@
-idle banshee_idle.txt
-walk banshee_walk.txt
+idle banshee_idle
+walk banshee_walk

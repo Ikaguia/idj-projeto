@@ -7,7 +7,7 @@
 CompAnimControl::CompAnimControl(string file){
 	string name,animFile;
 
-	ifstream in(file);
+	ifstream in(ANIMATION_PATH + file + ".txt");
 	if(!in.is_open())cout << "Erro ao abrir arquivo de grupo de animações '" << file << "'" << endl;
 	else{
 		in >> name >> animFile;

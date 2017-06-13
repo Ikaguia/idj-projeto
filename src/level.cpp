@@ -29,7 +29,7 @@ Level::~Level() {
 void Level::Load(string file,State* scene) {
 	ifstream in;
 	
-	in.open(file);
+	in.open(LEVEL_PATH + file + ".txt");
 	if(!in.is_open()){
 		cout << "Erro ao abrir o arquivo \"" << file << "\", o programa ira encerrar agora" << endl;
 		exit(EXIT_FAILURE);

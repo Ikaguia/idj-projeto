@@ -13,7 +13,7 @@ CompAnim::CompAnim(string file){
 	float fTime,x,y,w,h,r,f;
 	bool dmgSelf,stick;
 
-	ifstream in(ANIMATION_PATH+file);
+	ifstream in(ANIMATION_PATH + file + ".txt");
 	if(!in.is_open())cout << "Erro ao abrir arquivo de animação '" << file << "'" << endl;
 	else{
 		while(in >> imgFile >> fCount >> fTime){
@@ -57,7 +57,7 @@ CompAnim::CompAnim(string file){
 						else pos.x += (self->box.w * (1 - x)),ang+=180;
 						pos.y += self->box.h * y;
 
-						GameObject* bullet = GameObject::MakeBullet(pos,animFile+".txt",self,f,ang,dmgLow,dmgHigh,stick);
+						GameObject* bullet = GameObject::MakeBullet(pos,animFile,self,f,ang,dmgLow,dmgHigh,stick);
 						GAMESTATE.AddObject(bullet);
 					};
 				}
