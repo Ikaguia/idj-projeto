@@ -38,7 +38,7 @@ CompAnim::CompAnim(string file){
 
 						set<GameObject*> gos = GAMESTATE.GetEntitiesInRange(rect.x,rect.x+rect.w);
 						for(GameObject* go:gos){
-							if(dmgSelf || go != self){
+							if(dmgSelf || go->team != self->team){
 								//TODO: change collision to work with rotation
 								if(go->hasComponent[Component::type::t_hp] && area.collides(go->box)){
 									COMPHPp(go)->Damage(dmgLow+(rand()%(dmgHigh-dmgLow)));

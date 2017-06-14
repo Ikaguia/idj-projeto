@@ -9,11 +9,15 @@
 class GameObject{
 public:
 	const uint uid;
+
 	bitset<Component::type::t_count> hasComponent;
 	array<Component*,Component::type::t_count> components;
 
 	vector<GameObject*> attachedObjs;
 	GameObject* attachedTo=nullptr;
+
+	enum Team{neutral,player,enemy,other};
+	Team team=Team::neutral;
 
 	Rect box;
 	float rotation;
