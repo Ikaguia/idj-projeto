@@ -3,6 +3,7 @@
 
 #include <common.hpp>
 
+#include <gui.hpp>
 #include <level.hpp>
 #include <state.hpp>
 #include <text.hpp>

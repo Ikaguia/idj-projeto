@@ -29,7 +29,7 @@ X - Zoom Out"
 //TODO: Remove placeholder index
 #define COLLISION_BLOCK 0
 
-StateEditor::StateEditor():helpText{HELP_TEXT,16},statusText{"test",16} {
+StateEditor::StateEditor():helpText{HELP_TEXT,16},statusText{"test",16}{
 	LoadAssets();
 }
 

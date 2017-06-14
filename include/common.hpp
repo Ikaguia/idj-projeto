@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <array>
 #include <bitset>
+#include <climits>
 #include <cmath>
 #include <fstream>
 #include <functional>

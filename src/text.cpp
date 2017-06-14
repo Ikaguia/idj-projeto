@@ -99,8 +99,9 @@ void Text::SetText(string txt){
 	stringstream text(txt);
 	lineArray.clear();
 	for(TextLine line;getline(text, line.text);) {
-		if(line.text=="")
+		if(line.text==""){
 			line.text = " ";
+		}
 		lineArray.push_back(line);
 	}
 	
@@ -149,7 +150,7 @@ Rect Text::GetBox()const {
 void Text::RemakeTexture(){
 	if(font.get()){
 		SDL_Surface *surface;
-		box.h = 0;
+		box.w = box.h = 0;
 		for(auto& i : lineArray) {
 			if(i.texture)SDL_DestroyTexture(i.texture);
 			if(style==Style::SOLID)surface=TTF_RenderText_Solid(font.get(),i.text.c_str(),color);

@@ -15,7 +15,6 @@ private:
 	vector<TextLine> lineArray;
 	shared_ptr<TTF_Font> font;
 	string fontName;
-	string text;
 	Style style;
 	int fontSize;
 	SDL_Color color;
