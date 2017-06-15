@@ -31,7 +31,7 @@
  */
 
 #ifndef SDL_MAIN_HANDLED
-#if defined(__WIN32__)
+#if defined(__WIN__)
 /* On Windows SDL provides WinMain(), which parses the command line and passes
    the arguments to your main function.
 
@@ -69,9 +69,9 @@
 
 #elif defined(__NACL__)
 /* On NACL we use ppapi_simple to set up the application helper code,
-   then wait for the first PSE_INSTANCE_DIDCHANGEVIEW event before 
+   then wait for the first PSE_INSTANCE_DIDCHANGEVIEW event before
    starting the user main function.
-   All user code is run in a separate thread by ppapi_simple, thus 
+   All user code is run in a separate thread by ppapi_simple, thus
    allowing for blocking io to take place via nacl_io
 */
 #define SDL_MAIN_NEEDED
@@ -124,7 +124,7 @@ extern "C" {
  */
 extern DECLSPEC void SDLCALL SDL_SetMainReady(void);
 
-#ifdef __WIN32__
+#ifdef __WIN__
 
 /**
  *  This can be called to set the application class at startup

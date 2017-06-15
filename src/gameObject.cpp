@@ -15,7 +15,7 @@ GameObject::~GameObject(){
 	FOR(i,Component::type::t_count)if(hasComponent[i])delete components[i];
 
 	if(Camera::GetFocus()==uid)Camera::Unfollow();
-	
+
 	if(!GAMESTATE.ending)GAMESTATE.entities.erase(uid);
 }
 
@@ -127,27 +127,29 @@ template<int attackDist,int seeDist> void HostileAIfunc(CompAI* ai,float time){
 	int &state = COMPMEMORYp(ai->entity)->ints["state"];
 	Timer &cd = COMPMEMORYp(ai->entity)->timers["cooldown"];
 	if(state==CompAI::state::idling){
-		if(cd.Get()>5 && target!=nullptr){
+		if(cd.Get() > 3 && target!=nullptr){
 			cd.Restart();
 			state=CompAI::state::looking;
 		}
 	}
 	else if(state==CompAI::state::looking){
-		if(cd.Get()>5 || target==nullptr){
+		if(cd.Get() > 5 || target==nullptr){
 			cd.Restart();
 			state=CompAI::state::idling;
 			return;
 		}
 		//TODO: make line of sight component
 		float dist = ai->entity->box.distEdge(target->box).x;
-		if(dist<seeDist){
+		if(dist < seeDist){
 			cd.Restart();
-			if(dist<attackDist)state=CompAI::state::attacking,ac->ChangeCur("attack");
-			else state=CompAI::state::walking,ac->ChangeCur("walk");
+			if(dist <= attackDist)
+                state=CompAI::state::attacking,ac->ChangeCur("attack");
+			else
+                state=CompAI::state::walking,ac->ChangeCur("walk");
 		}
 	}
-	else if(state==CompAI::state::walking){
-		if(target==nullptr || cd.Get()>5){
+	else if(state == CompAI::state::walking){
+		if(target == nullptr || cd.Get() > 5){
 			cd.Restart();
 			state=CompAI::state::looking;
 			ac->ChangeCur("idle");
@@ -156,7 +158,13 @@ template<int attackDist,int seeDist> void HostileAIfunc(CompAI* ai,float time){
 			float dist = ai->entity->box.distEdge(target->box).x;
 			CompMovement *movement = COMPMOVEp(ai->entity);
 
-			//TODO: if cant see target go looking
+			if(dist > seeDist) { /* cd.Get() <= 5 aqui */
+                if(cd.Get() > 2) {
+                    cd.Restart();
+                    state=CompAI::state::looking;
+                    ac->ChangeCur("idle");
+                }
+			}
 			if(dist < attackDist+abs(movement->speed.x)*time){
 				movement->speed.x=0;
 				if(ai->entity->box.x < target->box.x)movement->move=dist-attackDist;
@@ -186,7 +194,7 @@ template<int attackDist,int seeDist> void HostileAIfunc(CompAI* ai,float time){
 			if(target->box.x > ai->entity->box.x && !ai->entity->flipped)ai->entity->flipped=true;
 			if(target->box.x < ai->entity->box.x &&  ai->entity->flipped)ai->entity->flipped=false;
 		}
-		if(cd.Get()>5){
+		if(cd.Get() > 5){
 			cd.Restart();
 			state=CompAI::state::idling;
 			ac->ChangeCur("idle");
