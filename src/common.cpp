@@ -1,5 +1,7 @@
 #include <common.hpp>
 
+int debugCount=0;
+
 SDL_Color MakeColor(int r,int g,int b,int a){
 	SDL_Color color;
 	color.r=r;

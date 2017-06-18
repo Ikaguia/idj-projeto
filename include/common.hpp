@@ -66,6 +66,11 @@ using uint=unsigned int;
 #define BETWEEN(x,a,b) ((x>=a) && (x<b))
 #define DEBUG(x) cerr << #x << " = " << x << endl;
 #define UNUSED(x) ((void)(x))
+#define COUT(x) cout << #x << " "
+#define COUTL(x) cout << #x << endl
+#define DEBUG_ cout << "DEBUG " << debugCount++ << endl
+
+extern int debugCount;
 
 #define SET_COLOR(color) SDL_SetRenderDrawColor(GAMERENDER,color)
 #define SET_COLOR4(r,g,b,a) SDL_SetRenderDrawColor(GAMERENDER,(r),(g),(b),(a))
