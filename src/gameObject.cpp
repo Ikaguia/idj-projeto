@@ -137,7 +137,7 @@ template<int attackDist,int seeDist> void HostileAIfunc(CompAI* ai,float time){
 		ac->ChangeCur("idle");
 	}
 	else if(state==CompAI::state::looking){
-		if(cd.Get() > 5){
+		if(cd.Get() > 5) {
 			cd.Restart();
 			state=CompAI::state::idling;
 			return;
@@ -235,6 +235,106 @@ template<int posCount> void PassiveAIfunc(CompAI* ai,float time){
 		else{
 			ai->entity->flipped=false;
 			movement->speed.x=-100.0f;
+		}
+	}
+}
+
+template<int attackDistMelee, int attackDist, int seeDist> void HostileBossAIfunc(CompAI* ai,float time){
+	CompAnimControl* ac = COMPANIMCONTp(ai->entity);
+	GameObject* target=nullptr;
+	uint target_uid = COMPMEMORYp(ai->entity)->ints["target"];
+	if(GAMESTATE.entities.count(target_uid))target=GAMESTATE.entities[target_uid].get();
+	int &state = COMPMEMORYp(ai->entity)->ints["state"];
+	Timer &cd = COMPMEMORYp(ai->entity)->timers["cooldown"];
+	if(state==CompAI::state::idling){
+		if(cd.Get() > 3 && target!=nullptr){
+			cd.Restart();
+			state=CompAI::state::looking;
+		}
+	}
+	else if(target==nullptr){
+		state=CompAI::state::idling;
+		ac->ChangeCur("idle");
+	}
+	else if(state==CompAI::state::looking){
+		if(cd.Get() > 5){
+			cd.Restart();
+			state=CompAI::state::idling;
+			return;
+		}
+		//TODO: make line of sight component
+		float dist = ai->entity->box.distEdge(target->box).x;
+		if(dist < seeDist){
+			cd.Restart();
+			// Stun do Poroc: if(dist < 2*attackDistMelee) state=CompAI::state::attacking,ac->ChangeCur("stunning");
+			if(dist <= attackDist)state=CompAI::state::attacking,ac->ChangeCur("attack");
+			else                  state=CompAI::state::walking,ac->ChangeCur("walk");
+		}
+	}
+	else if(state == CompAI::state::walking){
+		if(cd.Get() > 5){
+			cd.Restart();
+			state=CompAI::state::looking;
+			ac->ChangeCur("idle");
+		}
+		else{
+			float dist = ai->entity->box.distEdge(target->box).x;
+			CompMovement *movement = COMPMOVEp(ai->entity);
+
+			//TODO: make line of sight component
+			if(dist > seeDist){
+				cd.Restart();
+				state=CompAI::state::looking;
+				ac->ChangeCur("idle");
+			}
+			if(dist < attackDist+abs(movement->speed.x)*time){
+				movement->speed.x=0;
+				if(ai->entity->box.x < target->box.x)movement->move= dist-attackDist;
+				else                                 movement->move=-dist+attackDist;
+
+				state=CompAI::state::attacking;
+				cd.Restart();
+				ac->ChangeCur("attack");
+			}
+			else if(ai->entity->box.x < target->box.x){
+				ai->entity->flipped=true;
+				movement->speed.x= 100.0f;
+			}
+			else{
+				ai->entity->flipped=false;
+				movement->speed.x=-100.0f;
+			}
+		}
+	}
+	else if(state==CompAI::state::attacking){
+		if(ai->entity->box.distEdge(target->box).x > attackDist){
+			cd.Restart();
+			state=CompAI::state::looking;
+			ac->ChangeCur("idle");
+		}
+		else{
+			if(target->box.x > ai->entity->box.x && !ai->entity->flipped)ai->entity->flipped=true;
+			if(target->box.x < ai->entity->box.x &&  ai->entity->flipped)ai->entity->flipped=false;
+		}
+		/* Stun do Porco
+		if(cd.Get() > 3) { Sem dar cd.Restart()
+            ac->ChangeCur("Attack_Stun");
+            float dist = ai->entity->box.distEdge(target->box).x;
+            if(dist > attackDist && dist > attackDistMelee) {
+                cd.Restart();
+                state=CompAI::state::walking;
+                ac->ChangeCur("walk");
+            } else if(cd > 4 && (attackDistMelee <= dist or attackDist <= dist)) {
+                cd.Restart();
+                state=CompAI::state::attacking;
+                ac->ChangeCur("attack");
+            }
+		}
+		*/
+		if(cd.Get() > 5.5){
+			cd.Restart();
+			state=CompAI::state::idling;
+			ac->ChangeCur("idle");
 		}
 	}
 }
