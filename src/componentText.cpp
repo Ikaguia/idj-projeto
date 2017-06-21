@@ -17,7 +17,7 @@ void CompText::Update(float time){
 	UNUSED(time);
 }
 void CompText::Render(){
-	Vec2 p=pos+entity->box.corner();
+	Vec2 p=pos+entity->Box().corner();
 	txt.SetPos(p);
 	
 	if(entity->anchored) txt.Render();

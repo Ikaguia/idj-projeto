@@ -10,13 +10,15 @@
 #define COMPANIMCONT(x)  ((CompAnimControl*)x. components[Component::type::t_animation_control])
 #define COMPANIMCONTp(x) ((CompAnimControl*)x->components[Component::type::t_animation_control])
 
+class Collider;
+
 class CompAnimControl : public Component{
 	//private members
-	map<string,CompAnim> animations;
+	map<string,unique_ptr<CompAnim>> animations;
 	string cur;
 public:
 	//public members
-	CompAnimControl(string file);
+	CompAnimControl(string file,CompCollider* coll);
 	~CompAnimControl();
 
 	void ChangeCur(string anim);

@@ -11,7 +11,7 @@ RM = rm -f
 # "Flags" para a geração automática das dependências
 DEP_FLAGS = -MT $@ -MMD -MP -MF $(DEP_PATH)/$*.d
 # Diretivas que são utilizadas na compilação de cada objeto
-DIRECTIVES = -std=c++11 -Wall -Wextra -c -I $(HEADER_PATH)
+DIRECTIVES = -std=c++14 -Wall -Wextra -c -I $(HEADER_PATH) -O2
 # Diretivas que são utilizadas na "linkagem" dos objetos gerando o executável
 LIBS = -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lm
 

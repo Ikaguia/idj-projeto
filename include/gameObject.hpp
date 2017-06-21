@@ -19,14 +19,20 @@ public:
 	enum Team{neutral,player,enemy,other};
 	Team team=Team::neutral;
 
-	Rect box;
+	Vec2 pos;
+	Vec2 curPos;
+	Vec2 size;
+	Vec2 curSize=Vec2{1.0f,1.0f};
 	float rotation;
+	Hotspot hotspot;
+
 	bool anchored=false;
 	bool dead=false;
 	bool flipped=false;
 
 	GameObject();
-	GameObject(const Rect &rec,float r=0.0f, bool a=false);
+	GameObject(const Vec2 &pos_,float r=0.0f,Hotspot h=Hotspot::TOP_LEFT, bool a=false);
+	GameObject(const Rect &rect,float r=0.0f,Hotspot h=Hotspot::TOP_LEFT, bool a=false);
 	~GameObject();
 
 	void Update(float time);
@@ -42,6 +48,8 @@ public:
 	void UnAttach();
 
 	bool IsDead()const;
+	Rect Box()const;
+	Rect FullBox()const;
 
 
 	static GameObject* MakePlayer(const Vec2 &pos);

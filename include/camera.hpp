@@ -34,8 +34,8 @@ public:
 	static void CenterTo(const Vec2& v);
 	
 	static Vec2 RenderPos(const Vec2& v);
-	static int RenderPosX(const float& x);
-	static int RenderPosY(const float& y);
+	static float RenderPosX(const float& x);
+	static float RenderPosY(const float& y);
 };
 
 #endif//CAMERAHPP

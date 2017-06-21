@@ -37,6 +37,7 @@ using std::getline;
 using std::ifstream;
 using std::map;
 using std::max;
+using std::make_unique;
 using std::min;
 using std::next;
 using std::ofstream;
@@ -98,8 +99,11 @@ extern int debugCount;
 #define LEVEL_PATH DATA_PATH+"level/"
 
 #define NOMEPROJETO "IDJ - Projeto"
+#define RENDERCOLLISION
 
-typedef enum {TOP_LEFT,TOP,TOP_RIGHT,LEFT,CENTER,RIGHT,BOTTOM_LEFT,BOTTOM,BOTTOM_RIGHT} Hotspot; 
+
+typedef enum {TOP_LEFT,TOP,TOP_RIGHT,LEFT,CENTER,RIGHT,BOTTOM_LEFT,BOTTOM,BOTTOM_RIGHT} Hotspot;
+extern pair<float,float> HotspotPos[];
 
 SDL_Color MakeColor(int r,int g,int b,int a=255);
 

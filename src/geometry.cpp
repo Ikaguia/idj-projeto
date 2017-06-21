@@ -1,4 +1,5 @@
 #include <geometry.hpp>
+#include <camera.hpp>
 
 Vec2::Vec2(const float &a,const float &b):x{a},y{b}{}
 Vec2::Vec2(const Vec2 &b):x{b.x},y{b.y}{}
@@ -87,6 +88,9 @@ Vec2 Vec2::unit() const{
 	return (*this)/len();
 }
 
+Vec2 Vec2::renderPos() const{
+	return RENDERPOS(*this);
+}
 
 Vec2 Vec2::rotate(float a){
 	Vec2 v;
@@ -118,6 +122,7 @@ std::ostream& operator<<(std::ostream& os, const Vec2& obj){
 
 
 Rect::Rect(const float &a,const float &b,const float &c,const float &d):x{a},y{b},w{c},h{d}{}
+Rect::Rect(const Vec2 &pos,const Vec2 &sz):x{pos.x},y{pos.y},w{sz.x},h{sz.y}{}
 Rect::Rect(const Rect &b):x{b.x},y{b.y},w{b.w},h{b.h}{}
 
 
@@ -163,6 +168,30 @@ Vec2 Rect::corner() const{
 Vec2 Rect::center() const{
 	return {x+(w/2),y+(h/2)};
 }
+Vec2 Rect::size() const{
+	return {w,h};
+}
+Vec2 Rect::relativePos(const Vec2 &relative,bool inverted) const{
+	Vec2 pos{x,y};
+	if(inverted)pos.x +=    relative.x  * w;
+	else        pos.x += (1-relative.x) * w;
+	pos.y += relative.y * h;
+	return pos;
+}
+
+Rect Rect::renderBox() const{
+	return {RENDERPOSX(x),RENDERPOSY(y),w*CAMERAZOOM,h*CAMERAZOOM};
+}
+Rect Rect::relativeBox(const Rect &relative,bool inverted) const{
+	Rect box{x,y,w,h};
+	if(inverted)box.x +=    relative.x  * w;
+	else        box.x += (1-relative.x) * w;
+	box.y += relative.y * h;
+	box.w *= relative.w;
+	box.h *= relative.h;
+	return box;
+}
+
 
 void Rect::setPos(const Vec2& b) {
 	x = b.x;
@@ -205,7 +234,13 @@ Vec2 Rect::distEdge(const Rect& b) const{
 	}
 	return ret;
 }
-
+Vec2 Rect::hotspot(Hotspot hs){
+	Vec2 v{x,y};
+	auto &add = HotspotPos[hs];
+	v.x -= w * add.first;
+	v.y -= h * add.second;
+	return v;
+}
 
 bool Rect::contains(const float &i,const float &j) const{
 	if(i<x)return false;

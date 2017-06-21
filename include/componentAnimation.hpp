@@ -19,7 +19,7 @@ public:
 
 	//public members
 	CompAnim();
-	CompAnim(string file);
+	CompAnim(string file,CompCollider* coll);
 	~CompAnim();
 
 	int GetCurFrame();

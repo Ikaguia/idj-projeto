@@ -42,7 +42,7 @@ void Camera::Update(float time){
 	}
 	CenterTo(center);
 	
-	if(following)CenterTo(GAMESTATE.entities[focus]->box.center());
+	if(following)CenterTo(GAMESTATE.entities[focus]->Box().center());
 	else if(!lock){
 		speed=Vec2(0,0);
 		if(INPUT.IsKeyDown(KEY_LEFT)) speed.x-=CAMERA_SPEED;
@@ -64,10 +64,10 @@ Vec2 Camera::RenderPos(const Vec2& v) {
 	return (v-CAMERA)*CAMERAZOOM;
 }
 
-int Camera::RenderPosX(const float& x) {
+float Camera::RenderPosX(const float& x) {
 	return (x-CAMERA.x)*CAMERAZOOM;
 }
 
-int Camera::RenderPosY(const float& y) {
+float Camera::RenderPosY(const float& y) {
 	return (y-CAMERA.y)*CAMERAZOOM;
 }
