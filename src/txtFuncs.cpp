@@ -172,7 +172,7 @@ template<class T> txtFuncType1 FireProjectile(T& in){
 		float ang=-r;
 		if(!owner->flipped)ang = 180-ang;
 
-		GameObject* bullet = new GameObject{pos};
+		GameObject* bullet = new GameObject{pos,ang,Hotspot::LEFT};
 
 		CompCollider collider{CompCollider::collType::t_bullet};
 		collider.useDefault[CompCollider::collType::t_bullet] = []
@@ -221,21 +221,17 @@ template<class T> txtFuncType1 FireProjectile(T& in){
 			Vec2 move=a->collides(b,totMove);
 
 			if(move!=totMove){
-				cout << "detected collision " << a->entity->uid << " x " << b->entity->uid << endl;
 				for(auto &pfunc:hitBlock){
 					if(pfunc.first=="owner")pfunc.second(owner);
 					if(pfunc.first=="self")pfunc.second(a->entity);
 					if(pfunc.first=="target")pfunc.second(b->entity);
 				}
-				DEBUG(vars.count("stick_block"));
 				if(vars.count("stick_block")==1){
 					Vec2 pos = a->entity->pos + move + totMove/4.0f;
-					DEBUG(pos);
 					auto &func = txtFuncsS["AddSprite"];
-					istringstream iss(to_string(pos.x) + to_string(pos.y));
+					istringstream iss(to_string(pos.x) + " " + to_string(pos.y));
 					func(iss)(a->entity);
 					GAMESTATE.GetLastObject()->AttachTo(b->entity);
-					DEBUG(GAMESTATE.GetLastObject()->uid);
 				}
 			}
 		};
@@ -255,14 +251,14 @@ template<class T> txtFuncType1 FireProjectile(T& in){
 		bullet->rotation = ang;
 		bullet->size = size;
 
+		if(owner->flipped)bullet->pos.x -= size.x;
+
 		GAMESTATE.AddObject(bullet);
 
 		for(auto &pfunc:start){
 			if(pfunc.first=="owner")pfunc.second(owner);
 			if(pfunc.first=="self")pfunc.second(bullet);
 		}
-
-		DEBUG(bullet->uid);
 	};
 }
 template<class T> txtFuncType1 Remove(T& in){

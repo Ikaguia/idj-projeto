@@ -91,12 +91,8 @@ void CompCollider::Render(){
 };
 void CompCollider::Own(GameObject* go){
 	entity=go;
-	// DEBUG(entity->uid);
-	// DEBUG(entity->curSize);
-	// DEBUG(size);
 	entity->curPos = pos;
 	entity->curSize = size;
-	// getchar();
 }
 Component::type CompCollider::GetType() const{
 	return Component::type::t_collider;
