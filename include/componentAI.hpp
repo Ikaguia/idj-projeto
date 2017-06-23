@@ -14,7 +14,7 @@ class CompAI : public Component{
 	//private members
 public:
 	//public members
-	enum state{idling,looking,walking,attacking,count};
+	enum state{idling,looking,walking,attacking,stomping,charging,count};
 	aiFunc foo;
 
 	CompAI(aiFunc func);

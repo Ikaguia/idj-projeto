@@ -229,8 +229,10 @@ Vec2 Rect::distCenter(const Rect& b) const{
 Vec2 Rect::distEdge(const Rect& b) const{
 	Vec2 ret;
 	if(!collides(b)){
-		ret.x = min(abs(x-(b.x+b.w)),abs((x+w)-b.x));
-		ret.y = min(abs(y-(b.y+b.h)),abs((y+h)-b.y));
+		if(!BETWEEN(x,b.x,b.x+b.w) && !BETWEEN(b.x,x,x+w))
+			ret.x = min(abs(x-(b.x+b.w)),abs((x+w)-b.x));
+		if(!BETWEEN(y,b.y,b.y+b.h) && !BETWEEN(b.y,y,y+h))
+			ret.y = min(abs(y-(b.y+b.h)),abs((y+h)-b.y));
 	}
 	return ret;
 }

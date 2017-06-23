@@ -6,6 +6,7 @@
 #include <gameObject.hpp>
 #include <sound.hpp>
 
+
 class State{
 protected:
 	bool popRequested=false;
@@ -34,6 +35,7 @@ public:
 	virtual void LoadAssets()=0;
 
 	virtual void AddObject(GameObject* obj, int layer=0, int area=0);
+	GameObject* GetLastObject();
 
 	void AddSound(string file,int times);
 

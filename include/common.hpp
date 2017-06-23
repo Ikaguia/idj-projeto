@@ -50,6 +50,7 @@ using std::shared_ptr;
 using std::stack;
 using std::string;
 using std::stringstream;
+using std::istringstream;
 using std::to_string;
 using std::unique_ptr;
 using std::unordered_map;
@@ -70,6 +71,8 @@ using uint=unsigned int;
 #define COUT(x) cout << #x << " "
 #define COUTL(x) cout << #x << endl
 #define DEBUG_ cout << "DEBUG " << debugCount++ << endl
+#define RAND(x) (rand()%(x))
+#define RANDR(low,high) ((low) + (rand()%((high)-(low))))
 
 extern int debugCount;
 
@@ -96,6 +99,7 @@ extern int debugCount;
 #define DATA_PATH (string)"data/"
 #define ANIMATION_PATH DATA_PATH+"animation/"
 #define BLUEPRINT_PATH DATA_PATH+"blueprint/"
+#define PROJECTILE_PATH DATA_PATH+"projectile/"
 #define LEVEL_PATH DATA_PATH+"level/"
 
 #define NOMEPROJETO "IDJ - Projeto"

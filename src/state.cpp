@@ -25,6 +25,11 @@ void State::AddObject(GameObject* obj, int layer, int area){
 	entities[obj->uid]=unique_ptr<GameObject>(obj);
 }
 
+GameObject* State::GetLastObject(){
+	return entities[uid].get();
+}
+
+
 bool State::PopRequested(){
 	return popRequested;
 }

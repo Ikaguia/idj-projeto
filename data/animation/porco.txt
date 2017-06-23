@@ -1,0 +1,5 @@
+idle porco_idle
+walk porco_walk
+attack porco_attack
+stomp porco_stomp
+charge porco_charge

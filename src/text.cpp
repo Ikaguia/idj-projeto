@@ -141,7 +141,7 @@ Rect Text::GetBox()const {
 
 void Text::RemakeTexture(){
 	if(font.get()){
-		SDL_Surface *surface;
+		SDL_Surface *surface=nullptr;
 		box.h = 0;
 		for(auto& i : lineArray) {
 			if(i.texture)SDL_DestroyTexture(i.texture);
