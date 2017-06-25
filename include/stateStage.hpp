@@ -10,7 +10,8 @@
 
 
 #define STATESTAGE ((StateStage*)&GAMESTATE)
-#define PLAYER (STATESTAGE->entities[STATESTAGE->player].get())
+#define PLAYER_UID (STATESTAGE->player)
+#define PLAYER (GAMESTATE.entities[PLAYER_UID].get())
 
 class StateStage: public State{
 	string levelName;
@@ -29,6 +30,7 @@ public:
 	virtual void Resume();
 
 	virtual void LoadAssets();
+	virtual void LoadGUI();
 };
 
 #endif//STATESTAGEHPP

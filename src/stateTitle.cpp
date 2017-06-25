@@ -17,6 +17,9 @@ StateTitle::StateTitle():State::State(),bg{Sprite(BACKGROUND)}{
 }
 StateTitle::~StateTitle(){}
 
+void StateTitle::LoadAssets(){}
+void StateTitle::LoadGUI(){}
+
 void StateTitle::Begin(){
 	//Create gameObjects here
 	GameObject* text = new GameObject{Rect{(WINSIZE.x/2),(WINSIZE.y/2),0,0}};
@@ -27,7 +30,7 @@ void StateTitle::Begin(){
 void StateTitle::Update(float time){
 	if(INPUT.QuitRequested() || INPUT.KeyPress(KEY_ESC)) quitRequested=true;
 	
-	if(INPUT.KeyPress(KEY_SPACE)) GAMEINST.Push(new StateStage{"data/level/level_0.txt"});
+	if(INPUT.KeyPress(KEY_SPACE)) GAMEINST.Push(new StateStage{"level_0"});
 	if(INPUT.KeyPress(KEY(e))) GAMEINST.Push(new StateEditor{});
 	UpdateArray(time);
 }
@@ -40,6 +43,3 @@ void StateTitle::Pause(){}
 void StateTitle::Resume(){
 	CAMERA.x=CAMERA.y=0;
 }
-
-
-void StateTitle::LoadAssets(){}

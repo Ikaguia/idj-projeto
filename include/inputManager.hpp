@@ -31,6 +31,7 @@ class InputManager{
 	unordered_map<int,int>  keyUpdate;
 	int updateCounter=0;
 	Vec2 mouse;
+	bool mouseMotion;
 	
 	string* text=nullptr;
 	uint cursor;
@@ -51,6 +52,7 @@ public:
 	bool MousePress(int button);
 	bool MouseRelease(int button);
 	bool IsMouseDown(int button);
+	bool IsMouseMoving();
 
 	Vec2 GetMouse();
 	int GetMouseX();

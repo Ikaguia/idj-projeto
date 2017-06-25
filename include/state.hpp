@@ -4,10 +4,12 @@
 #include <common.hpp>
 
 #include <gameObject.hpp>
+#include <guiManager.hpp>
 #include <sound.hpp>
 
 class State{
 protected:
+
 	bool popRequested=false;
 	bool quitRequested=false;
 	uint uid=0;
@@ -15,6 +17,9 @@ protected:
 	virtual void UpdateArray(float time);
 	virtual void RenderArray();
 public:
+	GUIManager gui;
+	bool ending=false;
+
 	map<uint, unique_ptr<GameObject>> entities;
 	map<ii,set<uint>> group;
 
@@ -25,10 +30,12 @@ public:
 	virtual void Render()=0;
 
 	virtual void Begin()=0;
+	virtual void End();
 	virtual void Pause()=0;
 	virtual void Resume()=0;
 
 	virtual void LoadAssets()=0;
+	virtual void LoadGUI()=0;
 
 	virtual void AddObject(GameObject* obj, int layer=0, int area=0);
 

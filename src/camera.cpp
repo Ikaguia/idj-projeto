@@ -32,21 +32,17 @@ void Camera::Update(float time){
 	Vec2 center = pos + (WINSIZE/2/zoom);
 	if(INPUT.IsKeyDown(KEY(z))) {
 		zoom += 0.5*time;
-		if(zoom > MAX_ZOOM)
-			zoom = MAX_ZOOM;
+		zoom = min(zoom,MAX_ZOOM);
 		//cout<<"zoom: "<<zoom<<endl;
 	}
 	if(INPUT.IsKeyDown(KEY(x))) {
 		zoom -= 0.5*time;
-		if(zoom < MIN_ZOOM)
-			zoom = MIN_ZOOM;
+		zoom = max(zoom,MIN_ZOOM);
 		//cout<<"zoom: "<<zoom<<endl;
 	}
 	CenterTo(center);
 	
-	if(following) {
-		CenterTo(GAMESTATE.entities[focus]->box.center());
-	}
+	if(following)CenterTo(GAMESTATE.entities[focus]->box.center());
 	else if(!lock){
 		speed=Vec2(0,0);
 		if(INPUT.IsKeyDown(KEY_LEFT)) speed.x-=CAMERA_SPEED;

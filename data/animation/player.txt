@@ -1,2 +1,2 @@
-idle player_idle.txt
-walk player_walk.txt
+idle player_idle
+walk player_walk

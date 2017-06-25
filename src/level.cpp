@@ -1,7 +1,9 @@
 #include <level.hpp>
+
+#include <complib.hpp>
 #include <game.hpp>
 #include <gameObject.hpp>
-#include <complib.hpp>
+#include <state.hpp>
 
 #define DEFAULT_BACKGROUND "img/mountain_bg.jpg"
 #define DEFAULT_TILE_SIZE 64
@@ -29,7 +31,7 @@ Level::~Level() {
 void Level::Load(string file,bool collisors) {
 	ifstream in;
 	
-	in.open(file);
+	in.open(LEVEL_PATH + file + ".txt");
 	if(!in.is_open()){
 		cout << "Erro ao abrir o arquivo \"" << file << "\", o programa ira encerrar agora" << endl;
 		exit(EXIT_FAILURE);
@@ -121,7 +123,7 @@ void Level::Load(string file,bool collisors) {
 void Level::Save(string file,vector<pair<ii,ii>> grouped) {
 	ofstream out;
 	
-	out.open(file);
+	out.open(LEVEL_PATH + file + ".txt");
 	if(!out.is_open()) {
 		cout<< "Erro ao abrir o arquivo \"" << file << "\", o programa ira encerrar agora" << endl;
 		exit(EXIT_FAILURE);

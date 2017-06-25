@@ -25,8 +25,8 @@ public:
 		t_hp,
 		t_movement,
 		t_gravity,
-		t_count,
 		t_memory,
+		t_count,
 	};
 
 	Component(){};

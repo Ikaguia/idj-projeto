@@ -88,13 +88,18 @@ int TileMap::GetDepth() const{
 	return mapDepth;
 }
 
-void TileMap::SetWidth(const int& w) {
-	mapWidth = w;
+void TileMap::SetSize(int newWidth,int newHeight) {
+	vector<int> newMatrix(newWidth*newHeight*mapDepth, EMPTY_TILE);
+	int maxX = min(newWidth, mapWidth);
+	int maxY = min(newHeight, mapHeight);
+	
+	FOR(z,mapDepth)
+		FOR(y,maxY)
+			FOR(x,maxX)
+				newMatrix[x+(y*newWidth)+(z*newWidth*newHeight)] = At(x,y,z);
+	
+	mapWidth = newWidth;
+	mapHeight = newHeight;
+	tileMatrix.clear();
+	tileMatrix = newMatrix;
 }
-void TileMap::SetHeight(const int& h) {
-	mapHeight = h;
-}
-void TileMap::SetDepth(const int& d) {
-	mapDepth = d;
-}
-

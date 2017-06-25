@@ -6,6 +6,7 @@ InputManager::~InputManager(){}
 void InputManager::Update(float time){
 	int x,y;
 	SDL_GetMouseState(&x,&y);
+	mouseMotion = (mouse.x!=x || mouse.y!=y);
 	mouse.x = (float)x;
 	mouse.y = (float)y;
 	quitRequested=false;
@@ -85,6 +86,9 @@ bool InputManager::MouseRelease(int button){
 }
 bool InputManager::IsMouseDown(int button){
 	return (mouseState[button]);
+}
+bool InputManager::IsMouseMoving(){
+	return mouseMotion;
 }
 
 Vec2 InputManager::GetMouse(){

@@ -33,7 +33,7 @@ void makeHPP(string s){
 	if(!file.is_open())return;
 
 	string className = toUpperChar(s[0]) + s.substr(1);
-	string defName = toUpper(s) + "HPP";
+	string defName = (string)"COMP" + toUpper(s) + "HPP";
 
 	file << "#ifndef " << defName << endl;
 	file << "#define " << defName << endl;
@@ -131,7 +131,7 @@ void makeCOMPONENT_CPP(string s){
 	file << "void " << className << "::Render(){}" << endl;
 	file << endl << endl;
 	file << "void " << className << "::Own(GameObject* go){" << endl;
-	file << "	UNUSED(go);" << endl;
+	file << "	entity=go;" << endl;
 	file << "}" << endl;
 	file << endl << endl;
 	file << "Component::type " << className << "::GetType() const{" << endl;

@@ -10,7 +10,7 @@ CompMemory::~CompMemory(){}
 
 
 void CompMemory::Update(float time){
-	UNUSED(time);
+	for(auto& t:timers)t.second.Update(time);
 }
 
 
@@ -18,7 +18,7 @@ void CompMemory::Render(){}
 
 
 void CompMemory::Own(GameObject* go){
-	UNUSED(go);
+	entity=go;
 }
 
 

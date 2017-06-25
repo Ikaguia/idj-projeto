@@ -11,10 +11,11 @@
 #include <vector>
 
 #include <game.hpp>
-#include <state.hpp>
+
+#include <gameException.hpp>
 #include <inputManager.hpp>
 #include <resources.hpp>
-#include <gameException.hpp>
+#include <state.hpp>
 
 
 Game* Game::instance=NULL;
@@ -143,6 +144,7 @@ void Game::Run(){
 
 		if(GetCurrentState().PopRequested()){
 			GetCurrentState().Pause();
+			GetCurrentState().End();
 			stateStack.pop();
 			Resources::ClearImages();
 			Resources::ClearMusics();
@@ -158,7 +160,10 @@ void Game::Run(){
 
 		SDL_Delay(33);
 	}
-	while(stateStack.size())stateStack.pop();
+	while(stateStack.size()){
+		GetCurrentState().End();
+		stateStack.pop();
+	}
 }
 
 float Game::GetDeltaTime(){

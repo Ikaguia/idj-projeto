@@ -4,7 +4,7 @@
 #include <game.hpp>
 #include <resources.hpp>
 
-Text::Text(string txt,int fSize,SDL_Color c,Style st,string file,int x,int y):fontName{file},alignment{Text::Align::LEFT},hotspot{Hotspot::TOP_LEFT}{
+Text::Text(const string& txt,int fSize,SDL_Color c,Style st,string file,int x,int y):fontName{file}{
 	SetColor(c);
 	SetText(txt);
 	SetStyle(st);
@@ -96,6 +96,7 @@ void Text::SetPos(Vec2 v) {
 }
 
 void Text::SetText(string txt){
+	if(txt=="") txt = " ";
 	stringstream text(txt);
 	lineArray.clear();
 	for(TextLine line;getline(text, line.text);) {

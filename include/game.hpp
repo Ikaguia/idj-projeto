@@ -11,6 +11,7 @@
 #define GAMERENDER GAMEINST.GetRenderer()
 #define WINSIZE GAMEINST.winSize
 
+
 class Game{
 	static Game* instance;
 

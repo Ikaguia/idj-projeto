@@ -22,6 +22,7 @@ public:
 	virtual void Resume();
 
 	virtual void LoadAssets();
+	virtual void LoadGUI();
 };
 
 #endif//TITLESTATEHPP
