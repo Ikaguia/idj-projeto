@@ -46,7 +46,7 @@ public:
 
 class Text::TextLine {
 public:
-	SDL_Texture* texture;
+	SDL_Texture* texture=nullptr;
 	string text;
 	Rect box;
 	

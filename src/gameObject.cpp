@@ -4,10 +4,22 @@
 #include <camera.hpp>
 #include <complib.hpp>
 #include <stateStage.hpp>
+#include <txtFuncs.hpp>
 
 GameObject::GameObject():uid{GAMESTATE.GetUID()}{}
-GameObject::GameObject(const Rect &rec,float r,bool a):uid{GAMESTATE.GetUID()},box{rec},rotation{r},anchored{a}{
-}
+GameObject::GameObject(const Vec2 &pos_,float r,Hotspot hs,bool a):
+						uid{GAMESTATE.GetUID()},
+						pos{pos_},
+						rotation{r},
+						hotspot{hs},
+						anchored{a}{}
+GameObject::GameObject(const Rect &rect,float r,Hotspot hs,bool a):
+						uid{GAMESTATE.GetUID()},
+						pos{rect.x,rect.y},
+						size{rect.w,rect.h},
+						rotation{r},
+						hotspot{hs},
+						anchored{a}{}
 GameObject::~GameObject(){
 	UnAttach();
 	for(GameObject* obj:attachedObjs)obj->dead=true;
@@ -21,10 +33,16 @@ GameObject::~GameObject(){
 
 void GameObject::Update(float time){
 	//reset move
-	if(hasComponent[Component::type::t_movement])COMPMOVEp(this)->move=0.0f;
+	if(hasComponent[Component::type::t_movement]){
+		COMPMOVEp(this)->move=0.0f;
+	}
 	//process input control and ai first
-	if(hasComponent[Component::type::t_input_control])components[Component::type::t_input_control]->Update(time);
-	if(hasComponent[Component::type::t_ai])components[Component::type::t_ai]->Update(time);
+	if(hasComponent[Component::type::t_input_control]){
+		components[Component::type::t_input_control]->Update(time);
+	}
+	if(hasComponent[Component::type::t_ai]){
+		components[Component::type::t_ai]->Update(time);
+	}
 	//then set move
 	if(hasComponent[Component::type::t_movement]){
 		CompMovement *compM = (CompMovement*) components[Component::type::t_movement];
@@ -77,6 +95,7 @@ void GameObject::RemoveComponent(Component::type t){
 void GameObject::SetComponent(Component::type t,Component* component){
 	if(!hasComponent[t])hasComponent[t]=true;
 	components[t]=component;
+	component->Own(this);
 }
 
 
@@ -112,8 +131,21 @@ void GameObject::UnAttach(){
 }
 
 
-bool GameObject::IsDead()const{
-	return false;
+bool GameObject::IsDead() const{
+	return dead;
+}
+
+Rect GameObject::Box() const{
+	Rect r{pos,size};
+	r.x += curPos.x * r.w;
+	r.y += curPos.y * r.h;
+	r.w *= curSize.x;
+	r.h *= curSize.y;
+	return Rect{r.hotspot(hotspot),Vec2{r.w,r.h}};
+}
+Rect GameObject::FullBox() const{
+	Rect r{pos,size};
+	return Rect{r.hotspot(hotspot),size};
 }
 
 
@@ -127,46 +159,55 @@ template<int attackDist,int seeDist> void HostileAIfunc(CompAI* ai,float time){
 	int &state = COMPMEMORYp(ai->entity)->ints["state"];
 	Timer &cd = COMPMEMORYp(ai->entity)->timers["cooldown"];
 	if(state==CompAI::state::idling){
-		if(cd.Get()>5 && target!=nullptr){
+		if(cd.Get() > 3 && target!=nullptr){
 			cd.Restart();
 			state=CompAI::state::looking;
 		}
 	}
+	else if(target==nullptr){
+		state=CompAI::state::idling;
+		ac->ChangeCur("idle");
+	}
 	else if(state==CompAI::state::looking){
-		if(cd.Get()>5 || target==nullptr){
+		if(cd.Get() > 5) {
 			cd.Restart();
 			state=CompAI::state::idling;
 			return;
 		}
 		//TODO: make line of sight component
-		float dist = ai->entity->box.distEdge(target->box).x;
-		if(dist<seeDist){
+		float dist = ai->entity->Box().distEdge(target->Box()).x;
+		if(dist < seeDist){
 			cd.Restart();
-			if(dist<attackDist)state=CompAI::state::attacking,ac->ChangeCur("attack");
-			else state=CompAI::state::walking,ac->ChangeCur("walk");
+			if(dist <= attackDist)state=CompAI::state::attacking,ac->ChangeCur("attack");
+			else                  state=CompAI::state::walking,ac->ChangeCur("walk");
 		}
 	}
-	else if(state==CompAI::state::walking){
-		if(target==nullptr || cd.Get()>5){
+	else if(state == CompAI::state::walking){
+		if(cd.Get() > 5){
 			cd.Restart();
 			state=CompAI::state::looking;
 			ac->ChangeCur("idle");
 		}
 		else{
-			float dist = ai->entity->box.distEdge(target->box).x;
+			float dist = ai->entity->Box().distEdge(target->Box()).x;
 			CompMovement *movement = COMPMOVEp(ai->entity);
 
-			//TODO: if cant see target go looking
-			if(dist < attackDist+abs(movement->speed.x)*time){
+			//TODO: make line of sight component
+			if(dist > seeDist){
+				cd.Restart();
+				state=CompAI::state::looking;
+				ac->ChangeCur("idle");
+			}
+			else if(dist < attackDist+abs(movement->speed.x)*time){
 				movement->speed.x=0;
-				if(ai->entity->box.x < target->box.x)movement->move=dist-attackDist;
-				else      movement->move=-dist+attackDist;
+				if(ai->entity->Box().x < target->Box().x)movement->move= dist-attackDist;
+				else                                     movement->move=-dist+attackDist;
 
 				state=CompAI::state::attacking;
 				cd.Restart();
 				ac->ChangeCur("attack");
 			}
-			else if(ai->entity->box.x < target->box.x){
+			else if(ai->entity->Box().x < target->Box().x){
 				ai->entity->flipped=true;
 				movement->speed.x= 100.0f;
 			}
@@ -177,16 +218,16 @@ template<int attackDist,int seeDist> void HostileAIfunc(CompAI* ai,float time){
 		}
 	}
 	else if(state==CompAI::state::attacking){
-		if(target==nullptr || ai->entity->box.distEdge(target->box).x > attackDist){
+		if(ai->entity->Box().distEdge(target->Box()).x > attackDist){
 			cd.Restart();
 			state=CompAI::state::looking;
 			ac->ChangeCur("idle");
 		}
 		else{
-			if(target->box.x > ai->entity->box.x && !ai->entity->flipped)ai->entity->flipped=true;
-			if(target->box.x < ai->entity->box.x &&  ai->entity->flipped)ai->entity->flipped=false;
+			if(target->Box().x > ai->entity->Box().x && !ai->entity->flipped)ai->entity->flipped=true;
+			if(target->Box().x < ai->entity->Box().x &&  ai->entity->flipped)ai->entity->flipped=false;
 		}
-		if(cd.Get()>5){
+		if(cd.Get() > 5){
 			cd.Restart();
 			state=CompAI::state::idling;
 			ac->ChangeCur("idle");
@@ -207,7 +248,7 @@ template<int posCount> void PassiveAIfunc(CompAI* ai,float time){
 	}
 	else if(state==CompAI::state::walking){
 		float pos = COMPMEMORYp(ai->entity)->floats["pos" + to_string(next)];
-		float dist = pos - ai->entity->box.x;
+		float dist = pos - ai->entity->Box().x;
 		CompMovement *movement = COMPMOVEp(ai->entity);
 
 		if(abs(dist)<abs(movement->speed.x)*time){
@@ -226,6 +267,125 @@ template<int posCount> void PassiveAIfunc(CompAI* ai,float time){
 		else{
 			ai->entity->flipped=false;
 			movement->speed.x=-100.0f;
+		}
+	}
+}
+template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void PumbaAiFunc(CompAI* ai,float time){
+	CompAnimControl* ac = COMPANIMCONTp(ai->entity);
+	GameObject* target=nullptr;
+	uint target_uid = COMPMEMORYp(ai->entity)->ints["target"];
+	if(GAMESTATE.entities.count(target_uid))target=GAMESTATE.entities[target_uid].get();
+	int &state = COMPMEMORYp(ai->entity)->ints["state"];
+	int &attacked = COMPMEMORYp(ai->entity)->ints["attacked"];
+
+	Timer &cd = COMPMEMORYp(ai->entity)->timers["cooldown"];
+	Timer &stompCD = COMPMEMORYp(ai->entity)->timers["stompCooldown"];
+	if(state==CompAI::state::idling){
+		if(cd.Get() > 3 && target!=nullptr){
+			cd.Restart();
+			state=CompAI::state::looking;
+		}
+	}
+	else if(target==nullptr){
+		state=CompAI::state::idling;
+		ac->ChangeCur("idle");
+	}
+	else if(state==CompAI::state::looking){
+		if(cd.Get() > 5){
+			cd.Restart();
+			state=CompAI::state::idling;
+			return;
+		}
+		//TODO: make line of sight component
+		float dist = ai->entity->Box().distEdge(target->Box()).x;
+		if(dist < seeDist){
+			cd.Restart();
+			if(dist < 2*atkDist && stompCD.Get()>stCD)
+				state=CompAI::state::stomping, ac->ChangeCur("stomp");
+			else if(dist < atkDist)
+				state=CompAI::state::attacking,ac->ChangeCur("attack");
+			else 
+				state=CompAI::state::walking,  ac->ChangeCur("walk");
+		}
+	}
+	else if(state == CompAI::state::walking){
+		CompMovement *move = COMPMOVEp(ai->entity);
+		if(cd.Get() > 5){
+			cd.Restart();
+			state=CompAI::state::idling;
+			move->speed = move->move = 0.0f;
+			ac->ChangeCur("idle");
+		}
+		else{
+			float dist = ai->entity->Box().distEdge(target->Box()).x;
+			//TODO: make line of sight component
+			if(dist > seeDist){
+				cd.Restart();
+				state=CompAI::state::looking;
+				ac->ChangeCur("idle");
+			}
+			else if(dist < 2*atkDist+abs(move->speed.x)*time && cd.Get()<1.5 && stompCD.Get() > stCD){
+				move->speed.x=0;
+				if(ai->entity->Box().x < target->Box().x)move->move= dist - (2*atkDist);
+				else                                     move->move=-dist + (2*atkDist);
+
+				state=CompAI::state::stomping;
+				cd.Restart();
+				ac->ChangeCur("stomp");
+			}
+			else if(dist <   atkDist+abs(move->speed.x)*time){
+				move->speed.x=0;
+				if(ai->entity->Box().x < target->Box().x)move->move= dist-atkDist;
+				else                                     move->move=-dist+atkDist;
+
+				state=CompAI::state::charging;
+				cd.Restart();
+				ac->ChangeCur("charge");
+			}
+			else if(ai->entity->pos.x < target->pos.x){
+				ai->entity->flipped=true;
+				move->speed.x= 100.0f;
+			}
+			else{
+				ai->entity->flipped=false;
+				move->speed.x=-100.0f;
+			}
+		}
+	}
+	else if(state==CompAI::state::attacking){
+		if(ai->entity->Box().distEdge(target->Box()).x > atkDist){
+			attacked=0;
+			cd.Restart();
+			state=CompAI::state::looking;
+			ac->ChangeCur("idle");
+			return;
+		}
+		else{
+			if(target->Box().x > ai->entity->Box().x && !ai->entity->flipped)ai->entity->flipped=true;
+			if(target->Box().x < ai->entity->Box().x &&  ai->entity->flipped)ai->entity->flipped=false;
+			if(attacked>=atkCount){
+				attacked=0;
+				cd.Restart();
+				state=CompAI::state::idling;
+				ac->ChangeCur("idle");
+			}
+		}
+	}
+	else if(state==CompAI::state::stomping){
+		if(attacked>=stompCount){
+			attacked=0;
+			cd.Restart();
+			stompCD.Restart();
+			state=CompAI::state::looking;
+			ac->ChangeCur("idle");
+		}
+	}
+	else if(state==CompAI::state::charging){
+		if(attacked>=1){
+			attacked=0;
+			cd.Restart();
+			state=CompAI::state::idling;
+			ac->ChangeCur("idle");
 		}
 	}
 }
@@ -254,20 +414,11 @@ void PlayerControlFunc(GameObject* go, float time){
 		COMPANIMCONTp(go)->ChangeCur("walk");
 		t.Restart();
 		//TODO: prevent firing arrows inside other objects
-		float force=1000 + (1000-rand()%2000)/10.0f;
-		float angle=       (1000-rand()%2000)/100.0f;
-		if(!go->flipped){
-			Vec2 pos{go->box.x,go->box.y+85};
-			GameObject* bullet = GameObject::MakeBullet(pos,"player_projectile",go,force,180+angle+10,10,16,true);
-			bullet->box.x+=bullet->box.w - 25;
-			GAMESTATE.AddObject(bullet);
-		}
-		else{
-			Vec2 pos{go->box.x,go->box.y+85};
-			GameObject* bullet = GameObject::MakeBullet(pos,"player_projectile",go,force,angle-10,10,16,true);
-			bullet->box.x+=go->box.w - bullet->box.w;
-			GAMESTATE.AddObject(bullet);
-		}
+		float force = 1000 + (RANDR(-1000,1000)/10.0f);
+		float angle =   10 + (RANDR(-2500,2500)/1000.0f);
+		auto &foo = txtFuncsS["FireProjectile"];
+		istringstream iss("0.65 0.38 " + to_string(force) + " " + to_string(angle) + " player_proj1");
+		foo(iss)(go);
 	}
 }
 
@@ -276,7 +427,7 @@ void PlayerMonsterCollision(const CompCollider* a,const CompCollider* b){
 	if(speed==Vec2{})return;
 
 	Vec2 &totMove=COMPMOVEp(a->entity)->move;
-	Vec2 move=a->collides(b,totMove,a->entity->box+move);
+	Vec2 move=a->collides(b,totMove);
 
 	if(move!=totMove)COMPHPp(a->entity)->Damage(1);
 }
@@ -284,112 +435,58 @@ void PlayerMonsterCollision(const CompCollider* a,const CompCollider* b){
 void EmptyCollision(const CompCollider* a,const CompCollider* b){UNUSED(a);UNUSED(b);}
 
 GameObject* GameObject::MakePlayer(const Vec2 &pos){
-
-	CompAnimControl* animControl = new CompAnimControl{"player"};
-	float width=animControl->GetCur().sp.GetWidth();
-	float height=animControl->GetCur().sp.GetHeight();
-
-	GameObject* player = new GameObject{Rect{pos.x,pos.y,width,height}};
-
-	player->AddComponent(animControl);
-	player->AddComponent(new CompInputControl{PlayerControlFunc});
-	player->AddComponent(new CompMovement{});
+	GameObject* player = new GameObject{pos,0.0f,Hotspot::BOTTOM};
 
 	CompCollider *coll = new CompCollider{CompCollider::collType::t_player};
 	coll->useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
 	coll->useDefault[CompCollider::collType::t_monster]=PlayerMonsterCollision;
-	player->AddComponent(coll);
+
+	CompAnimControl* animControl = new CompAnimControl{"player",coll};
+	Vec2 size{(float)animControl->GetCur().sp.GetWidth(),(float)animControl->GetCur().sp.GetHeight()};
+	player->AddComponent(animControl);
+
+
+	player->AddComponent(new CompInputControl{PlayerControlFunc});
+	player->AddComponent(new CompMovement{});
 
 	player->AddComponent(new CompGravity{2500.0f});
 	player->AddComponent(new CompHP{100,100,true,false,0.25f});
 
-	player->flipped=true;
-	player->team=Team::player;
+	player->flipped = true;
+	player->team = Team::player;
+	player->size = size;
+
+	delete coll;
+
 	return player;
 }
 
 GameObject* GameObject::MakeTarget(const Vec2 &pos){
+	GameObject* target = new GameObject{pos,0.0f,Hotspot::BOTTOM};
+
 	CompStaticRender* img = new CompStaticRender{Sprite{"img/target.png"},Vec2{}};
-	GameObject* target = new GameObject{Rect{pos.x,pos.y,(float)img->sp.GetWidth(),(float)img->sp.GetHeight()}};
+	Vec2 size{(float)img->sp.GetWidth(),(float)img->sp.GetHeight()};
 	target->AddComponent(img);
+
 	target->AddComponent(new CompCollider{CompCollider::collType::t_solid});
 	target->AddComponent(new CompHP{100,100,true,false});
 
 	target->team=Team::other;
+	target->size = size;
 	return target;
 }
 
-
-GameObject* GameObject::MakeBullet(const Vec2 &pos,string animFile,GameObject* go,float force,float angle,int dmgLow,int dmgHigh,bool stick){
-	dmgHigh=max(dmgHigh,dmgLow+1);
-
-	CompAnim* anim = new CompAnim{animFile};
-	float width=anim->sp.GetWidth();
-	float height=anim->sp.GetHeight();
-
-	GameObject *arrow = new GameObject{{pos.x,pos.y,width,height}};
-	arrow->flipped=true;
-	arrow->rotation=angle;
-	arrow->AddComponent(anim);
-	arrow->AddComponent(new CompMovement{Vec2::makeVec2(force,angle),CompMovement::moveType::t_bullet});
-
-	CompCollider *collider = new CompCollider{CompCollider::collType::t_bullet};
-	collider->useDefault[CompCollider::collType::t_bullet] = EmptyCollision;
-
-	auto foo = [stick,go,dmgLow,dmgHigh](const CompCollider* a,const CompCollider* b){
-		if(go==b->entity)return;
-
-		Vec2 &speed=COMPMOVEp(a->entity)->speed;
-		if(speed==Vec2{})return;
-
-		Vec2 &totMove=COMPMOVEp(a->entity)->move;
-		Vec2 move=a->collides(b,totMove,a->entity->box+move);
-
-		if(move!=totMove && a->entity->team != b->entity->team){
-			a->entity->dead=true;
-
-			if(stick && !b->entity->hasComponent[Component::type::t_movement]){
-				GameObject *arrow = new GameObject{a->entity->box + move + totMove/4.0f};
-				arrow->flipped=true;
-				arrow->rotation=a->entity->rotation;
-				Sprite sp = COMPANIMp(a->entity)->sp;
-				sp.SetFrameTime(-1.0f);
-				arrow->AddComponent(new CompStaticRender{sp,Vec2{}});
-				GAMESTATE.AddObject(arrow);
-				arrow->AttachTo(b->entity);
-			}
-
-			if(b->entity->hasComponent[Component::type::t_hp]){
-				int dmg = dmgLow+rand()%(dmgHigh-dmgLow);
-				COMPHPp(b->entity)->Damage(dmg);
-			}
-		}
-	};
-	collider->useDefault[CompCollider::collType::t_any] = foo;
-	arrow->AddComponent(collider);
-
-	arrow->AddComponent(new CompGravity{500.0f});
-
-	arrow->team=go->team;
-	return arrow;
-}
-
-
 GameObject* GameObject::MakeMike(const Vec2 &pos){
-
-	CompAnimControl* animControl = new CompAnimControl{"mike"};
-	float width=animControl->GetCur().sp.GetWidth();
-	float height=animControl->GetCur().sp.GetHeight();
-
-	GameObject* mike = new GameObject{Rect{pos.x,pos.y,width,height}};
-
-	mike->AddComponent(animControl);
+	GameObject* mike = new GameObject{pos,0.0f,Hotspot::BOTTOM};
 
 	CompCollider *coll = new CompCollider{CompCollider::collType::t_monster};
 	coll->useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
 	coll->useDefault[CompCollider::collType::t_player]=EmptyCollision;
 	coll->useDefault[CompCollider::collType::t_monster]=EmptyCollision;
-	mike->AddComponent(coll);
+
+	CompAnimControl* animControl = new CompAnimControl{"mike",coll};
+	Vec2 size{(float)animControl->GetCur().sp.GetWidth(),(float)animControl->GetCur().sp.GetHeight()};
+	mike->AddComponent(animControl);
 
 	mike->AddComponent(new CompMovement{});
 	mike->AddComponent(new CompGravity{2500.0f});
@@ -401,25 +498,25 @@ GameObject* GameObject::MakeMike(const Vec2 &pos){
 	memory->ints["target"]=PLAYER_UID;
 	mike->AddComponent(memory);
 
-	mike->team=Team::enemy;
+	mike->team = Team::enemy;
+	mike->size = size;
+
+	delete coll;
 
 	return mike;
 }
 
-
 GameObject* GameObject::MakeBanshee(const Vec2 &pos,const Vec2 &pos2){
-	CompAnimControl* animControl = new CompAnimControl{"banshee"};
-	float width=animControl->GetCur().sp.GetWidth();
-	float height=animControl->GetCur().sp.GetHeight();
-
-	GameObject* banshee = new GameObject{Rect{pos.x,pos.y,width,height}};
-	banshee->AddComponent(animControl);
+	GameObject* banshee = new GameObject{pos,0.0f,Hotspot::BOTTOM};
 
 	CompCollider *coll = new CompCollider{CompCollider::collType::t_monster};
 	coll->useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
 	coll->useDefault[CompCollider::collType::t_player]=EmptyCollision;
 	coll->useDefault[CompCollider::collType::t_monster]=EmptyCollision;
-	banshee->AddComponent(coll);
+
+	CompAnimControl* animControl = new CompAnimControl{"banshee",coll};
+	Vec2 size{(float)animControl->GetCur().sp.GetWidth(),(float)animControl->GetCur().sp.GetHeight()};
+	banshee->AddComponent(animControl);
 
 	banshee->AddComponent(new CompMovement{});
 	banshee->AddComponent(new CompGravity{2500.0f});
@@ -434,36 +531,70 @@ GameObject* GameObject::MakeBanshee(const Vec2 &pos,const Vec2 &pos2){
 	memory->ints["nextPos"]=0;
 	banshee->AddComponent(memory);
 
-	banshee->team=Team::enemy;
+	banshee->team = Team::enemy;
+	banshee->size = size;
+
+	delete coll;
 
 	return banshee;
 }
 
 GameObject* GameObject::MakeMask(const Vec2 &pos){
-	CompAnimControl* animControl = new CompAnimControl{"mascara"};
-	float width=animControl->GetCur().sp.GetWidth();
-	float height=animControl->GetCur().sp.GetHeight();
-
-	GameObject* mask = new GameObject{Rect{pos.x,pos.y,width,height-10}};
-	mask->AddComponent(animControl);
+	GameObject* mask = new GameObject{pos,0.0f,Hotspot::BOTTOM};
 
 	CompCollider *coll = new CompCollider{CompCollider::collType::t_monster};
 	coll->useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
 	coll->useDefault[CompCollider::collType::t_player]=EmptyCollision;
 	coll->useDefault[CompCollider::collType::t_monster]=EmptyCollision;
-	mask->AddComponent(coll);
+
+	CompAnimControl* animControl = new CompAnimControl{"mascara",coll};
+	Vec2 size{(float)animControl->GetCur().sp.GetWidth(),(float)animControl->GetCur().sp.GetHeight()};
+	mask->AddComponent(animControl);
 
 	mask->AddComponent(new CompMovement{});
 	// mask->AddComponent(new CompGravity{2500.0f});
 	mask->AddComponent(new CompHP{50,50,true,false});
 	mask->AddComponent(new CompAI{HostileAIfunc<500,1000>});
 
-
 	CompMemory *memory = new CompMemory{};
 	memory->ints["target"]=PLAYER_UID;
 	mask->AddComponent(memory);
 
-	mask->team=Team::enemy;
+	mask->team = Team::enemy;
+	mask->size = size;
+
+	delete coll;
 
 	return mask;
 }
+
+GameObject* GameObject::MakePorco(const Vec2 &pos){
+	GameObject* pumba = new GameObject{pos,0.0f,Hotspot::BOTTOM};
+
+	CompCollider *coll = new CompCollider{CompCollider::collType::t_monster};
+	coll->useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
+	coll->useDefault[CompCollider::collType::t_player]=EmptyCollision;
+	coll->useDefault[CompCollider::collType::t_monster]=EmptyCollision;
+
+	CompAnimControl* animControl = new CompAnimControl{"porco",coll};
+	Vec2 size{(float)animControl->GetCur().sp.GetWidth(),(float)animControl->GetCur().sp.GetHeight()};
+	pumba->AddComponent(animControl);
+
+	pumba->AddComponent(new CompMovement{});
+	pumba->AddComponent(new CompGravity{2500.0f});
+	pumba->AddComponent(new CompHP{100,100,true,false});
+	pumba->AddComponent(new CompAI{PumbaAiFunc<5,500,2,3,1>});
+
+	CompMemory *memory = new CompMemory{};
+	memory->ints["state"]=CompAI::state::idling;
+	memory->ints["target"]=PLAYER_UID;
+	pumba->AddComponent(memory);
+
+	pumba->team = Team::enemy;
+	pumba->size = size;
+
+	delete coll;
+
+	return pumba;
+}
+

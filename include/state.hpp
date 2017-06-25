@@ -7,6 +7,7 @@
 #include <guiManager.hpp>
 #include <sound.hpp>
 
+
 class State{
 protected:
 
@@ -18,6 +19,7 @@ protected:
 	virtual void RenderArray();
 public:
 	GUIManager gui;
+	
 	bool ending=false;
 
 	map<uint, unique_ptr<GameObject>> entities;
@@ -38,6 +40,7 @@ public:
 	virtual void LoadGUI()=0;
 
 	virtual void AddObject(GameObject* obj, int layer=0, int area=0);
+	GameObject* GetLastObject();
 
 	void AddSound(string file,int times);
 

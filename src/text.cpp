@@ -19,18 +19,11 @@ Text::~Text(){
 }
 
 void Text::Render(Vec2 camera, Rect* clipRect){
-	int x = box.x-(camera.x*CAMERAZOOM);
-	int y = box.y-(camera.y*CAMERAZOOM);
-	
-		 if(hotspot == Hotspot::TOP) 			 x-=(box.w/2);
-	else if(hotspot == Hotspot::LEFT) 							y-=(box.h/2);
-	else if(hotspot == Hotspot::TOP_RIGHT) 		 x-=(box.w);
-	else if(hotspot == Hotspot::BOTTOM_LEFT)					y-=(box.h);
-	else if(hotspot == Hotspot::CENTER)			{x-=(box.w/2);	y-=(box.h/2);}
-	else if(hotspot == Hotspot::RIGHT)			{x-=(box.w);	y-=(box.h/2);}
-	else if(hotspot == Hotspot::BOTTOM) 		{x-=(box.w/2);	y-=(box.h);}
-	else if(hotspot == Hotspot::BOTTOM_RIGHT)	{x-=(box.w);	y-=(box.h);}
-	
+	Vec2 pos = box.hotspot(hotspot);
+
+	int x = pos.x-(camera.x*CAMERAZOOM);
+	int y = pos.y-(camera.y*CAMERAZOOM);
+
 	if(clipRect) {
 		Vec2 clipRectEnd(clipRect->x+clipRect->w-1, clipRect->y+clipRect->h-1);
 		for(auto& i : lineArray) {
@@ -150,7 +143,7 @@ Rect Text::GetBox()const {
 
 void Text::RemakeTexture(){
 	if(font.get()){
-		SDL_Surface *surface;
+		SDL_Surface *surface=nullptr;
 		box.w = box.h = 0;
 		for(auto& i : lineArray) {
 			if(i.texture)SDL_DestroyTexture(i.texture);
@@ -179,5 +172,4 @@ void Text::RemakeTexture(){
 	}
 }
 
-Text::TextLine::TextLine():texture{nullptr}{
-}
+Text::TextLine::TextLine(){}

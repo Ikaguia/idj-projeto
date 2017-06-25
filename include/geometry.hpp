@@ -45,7 +45,7 @@ public:
 	float angle(const Vec2& b) const;//inclinacao da reta definida por this e b
 
 	Vec2 unit() const;//vetor unitario
-
+	Vec2 renderPos() const;//posicao de renderizacao de acordo com a camera
 	Vec2 rotate(float a);//rotaciona o vetor em a graus
 
 	ConvexPolygon polygon();//retorna a semireta definida pelo vetor e pela origem
@@ -59,7 +59,8 @@ public:
 	float w;
 	float h;
 
-	Rect(const float &a=0,const float &b=0,const float &c=0,const float &d=0);
+	Rect(const float &a=0.0f,const float &b=0.0f,const float &c=0.0f,const float &d=0.0f);
+	Rect(const Vec2 &pos,const Vec2 &sz);
 	Rect(const Rect &b);
 
 	Rect operator= (const Rect& b);
@@ -75,6 +76,11 @@ public:
 
 	Vec2 corner() const;//retorna o canto do retangulo
 	Vec2 center() const;//retorna o centro do retangulo
+	Vec2 size() const;//retorna o tamanho do retangulo
+	Vec2 relativePos(const Vec2 &relative,bool inverted=false) const;
+
+	Rect renderBox() const;//posicao de renderizacao de acordo com a camera
+	Rect relativeBox(const Rect &relative,bool inverted=false) const;
 	
 	void setPos(const Vec2& b);
 	void setCenter(const Vec2& b); 
@@ -84,6 +90,7 @@ public:
 
 	Vec2 distCenter(const Rect& b) const;//retorna a distancia entre os centros dos retangulos
 	Vec2 distEdge(const Rect& b) const;//retorna a distancia entre os pontos mais proximos dos retangulos
+	Vec2 hotspot(const Hotspot hs=Hotspot::TOP_LEFT);
 
 	bool contains(const float &i,const float &j) const;//retorna se o ponto pertence ao retangulo
 	bool contains(const Vec2& b) const;//retorna se o ponto pertence ao retangulo

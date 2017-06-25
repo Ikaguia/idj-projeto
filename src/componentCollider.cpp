@@ -7,11 +7,12 @@
 
 set<CompCollider*> CompCollider::colliders;
 
-CompCollider::CompCollider(collType t):cType{t}{
+CompCollider::CompCollider(const Rect &box,collType t):pos{box.x,box.y},size{box.w,box.h},cType{t}{
 	colliders.insert(this);
 }
-CompCollider::~CompCollider(){
-	colliders.erase(this);
+
+CompCollider::CompCollider(collType t):size{1.0f,1.0f},cType{t}{
+	colliders.insert(this);
 }
 
 void CompCollider::collisionCheck(CompCollider *other){
@@ -26,54 +27,72 @@ void CompCollider::collisionCheck(CompCollider *other){
 		Vec2 &totMove=COMPMOVEp(entity)->move;
 		Vec2 move;
 
- 		Vec2 totX{totMove.x,0.0f};
-		Vec2 moveX=collides(other,totX,entity->box+move);
-		if(moveX != totX){
-			//cout << "collisionX " << entity->box << " with " << other->entity->box << endl;
+		move.x = collides(other,{totMove.x,0.0f},entity->Box()+move).x;
+		if(move.x != totMove.x){
+			// cout << "collision X " << entity->Box() << " with " << other->entity->Box() << endl;
 			speed.x=0.0f;
 		}
-		move.x=moveX.x;
 
-		Vec2 totY{0.0f,totMove.y};
-		Vec2 moveY=collides(other,totY,entity->box+move);
-		if(moveY != totY){
-			//cout << "collisionY " << entity->box << " with " << other->entity->box << endl;
+		move.y = collides(other,{0.0f,totMove.y},entity->Box()+move).y;
+		if(move.y != totMove.y){
+			// cout << "collision Y " << entity->Box() << " with " << other->entity->Box() << endl;
 			speed.y=0.0f;
 		}
-		move.y=moveY.y;
-
 
 		totMove=move;
 	}
 }
 
 Vec2 CompCollider::collides(const CompCollider *other,const Vec2 &move) const{
-	return collides(other,move,entity->box);
+	return collides(other,move,entity->Box());
 }
 
 Vec2 CompCollider::collides(const CompCollider *other,const Vec2 &move,const Rect &box) const{
 	const int precision = 100;
-	Vec2 moveSafe,moveSafe2,move100=move/precision,moveTry;
+	Rect OtherBox = other->entity->Box();
+	Vec2 moveSafe,move100=move/precision,moveTry;
 	FOR(i,precision+1){
 		moveTry=move100*i;
-		if((box+moveTry).collides(other->entity->box))return moveSafe;
-		moveSafe2=moveSafe;
+		if((box+moveTry).collides(OtherBox)){
+			return moveSafe;
+		}
 		moveSafe=moveTry;
 	}
-	return moveSafe;
+	return move;
 }
 
+void CompCollider::Activate(){
+	active=true;
+}
+
+void CompCollider::Deactivate(){
+	active=false;
+}
 
 void CompCollider::Update(float time){
 	UNUSED(time);
-	set<GameObject*> entities = GAMESTATE.GetEntitiesInRange(entity->box.x-10,entity->box.x+entity->box.w+10);
-	for(GameObject* go:entities)if(go!=entity && go->hasComponent[Component::type::t_collider]){
-		collisionCheck(COMPCOLLIDERp(go));
+	if(active){
+		auto ent = GAMESTATE.GetEntitiesInRange(entity->pos.x-10,entity->pos.x+entity->size.x+10);
+		for(GameObject* go:ent)if(go!=entity && go->hasComponent[Component::type::t_collider]){
+			if(COMPCOLLIDERp(go)->active)collisionCheck(COMPCOLLIDERp(go));
+		}
 	}
 }
-void CompCollider::Render(){};
+void CompCollider::Render(){
+	#ifdef RENDERCOLLISION
+		if     (cType==CompCollider::collType::t_player) SET_COLOR4(255,0,0,100);
+		else if(cType==CompCollider::collType::t_monster)SET_COLOR4(0,255,0,100);
+		else if(cType==CompCollider::collType::t_bullet) SET_COLOR4(0,0,255,100);
+		else if(cType==CompCollider::collType::t_ground) SET_COLOR4(255,255,0,100);
+		else SET_COLOR4(255,255,255,100);
+		SDL_Rect r = (entity->Box().renderBox().sdlRect());
+		FILL_RECT(&r);
+	#endif//RENDERCOLLISION
+};
 void CompCollider::Own(GameObject* go){
 	entity=go;
+	entity->curPos = pos;
+	entity->curSize = size;
 }
 Component::type CompCollider::GetType() const{
 	return Component::type::t_collider;

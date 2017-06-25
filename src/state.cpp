@@ -7,7 +7,7 @@ set<GameObject*> State::GetEntitiesInRange(const float &x1,const float &x2){
 	set<GameObject*> s;
 	for(const auto &go:entities){
 		if(go.second.get()==nullptr)continue;
-		Rect &box = go.second->box;
+		Rect box = go.second->Box();
 		if(box.x<=x2 || box.x+box.w>=x1)s.insert(go.second.get());
 	}
 	return s;
@@ -24,6 +24,11 @@ void State::AddObject(GameObject* obj, int layer, int area){
 	group[key].insert(obj->uid);
 	entities[obj->uid]=unique_ptr<GameObject>(obj);
 }
+
+GameObject* State::GetLastObject(){
+	return entities[uid].get();
+}
+
 
 bool State::PopRequested(){
 	return popRequested;

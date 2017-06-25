@@ -1,0 +1,13 @@
+player_projectile2
+
+stick_block 1
+
+start 2
+	owner ChangeVar int arrowReady 0
+	owner AddVar float mana -1.0
+hit_enemy 2
+	target Damage 10 16 
+hit_block 1
+	self DamageAreaFixed 50 50 0.0 5 11
+	self AddParticle boom 0.0 0.0 1.0 1.0 0.0
+	self Remove

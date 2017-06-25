@@ -1,0 +1,9 @@
+mascara_projectile
+
+start 1
+	owner AddVar int fired 1
+hit_enemy 2
+	target Damage 10 16
+	self Remove
+hit_block 1
+	self Remove

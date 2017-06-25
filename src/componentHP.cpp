@@ -26,12 +26,10 @@ void CompHP::Update(float time){
 }
 void CompHP::Render(){
 	if(showHP && current>0){
-		Rect box{0,-entity->box.w/5.0f - entity->box.w/10.0f,entity->box.w,entity->box.w/5.0f};
-		box+=entity->box.corner();
-		box.x=RENDERPOSX(box.x);
-		box.y=RENDERPOSY(box.y);
-		box.w*=CAMERAZOOM;
-		box.h*=CAMERAZOOM;
+		Rect box{0,-entity->Box().w/5.0f - entity->Box().w/10.0f,entity->Box().w,entity->Box().w/5.0f};
+		box+=entity->Box().corner();
+
+		box = box.renderBox();
 
 		SDL_SetRenderDrawColor(GAMERENDER, 0, 0, 0, 255);
 		SDL_Rect rect=box.sdlRect();

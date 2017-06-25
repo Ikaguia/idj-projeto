@@ -38,6 +38,7 @@ using std::getline;
 using std::ifstream;
 using std::map;
 using std::max;
+using std::make_unique;
 using std::min;
 using std::next;
 using std::ofstream;
@@ -50,6 +51,7 @@ using std::shared_ptr;
 using std::stack;
 using std::string;
 using std::stringstream;
+using std::istringstream;
 using std::to_string;
 using std::unique_ptr;
 using std::unordered_map;
@@ -67,6 +69,13 @@ using uint=unsigned int;
 #define BETWEEN(x,a,b) ((x>=a) && (x<b))
 #define DEBUG(x) cerr << #x << " = " << x << endl;
 #define UNUSED(x) ((void)(x))
+#define COUT(x) cout << #x << " "
+#define COUTL(x) cout << #x << endl
+#define DEBUG_ cout << "DEBUG " << debugCount++ << endl
+#define RAND(x) (rand()%(x))
+#define RANDR(low,high) ((low) + (rand()%((high)-(low))))
+
+extern int debugCount;
 
 #define SET_COLOR(color) SDL_SetRenderDrawColor(GAMERENDER,color)
 #define SET_COLOR4(r,g,b,a) SDL_SetRenderDrawColor(GAMERENDER,(r),(g),(b),(a))
@@ -91,11 +100,15 @@ using uint=unsigned int;
 #define DATA_PATH (string)"data/"
 #define ANIMATION_PATH DATA_PATH+"animation/"
 #define BLUEPRINT_PATH DATA_PATH+"blueprint/"
+#define PROJECTILE_PATH DATA_PATH+"projectile/"
 #define LEVEL_PATH DATA_PATH+"level/"
 
 #define NOMEPROJETO "IDJ - Projeto"
+#define RENDERCOLLISION
 
-typedef enum {TOP_LEFT,TOP,TOP_RIGHT,LEFT,CENTER,RIGHT,BOTTOM_LEFT,BOTTOM,BOTTOM_RIGHT} Hotspot; 
+
+typedef enum {TOP_LEFT,TOP,TOP_RIGHT,LEFT,CENTER,RIGHT,BOTTOM_LEFT,BOTTOM,BOTTOM_RIGHT} Hotspot;
+extern pair<float,float> HotspotPos[];
 
 SDL_Color MakeColor(int r,int g,int b,int a=255);
 
