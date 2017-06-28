@@ -7,8 +7,6 @@
 #include <tileMap.hpp>
 #include <tileSet.hpp>
 
-class State;
-
 class Level {
 	string backgroundFilename;
 	string tileSetFilename;

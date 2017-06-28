@@ -4,7 +4,7 @@
 #include <common.hpp>
 
 class Timer{
-	float time;
+	float time=0;
 public:
 	Timer();
 

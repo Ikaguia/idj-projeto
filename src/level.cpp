@@ -1,7 +1,9 @@
 #include <level.hpp>
+
+#include <complib.hpp>
 #include <game.hpp>
 #include <gameObject.hpp>
-#include <complib.hpp>
+#include <state.hpp>
 
 #define DEFAULT_BACKGROUND "img/mountain_bg.jpg"
 #define DEFAULT_TILE_SIZE 64

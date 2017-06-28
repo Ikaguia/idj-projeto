@@ -3,15 +3,12 @@
 
 #include <common.hpp>
 
-#include <gui.hpp>
 #include <sprite.hpp>
 #include <state.hpp>
 #include <text.hpp>
 
 class StateTitle: public State{
 	Sprite bg;
-	GUI_TextButton b;
-	GUI_TextBox tb;
 public:
 
 	StateTitle();
@@ -25,6 +22,7 @@ public:
 	virtual void Resume();
 
 	virtual void LoadAssets();
+	virtual void LoadGUI();
 };
 
 #endif//TITLESTATEHPP

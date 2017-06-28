@@ -1,6 +1,6 @@
 #include <timer.hpp>
 
-Timer::Timer():time{0}{}
+Timer::Timer(){}
 
 void Timer::Update(float dTime){
 	time+=dTime;

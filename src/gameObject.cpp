@@ -27,7 +27,7 @@ GameObject::~GameObject(){
 	FOR(i,Component::type::t_count)if(hasComponent[i])delete components[i];
 
 	if(Camera::GetFocus()==uid)Camera::Unfollow();
-
+	
 	if(!GAMESTATE.ending)GAMESTATE.entities.erase(uid);
 }
 
@@ -451,7 +451,6 @@ void PlayerMonsterCollision(const CompCollider::Coll &a,const CompCollider::Coll
 void EmptyCollision(const CompCollider::Coll &a,const CompCollider::Coll &b){UNUSED(a);UNUSED(b);}
 
 GameObject* GameObject::MakePlayer(const Vec2 &pos){
-
 	GameObject* player = new GameObject{pos,0.0f,Hotspot::BOTTOM};
 
 	CompCollider coll{CompCollider::collType::t_player};
@@ -570,7 +569,6 @@ GameObject* GameObject::MakeMask(const Vec2 &pos){
 	// mask->AddComponent(new CompGravity{2500.0f});
 	mask->AddComponent(new CompHP{50,50,true,false});
 	mask->AddComponent(new CompAI{HostileAIfunc<500,1000>});
-
 
 	CompMemory *memory = new CompMemory{};
 	memory->ints["target"]=PLAYER_UID;

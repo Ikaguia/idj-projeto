@@ -28,6 +28,7 @@ void StateStage::Update(float time){
 	if(INPUT.KeyPress(KEY_ESC))popRequested=true;
 	
 	// if(INPUT.KeyPress(KEY(t))) PLAYER->dead=true;
+	
 	if(INPUT.KeyPress(KEY(u))) AddObject(GameObject::MakePorco(Vec2{850.0f,300.0f}));
 	if(INPUT.KeyPress(KEY(p))) AddObject(GameObject::MakeMike(Vec2{850.0f,300.0f}));
 	if(INPUT.KeyPress(KEY(o))) AddObject(GameObject::MakeBanshee(Vec2{850.0f,400.0f},Vec2{230.0f,130.0f}));
@@ -49,3 +50,4 @@ void StateStage::Resume(){
 }
 
 void StateStage::LoadAssets(){}
+void StateStage::LoadGUI(){}

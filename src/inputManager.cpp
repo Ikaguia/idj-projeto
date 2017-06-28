@@ -1,14 +1,17 @@
 #include <inputManager.hpp>
 
-InputManager::InputManager():mouseUpdate{{0}},updateCounter{0},text{""},composition{""},quitRequested{false}{}
+InputManager::InputManager(){}
 InputManager::~InputManager(){}
 
-void InputManager::Update(){
+void InputManager::Update(float time){
 	int x,y;
 	SDL_GetMouseState(&x,&y);
+	mouseMotion = (mouse.x!=x || mouse.y!=y);
 	mouse.x = (float)x;
 	mouse.y = (float)y;
 	quitRequested=false;
+	
+	cursorBlinker.Update(time);
 
 	SDL_Event event;
 	while(SDL_PollEvent(&event)){
@@ -39,13 +42,27 @@ void InputManager::Update(){
 			keyState[event.key.keysym.sym]=false;
 			keyUpdate[event.key.keysym.sym]=updateCounter;
 		}
-		else if(event.type==SDL_TEXTINPUT) {
-			text+=string(event.text.text);
-		}
-		else if(event.type==SDL_TEXTEDITING) {
-			composition = string(event.edit.text);
-			cursor = event.edit.start;
-			selection_len = event.edit.length;
+		
+		if(text != nullptr){
+			if(event.type==SDL_TEXTINPUT){
+				string input(event.text.text);
+				text->insert(cursor,input);
+				cursor += input.size();
+			}
+			else if(event.type==SDL_KEYDOWN){
+				cursorBlinker.Restart();
+				if(event.key.keysym.sym == SDLK_BACKSPACE && text->size() && cursor){
+					text->erase(--cursor,1);
+					if(cursor>text->size())
+						cursor=text->size();
+				}
+				else if(event.key.keysym.sym == SDLK_LEFT && cursor > 0){
+					cursor--;
+				}
+				else if(event.key.keysym.sym == SDLK_RIGHT && cursor < text->size()){
+					cursor++;
+				}
+			}
 		}
 	}
 	updateCounter++;
@@ -70,8 +87,11 @@ bool InputManager::MouseRelease(int button){
 bool InputManager::IsMouseDown(int button){
 	return (mouseState[button]);
 }
+bool InputManager::IsMouseMoving(){
+	return mouseMotion;
+}
 
-Vec2 InputManager::GetMouse() {
+Vec2 InputManager::GetMouse(){
 	return mouse;
 }
 
@@ -82,19 +102,24 @@ int InputManager::GetMouseY(){
 	return mouse.y;
 }
 
-void InputManager::StartTextInput() {
+void InputManager::StartTextInput(string* t){
+	if(t == nullptr) return;
 	SDL_StartTextInput();
+	text = t;
+	cursor = text->size();
+	cursorBlinker.Restart();
 }
-void InputManager::StopTextInput() {
+void InputManager::StopTextInput(string* t){
+	if(text != t) return;
+	text = nullptr;
 	SDL_StopTextInput();
 }
-string InputManager::GetText() {
-	return text;
+uint InputManager::GetTextCursor(){
+	return cursor;
 }
-string InputManager::GetComposition() {
-	return composition;
+bool InputManager::TextCursorBlink(){
+	return !((int)(cursorBlinker.Get()/0.5)%2);
 }
-
 
 bool InputManager::QuitRequested(){
 	return quitRequested;

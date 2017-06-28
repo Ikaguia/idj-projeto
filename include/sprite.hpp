@@ -23,10 +23,10 @@ public:
 	bool looped=false;
 
 	Sprite();
-	Sprite(string file,int fCount=1,float fTime=1.0f);
+	Sprite(const string& file,int fCount=1,float fTime=1.0f);
 	~Sprite();
 
-	void Open(string file,int fCount=1,float fTime=1.0f);
+	void Open(const string& file,int fCount=1,float fTime=1.0f);
 	void SetClip(int x,int y,int w,int h);
 	void Render(int x,int y,float angle=0.0f, float extScale = 1.0f);
 	void Render(Vec2 v, float angle=0.0f, float extScale = 1.0f);//extScale = External Scale. Example: camera zoom
@@ -56,6 +56,8 @@ public:
 	void FlipV();
 	void SetFlipH(bool f);
 	void SetFlipV(bool f);
+	
+	void SetBlend(bool b);
 };
 
 #endif//SPRITEHPP

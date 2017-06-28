@@ -20,94 +20,125 @@ ARROW KEYS, MMB - Move Camera\n\
 Z - Zoom In\n\
 X - Zoom Out"
 
+#define MIN_LVL_WIDTH (int)ceil(WINSIZE.x/64)
+#define MIN_LVL_HEIGHT (int)ceil(WINSIZE.y/64)
+#define MAX_LVL_SIZE 2000
+
 #define EDITOR_BG_COLOR 127,127,127,255
 #define GRID_COLOR 255,255,255,63
 #define LEVEL_BORDER_COLOR 255,255,255,255
 #define TILE_CURSOR_COLOR 255,255,0,255
 #define COLLISION_COLOR 255,0,0,255
 
-//TODO: Remove placeholder index
+//TODO: Remove placeholder index 
 #define COLLISION_BLOCK 0
 
-StateEditor::StateEditor():helpText{HELP_TEXT,16},statusText{"test",16} {
+enum Action{
+	NONE,
+	NEW_LEVEL,
+	LOAD_LEVEL,
+	SAVE_LEVEL,
+	RESIZE_LEVEL,
+	SHOW_GRID,
+	SHOW_COLLISION
+};
+
+enum Window{
+	MAIN_WINDOW,
+	RESIZE_WINDOW
+};
+
+StateEditor::StateEditor():helpText{HELP_TEXT,16},statusText{"test",16}{
 	LoadAssets();
 }
 
 StateEditor::~StateEditor(){}
 
-void StateEditor::LoadAssets(){
-}
+void StateEditor::LoadAssets(){}
 
 void StateEditor::Begin(){
+	LoadGUI();
 	level.Load("level_0", false);
 	CAMERA = {-100, -100};
 	CAMERAZOOM = 1.0f;
 	
 	helpText.SetPos(0,0);
-	statusText.SetPos(WINSIZE);
+	statusText.SetPos(WINSIZE-Vec2(0,50));
 	statusText.SetAlignment(Text::Align::RIGHT);
 	statusText.SetHotspot(Hotspot::BOTTOM_RIGHT);
 }
 
 void StateEditor::Update(float time){
 	Camera::Update(time);
+	gui.Update();
 	if(INPUT.QuitRequested())quitRequested=true;
 	if(INPUT.KeyPress(KEY_ESC))popRequested=true;
 	
-	int tileCount = level.tileSet.GetTileCount();
-	//Select next tile
-	if(INPUT.KeyPress(KEY(a))) tileIndex = (tileIndex + tileCount-1)%tileCount;
-	//Select previous tile
-	if(INPUT.KeyPress(KEY(d))) tileIndex = (tileIndex + 1)%tileCount;
+	uint window = gui.GetSelectedWindowID();
+	if(window == MAIN_WINDOW){
+		int tileCount = level.tileSet.GetTileCount();
+		//Select next tile
+		if(INPUT.KeyPress(KEY(a))) tileIndex = (tileIndex + tileCount-1)%tileCount;
+		//Select previous tile
+		if(INPUT.KeyPress(KEY(d))) tileIndex = (tileIndex + 1)%tileCount;
 	
-	//Place a tile
-	if(INPUT.IsMouseDown(MBUTTON_LEFT)) {
-		Vec2 cursor = GetCurrentTile();
-		Rect canvas(0, 0, level.tileMap.GetWidth()-1, level.tileMap.GetHeight()-1);
-		if(canvas.contains(cursor)) {
-			level.tileMap.At(cursor.x, cursor.y, 0) = tileIndex;
-			level.collisionLayer[(cursor.y*level.tileMap.GetWidth())+cursor.x] = COLLISION_BLOCK;
+		//Place a tile
+		if(INPUT.IsMouseDown(MBUTTON_LEFT)) {
+			Vec2 cursor = GetCurrentTile();
+			Rect canvas(0, 0, level.tileMap.GetWidth()-1, level.tileMap.GetHeight()-1);
+			if(canvas.contains(cursor)) {
+				level.tileMap.At(cursor.x, cursor.y, 0) = tileIndex;
+				level.collisionLayer[(cursor.y*level.tileMap.GetWidth())+cursor.x] = COLLISION_BLOCK;
+			}
+		}
+		//Erase a tile
+		if(INPUT.IsMouseDown(MBUTTON_RIGHT)) {
+			Vec2 cursor = GetCurrentTile();
+			Rect canvas(0, 0, level.tileMap.GetWidth()-1, level.tileMap.GetHeight()-1);
+			if(canvas.contains(cursor)) {
+				level.tileMap.At(cursor.x, cursor.y, 0) = -1;
+				level.collisionLayer[(cursor.y*level.tileMap.GetWidth())+cursor.x] = EMPTY_TILE;
+			}
+		}
+	
+	
+		//Toggle grid
+		if(INPUT.KeyPress(KEY(g)) || gui.ButtonPress(SHOW_GRID)) showGrid = (!showGrid);
+		//Toggle instructions menu
+		if(INPUT.KeyPress(KEY(h))) {
+			showHelp = (!showHelp);
+			if(showHelp) helpText.SetText(HELP_TEXT);
+			else helpText.SetText(HELP_TEXT_OPEN);
+		}
+		//Toggle collision boxes
+		if(INPUT.KeyPress(KEY(c)) || gui.ButtonClick(SHOW_COLLISION)) showCollision = (!showCollision);
+	
+		//Save level
+		if(INPUT.KeyPress(KEY(s)) || gui.ButtonClick(SAVE_LEVEL)) {
+			RecomputeCollisionRectangles();
+			level.Save("level_0",grouped);
+		}
+		//Resize level
+		if(gui.ButtonClick(Action::RESIZE_LEVEL)){
+			CreateWindow(RESIZE_LEVEL);
+		}
+	
+		//Pan view
+		if(INPUT.MousePress(MBUTTON_MIDDLE)) {
+			clickPos = INPUT.GetMouse();
+			camPos = CAMERA;
+			CAMERALOCK = true;
+		}
+		else if(INPUT.IsMouseDown(MBUTTON_MIDDLE)) {
+			CAMERA = camPos - ((INPUT.GetMouse()-clickPos)/CAMERAZOOM);
+		}
+		if(INPUT.MouseRelease(MBUTTON_MIDDLE)) {
+			CAMERALOCK = false;
 		}
 	}
-	//Erase a tile
-	if(INPUT.IsMouseDown(MBUTTON_RIGHT)) {
-		Vec2 cursor = GetCurrentTile();
-		Rect canvas(0, 0, level.tileMap.GetWidth()-1, level.tileMap.GetHeight()-1);
-		if(canvas.contains(cursor)) {
-			level.tileMap.At(cursor.x, cursor.y, 0) = -1;
-			level.collisionLayer[(cursor.y*level.tileMap.GetWidth())+cursor.x] = EMPTY_TILE;
-		}
-	}
-	
-	
-	//Toggle grid
-	if(INPUT.KeyPress(KEY(g))) showGrid = (!showGrid);
-	//Toggle instructions menu
-	if(INPUT.KeyPress(KEY(h))) {
-		showHelp = (!showHelp);
-		if(showHelp) helpText.SetText(HELP_TEXT);
-		else helpText.SetText(HELP_TEXT_OPEN);
-	}
-	//Toggle collision boxes
-	if(INPUT.KeyPress(KEY(c))) showCollision = (!showCollision);
-	
-	//Save
-	if(INPUT.KeyPress(KEY(s))) {
-		RecomputeCollisionRectangles();
-		level.Save("level_0",grouped);
-	}
-	
-	//Pan view
-	if(INPUT.MousePress(MBUTTON_MIDDLE)) {
-		clickPos = INPUT.GetMouse();
-		camPos = CAMERA;
-		CAMERALOCK = true;
-	}
-	else if(INPUT.IsMouseDown(MBUTTON_MIDDLE)) {
-		CAMERA = camPos - ((INPUT.GetMouse()-clickPos)/CAMERAZOOM);
-	}
-	if(INPUT.MouseRelease(MBUTTON_MIDDLE)) {
-		CAMERALOCK = false;
+	else if(window==RESIZE_WINDOW){
+		if(gui.ButtonClick(GUI_CONFIRM))
+			ResizeLevel();
 	}
 	
 	UpdateArray(time);
@@ -121,20 +152,18 @@ void StateEditor::Render(){
 	//level.background.Render(RENDERPOSX(0), RENDERPOSY(0), 0, CAMERAZOOM);
 	level.tileMap.Render();
 	RenderArray();
-	if(showGrid) RenderGrid(64, 64);
+	if(showGrid) RenderGrid(gridWidth, gridHeight);
 	RenderBorder();
 	if(showCollision) RenderCollision();
 	RenderCursor();
 	
-	helpText.Render();
+	gui.Render();
+	//helpText.Render();
 	statusText.Render();
 }
 
-void StateEditor::Pause(){
-}
-
-void StateEditor::Resume(){
-}
+void StateEditor::Pause(){}
+void StateEditor::Resume(){}
 
 void StateEditor::RenderBackground() {
 	SET_COLOR(EDITOR_BG_COLOR);
@@ -231,6 +260,23 @@ Vec2 StateEditor::GetCurrentTile() {
 	return pos;
 }
 
+void StateEditor::ResizeLevel(){
+	int mapWidth = level.tileMap.GetWidth();
+	int mapHeight = level.tileMap.GetHeight();
+	
+	level.tileMap.SetSize(levelWidth, levelHeight);
+	
+	vector<int> newCollisionLayer(levelWidth*levelHeight, EMPTY_TILE);
+	int maxX = min(levelWidth, mapWidth);
+	int maxY = min(levelHeight, mapHeight);
+	
+	FOR(y,maxY)
+		FOR(x,maxX)
+			newCollisionLayer[x+(y*levelWidth)] = level.collisionLayer[x+(y*mapWidth)];
+	level.collisionLayer.clear();
+	level.collisionLayer = newCollisionLayer;
+}
+
 
 void StateEditor::RecomputeCollisionRectangles(){
 	TileMap &tm = level.tileMap;
@@ -276,5 +322,63 @@ void StateEditor::RecomputeCollisionRectangles(){
 				join(ind1,ind2);
 			}
 		}
+	}
+}
+
+void StateEditor::LoadGUI(){
+	GUI_NEW;
+	
+	GUI_SET(menu);
+	//GUI_ADD(GUI_TextButton(NEW_LEVEL, "New"));
+	//GUI_ADD(GUI_TextButton(LOAD_LEVEL, "Load"));
+	GUI_ADD(GUI_TextButton(SAVE_LEVEL, "Save"));
+	GUI_DIV();
+	GUI_ADD(GUI_TextButton(RESIZE_LEVEL, "Resize"));
+	GUI_DIV();
+	GUI_ADD(GUI_CheckButton(showGrid));
+	GUI_ADD(GUI_Label("Show Grid", SNAP_LEFT));
+	GUI_ADD(GUI_Label("Width:", SNAP_RIGHT));
+	GUI_ADD(GUI_IntBox(gridWidth,0,INT_MAX,SHORT_SIZE));
+	GUI_ADD(GUI_Label("px", SNAP_LEFT));
+	GUI_ADD(GUI_Label("Height:", SNAP_RIGHT));
+	GUI_ADD(GUI_IntBox(gridHeight,0,INT_MAX,SHORT_SIZE));
+	GUI_ADD(GUI_Label("px", SNAP_LEFT));
+	GUI_DIV();
+	GUI_ADD(GUI_CheckButton(showCollision));
+	GUI_ADD(GUI_Label("Show Collision", SNAP_LEFT));
+	GUI_CREATE(GUI_HBar(GUI_GET(menu),WINSIZE.x));
+}
+
+void StateEditor::CreateWindow(uint type){
+	GUI_NEW;
+	if(type==RESIZE_LEVEL){
+		levelWidth = level.tileMap.GetWidth();
+		levelHeight = level.tileMap.GetHeight();
+	
+		GUI_SET(labels);
+		GUI_ADD(GUI_Label("Width: "));
+		GUI_ADD(GUI_Label("Height: "));
+		
+		GUI_SET(width_box);
+		GUI_ADD(GUI_IntBox(levelWidth, MIN_LVL_WIDTH, MAX_LVL_SIZE));
+		GUI_ADD(GUI_Label("tiles", SNAP_LEFT));
+		
+		GUI_SET(height_box);
+		GUI_ADD(GUI_IntBox(levelHeight, MIN_LVL_HEIGHT, MAX_LVL_SIZE));
+		GUI_ADD(GUI_Label("tiles", SNAP_LEFT));
+		
+		GUI_SET(input);
+		GUI_ADD(GUI_HBar(GUI_GET(width_box)));
+		GUI_ADD(GUI_HBar(GUI_GET(height_box)));
+		
+		GUI_SET(menu);
+		GUI_ADD(GUI_VBar(GUI_GET(labels)));
+		GUI_ADD(GUI_VBar(GUI_GET(input)));
+		
+		GUI_SET(window);
+		GUI_ADD(GUI_HBar(GUI_GET(menu)));
+		GUI_ADD(GUI_TextButton(GUI_CONFIRM, "Ok"));
+		
+		GUI_CREATE(GUI_Window(GUI_GET(window), RESIZE_WINDOW, "Resize Level"));
 	}
 }

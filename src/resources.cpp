@@ -7,7 +7,7 @@ unordered_map<string,shared_ptr<Mix_Chunk>> Resources::soundTable;
 unordered_map<string,shared_ptr<TTF_Font>> Resources::fontTable;
 
 
-shared_ptr<SDL_Texture> Resources::GetImage(string file){
+shared_ptr<SDL_Texture> Resources::GetImage(const string& file){
 	if(imageTable.count(file))return imageTable[file];
 	SDL_Texture* texture = IMG_LoadTexture(GAMERENDER,file.c_str());
 	if(!texture){
@@ -26,7 +26,7 @@ void Resources::ClearImages(){
 	}
 }
 
-shared_ptr<Mix_Music> Resources::GetMusic(string file){
+shared_ptr<Mix_Music> Resources::GetMusic(const string& file){
 	if(musicTable.count(file))return musicTable[file];
 	Mix_Music* music = Mix_LoadMUS(file.c_str());
 	if(!music){
@@ -45,7 +45,7 @@ void Resources::ClearMusics(){
 	}
 }
 
-shared_ptr<Mix_Chunk> Resources::GetSound(string file){
+shared_ptr<Mix_Chunk> Resources::GetSound(const string& file){
 	if(soundTable.count(file))return soundTable[file];
 	Mix_Chunk* sound = Mix_LoadWAV(file.c_str());
 	if(!sound){
@@ -64,7 +64,7 @@ void Resources::ClearSounds(){
 	}
 }
 
-shared_ptr<TTF_Font> Resources::GetFont(string file,int ptsize){
+shared_ptr<TTF_Font> Resources::GetFont(const string& file,int ptsize){
 	string key = file+std::to_string(ptsize);
 	if(fontTable.count(key)){
 		//cout << "found font " << key << " wih use_count = " << fontTable[key].use_count() << endl;

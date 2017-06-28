@@ -4,7 +4,7 @@
 #include <game.hpp>
 #include <resources.hpp>
 
-Text::Text(string txt,int fSize,SDL_Color c,Style st,string file,int x,int y):fontName{file},alignment{Text::Align::LEFT},hotspot{Hotspot::TOP_LEFT}{
+Text::Text(const string& txt,int fSize,SDL_Color c,Style st,string file,int x,int y):fontName{file}{
 	SetColor(c);
 	SetText(txt);
 	SetStyle(st);
@@ -89,11 +89,13 @@ void Text::SetPos(Vec2 v) {
 }
 
 void Text::SetText(string txt){
+	if(txt=="") txt = " ";
 	stringstream text(txt);
 	lineArray.clear();
 	for(TextLine line;getline(text, line.text);) {
-		if(line.text=="")
+		if(line.text==""){
 			line.text = " ";
+		}
 		lineArray.push_back(line);
 	}
 	
@@ -142,7 +144,7 @@ Rect Text::GetBox()const {
 void Text::RemakeTexture(){
 	if(font.get()){
 		SDL_Surface *surface=nullptr;
-		box.h = 0;
+		box.w = box.h = 0;
 		for(auto& i : lineArray) {
 			if(i.texture)SDL_DestroyTexture(i.texture);
 			if(style==Style::SOLID)surface=TTF_RenderText_Solid(font.get(),i.text.c_str(),color);
@@ -170,5 +172,4 @@ void Text::RemakeTexture(){
 	}
 }
 
-Text::TextLine::TextLine():texture{nullptr}{
-}
+Text::TextLine::TextLine(){}

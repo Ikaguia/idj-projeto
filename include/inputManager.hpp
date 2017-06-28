@@ -4,6 +4,7 @@
 #include <common.hpp>
 
 #include <geometry.hpp>
+#include <timer.hpp>
 
 #define KEY_LEFT		SDLK_LEFT
 #define KEY_RIGHT		SDLK_RIGHT
@@ -11,6 +12,7 @@
 #define KEY_DOWN		SDLK_DOWN
 #define KEY_ESC			SDLK_ESCAPE
 #define KEY_SPACE		SDLK_SPACE
+#define KEY_ENTER		SDLK_RETURN
 
 #define KEY_F(x)		SDLK_F ## x
 #define KEY(x)			SDLK_ ## x
@@ -27,20 +29,21 @@ class InputManager{
 	array<int,6> mouseUpdate;
 	unordered_map<int,bool> keyState;
 	unordered_map<int,int>  keyUpdate;
-	int updateCounter;
+	int updateCounter=0;
 	Vec2 mouse;
+	bool mouseMotion;
 	
-	string text;
-	string composition;
-	Sint32 cursor;
-	Sint32 selection_len;
+	string* text=nullptr;
+	uint cursor;
+	Timer cursorBlinker;
+	//uint selection_len; //unused
 
-	bool quitRequested;
+	bool quitRequested=false;
 
 	InputManager();
 	~InputManager();
 public:
-	void Update();
+	void Update(float time);
 
 	bool KeyPress(int key);
 	bool KeyRelease(int key);
@@ -49,15 +52,16 @@ public:
 	bool MousePress(int button);
 	bool MouseRelease(int button);
 	bool IsMouseDown(int button);
+	bool IsMouseMoving();
 
 	Vec2 GetMouse();
 	int GetMouseX();
 	int GetMouseY();
 	
-	void StartTextInput();
-	void StopTextInput();
-	string GetText();	
-	string GetComposition();
+	void StartTextInput(string* t);
+	void StopTextInput(string* t);
+	uint GetTextCursor();
+	bool TextCursorBlink();
  
 
 	bool QuitRequested();

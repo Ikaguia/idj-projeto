@@ -34,9 +34,7 @@ public:
 	int GetWidth() const;
 	int GetHeight() const;
 	int GetDepth() const;
-	void SetWidth(const int& w);
-	void SetHeight(const int& h);
-	void SetDepth(const int& d);
+	void SetSize(int width,int height);
 };
 
 #endif//TILEMAPHPP

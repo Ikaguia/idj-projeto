@@ -15,17 +15,16 @@ private:
 	vector<TextLine> lineArray;
 	shared_ptr<TTF_Font> font;
 	string fontName;
-	string text;
 	Style style;
 	int fontSize;
 	SDL_Color color;
-	Align alignment;
-	Hotspot hotspot;
+	Align alignment=Text::Align::LEFT;
+	Hotspot hotspot=Hotspot::TOP_LEFT;
 	Rect box;
 
 	void RemakeTexture();
 public:
-	Text(string txt,int fSize,SDL_Color c=SDL_COLOR_WHITE,Style st=Style::BLENDED,string file="font/arial.ttf",int x=0,int y=0);
+	Text(const string& txt,int fSize,SDL_Color c=SDL_COLOR_WHITE,Style st=Style::BLENDED,string file="font/arial.ttf",int x=0,int y=0);
 	~Text();
 
 	void Render(Vec2 camera = {0,0}, Rect* clipRect=nullptr);
@@ -47,7 +46,7 @@ public:
 
 class Text::TextLine {
 public:
-	SDL_Texture* texture;
+	SDL_Texture* texture=nullptr;
 	string text;
 	Rect box;
 	

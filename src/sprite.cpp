@@ -7,12 +7,12 @@
 #include <resources.hpp>
 
 Sprite::Sprite():texture{nullptr},scaleX{1.0f},scaleY{1.0f},flipH{false},flipV{false},timeElapsed{0.0f}{}
-Sprite::Sprite(string file,int fCount,float fTime):texture{nullptr},scaleX{1.0f},scaleY{1.0f},flipH{false},flipV{false},timeElapsed{0.0f}{
+Sprite::Sprite(const string& file,int fCount,float fTime):texture{nullptr},scaleX{1.0f},scaleY{1.0f},flipH{false},flipV{false},timeElapsed{0.0f}{
 	Open(file,fCount,fTime);
 }
 Sprite::~Sprite(){}
 
-void Sprite::Open(string file,int fCount,float fTime){
+void Sprite::Open(const string& file,int fCount,float fTime){
 	texture = Resources::GetImage(file);
 	if(SDL_QueryTexture(texture.get(),nullptr,nullptr,&width,&height)){
 		cout << "Erro ao carregar as dimensões da textura \"" << file << "\", o programa ira encerrar agora" << endl;
@@ -140,4 +140,9 @@ void Sprite::SetFlipH(bool f) {
 
 void Sprite::SetFlipV(bool f) {
 	flipV = f;
+}
+
+void Sprite::SetBlend(bool b){
+	if(b) SDL_SetTextureBlendMode(texture.get(), SDL_BLENDMODE_BLEND);
+	else  SDL_SetTextureBlendMode(texture.get(), SDL_BLENDMODE_NONE);
 }
