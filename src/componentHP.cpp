@@ -21,13 +21,13 @@ void CompHP::Damage(int dmg){
 
 
 void CompHP::Update(float time){
-	if(current<=0)entity->dead=true;
+	if(current<=0)ENTITY(entity)->dead=true;
 	dmgCoolDown.Update(time);
 }
 void CompHP::Render(){
 	if(showHP && current>0){
-		Rect box{0,-entity->Box().w/5.0f - entity->Box().w/10.0f,entity->Box().w,entity->Box().w/5.0f};
-		box+=entity->Box().corner();
+		Rect box{0,-ENTITY(entity)->Box().w/5.0f - ENTITY(entity)->Box().w/10.0f,ENTITY(entity)->Box().w,ENTITY(entity)->Box().w/5.0f};
+		box+=ENTITY(entity)->Box().corner();
 
 		box = box.renderBox();
 
@@ -44,9 +44,6 @@ void CompHP::Render(){
 		rect.h-=2;
 		SDL_RenderFillRect(GAMERENDER,&rect);
 	}
-}
-void CompHP::Own(GameObject* go){
-	entity=go;
 }
 Component::type CompHP::GetType()const{
 	return Component::type::t_hp;

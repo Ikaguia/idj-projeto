@@ -16,19 +16,22 @@ public:
 	vector<CompCollider*> colliders;
 	map<int,function<void(GameObject*)>> frameFunc;
 	Sprite sp;
+	bool called=true;
 
 	//public members
 	CompAnim();
 	CompAnim(string file,CompCollider* coll);
 	~CompAnim();
 
-	int GetCurFrame();
+	int GetFrameCount()const;
+	int GetCurFrame()const;
 	void SetCurFrame(int frame);
-	int GetFrameCount();
+
+	bool Looped()const;
 
 	void Update(float time);
+	void Own(GameObject *go);
 	void Render();
-	void Own(GameObject* go);
 	Component::type GetType()const;
 };
 

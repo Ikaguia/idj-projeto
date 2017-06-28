@@ -1,7 +1,7 @@
 #include <componentGravity.hpp>
 #include <componentMovement.hpp>
 #include <gameObject.hpp>
-//#include <game.hpp>
+#include <game.hpp>
 //#include <camera.hpp>
 //#include <inputManager.hpp>
 
@@ -10,14 +10,11 @@ CompGravity::~CompGravity(){}
 
 
 void CompGravity::Update(float time){
-	if(entity->hasComponent[Component::type::t_movement]){
-		COMPMOVEp(entity)->speed.y+=gravity*time;
+	if(ENTITY(entity)->hasComponent[Component::type::t_movement]){
+		COMPMOVEp(ENTITY(entity).get())->speed.y+=gravity*time;
 	}
 }
 void CompGravity::Render(){}
-void CompGravity::Own(GameObject* go){
-	entity=go;
-}
 Component::type CompGravity::GetType() const{
 	return Component::type::t_gravity;
 }

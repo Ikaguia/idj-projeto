@@ -21,7 +21,6 @@ public:
 	~CompMemory();
 	void Update(float time);
 	void Render();
-	void Own(GameObject* go);
 	Component::type GetType()const;
 };
 

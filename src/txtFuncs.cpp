@@ -13,7 +13,7 @@
 	FUNC(ChangeVar,T),\
 	FUNC(Damage,T),\
 	FUNC(DamageArea,T),\
-	/*FUNC(DamageAreaFixed,T),*/\
+	FUNC(DamageAreaFixed,T),\
 	FUNC(FireProjectile,T),\
 	FUNC(Remove,T),\
 }
@@ -126,18 +126,48 @@ template<class T> txtFuncType1 DamageArea(T& in){
 		SDL_Rect r = (area.renderBox().sdlRect());
 		FILL_RECT(&r);
 
-		set<GameObject*> gos = GAMESTATE.GetEntitiesInRange(rect.x,rect.x+rect.w);
-		for(GameObject* go:gos){
-			if(dmgSelf || go->team != self->team){
+		set<uint> gos = GAMESTATE.GetEntitiesInRange(rect.x,rect.x2());
+		for(uint go:gos){
+			if(dmgSelf || ENTITY(go)->team != self->team){
 				//TODO: change collision to work with rotation
-				if(go->hasComponent[Component::type::t_hp] && area.collides(go->Box())){
-					COMPHPp(go)->Damage(dmgLow+(rand()%(dmgHigh-dmgLow)));
+				if(ENTITY(go)->hasComponent[Component::type::t_hp] && area.collides(ENTITY(go)->Box())){
+					COMPHPp(ENTITY(go))->Damage(dmgLow+(rand()%(dmgHigh-dmgLow)));
 				}
 			}
 		}
 	};
 }
-// template<class T> txtFuncType1 DamageAreaFixed(T& in){}
+template<class T> txtFuncType1 DamageAreaFixed(T& in){
+	bool dmgSelf;
+	int dmgLow,dmgHigh;
+	float x,y,w,h,r;
+	in >> x >> y >> w >> h >> r >> dmgLow >> dmgHigh >> dmgSelf;
+	Rect rect{x,y,w,h};
+	dmgHigh=max(dmgHigh,dmgLow+1);
+	return [rect,r,dmgLow,dmgHigh,dmgSelf](GameObject* self){
+		Vec2 source = self->pos + Vec2::makeVec2(self->size.x,self->rotation);
+		Rect area = {0,0,rect.w,rect.h};
+		area.setCenter(source);
+		area += rect.corner();
+		if(self->flipped)area.x += self->Box().w * rect.x;
+		else area.x -= (self->Box().w * rect.x) + (area.w - self->Box().w);
+		area.y += self->Box().h * rect.y;
+
+		// SET_COLOR4(255,255,255,200);
+		// SDL_Rect r = (area.renderBox().sdlRect());
+		// FILL_RECT(&r);
+
+		set<uint> gos = GAMESTATE.GetEntitiesInRange(rect.x,rect.x2());
+		for(uint go:gos){
+			if(dmgSelf || ENTITY(go)->team != self->team){
+				//TODO: change collision to work with rotation
+				if(ENTITY(go)->hasComponent[Component::type::t_hp] && area.collides(ENTITY(go)->Box())){
+					COMPHPp(ENTITY(go))->Damage(dmgLow+(rand()%(dmgHigh-dmgLow)));
+				}
+			}
+		}
+	};
+}
 template<class T> txtFuncType1 FireProjectile(T& in){
 	int count;
 	float x,y,f,r;
@@ -175,74 +205,76 @@ template<class T> txtFuncType1 FireProjectile(T& in){
 		GameObject* bullet = new GameObject{pos,ang,Hotspot::LEFT};
 
 		CompCollider collider{CompCollider::collType::t_bullet};
-		collider.useDefault[CompCollider::collType::t_bullet] = []
-			(const CompCollider* a,const CompCollider* b){UNUSED(a);UNUSED(b);};
+		collider.colls[0].useDefault[CompCollider::collType::t_bullet] = []
+			(const CompCollider::Coll &a,const CompCollider::Coll &b){UNUSED(a);UNUSED(b);};
 
-		auto foo1 = [owner,vars,hitAlly,hitEnemy](const CompCollider* a,const CompCollider* b){
-			bool isAlly = a->entity->team == b->entity->team;
+		auto foo1 = [owner,vars,hitAlly,hitEnemy](const CompCollider::Coll &a,const CompCollider::Coll &b){
+			bool isAlly = ENTITY(a.entity)->team == ENTITY(b.entity)->team;
 
 
-			Vec2 &totMove=COMPMOVEp(a->entity)->move;
+			Vec2 &totMove=COMPMOVEp(ENTITY(a.entity).get())->move;
 			if(totMove==Vec2{})return;
 
-			Vec2 move=a->collides(b,totMove);
+			Vec2 move=a.Collides(b,totMove);
 
 			if(move!=totMove){
 				if(isAlly){
 					for(auto &pfunc:hitAlly){
 						if(pfunc.first=="owner")pfunc.second(owner);
-						if(pfunc.first=="self")pfunc.second(a->entity);
-						if(pfunc.first=="target")pfunc.second(b->entity);
+						if(pfunc.first=="self")pfunc.second(ENTITY(a.entity).get());
+						if(pfunc.first=="target")pfunc.second(ENTITY(b.entity).get());
 					}
 				}
 				else{
 					for(auto &pfunc:hitEnemy){
 						if(pfunc.first=="owner")pfunc.second(owner);
-						if(pfunc.first=="self")pfunc.second(a->entity);
-						if(pfunc.first=="target")pfunc.second(b->entity);
+						if(pfunc.first=="self")pfunc.second(ENTITY(a.entity).get());
+						if(pfunc.first=="target")pfunc.second(ENTITY(b.entity).get());
 					}
 				}
-				if(!b->entity->hasComponent[Component::type::t_movement]){
+				if(!ENTITY(b.entity)->hasComponent[Component::type::t_movement]){
 					if((isAlly && vars.count("stick_ally")==0) || (!isAlly && vars.count("stick_enemy")==0))return;
-					Vec2 pos = a->entity->Box().corner() + move + totMove/4.0f;
+					Vec2 pos = ENTITY(a.entity)->Box().corner() + move + totMove/4.0f;
 					auto &func = txtFuncsS["AddSprite"];
 					istringstream iss(to_string(pos.x) + to_string(pos.y));
-					func(iss)(a->entity);
-					GAMESTATE.GetLastObject()->AttachTo(b->entity);
+					func(iss)(ENTITY(a.entity).get());
+					GAMESTATE.GetLastObject()->AttachTo(ENTITY(b.entity).get());
 				}
 			}
 		};
-		collider.useDefault[CompCollider::collType::t_any] = foo1;
+		collider.colls[0].useDefault[CompCollider::collType::t_any] = foo1;
 
-		auto foo2 = [owner,vars,hitBlock](const CompCollider* a,const CompCollider* b){
-			Vec2 &totMove=COMPMOVEp(a->entity)->move;
+		auto foo2 = [owner,vars,hitBlock](const CompCollider::Coll &a,const CompCollider::Coll &b){
+			Vec2 &totMove=COMPMOVEp(ENTITY(a.entity).get())->move;
 			if(totMove==Vec2{})return;
 
-			Vec2 move=a->collides(b,totMove);
+			Vec2 move=a.Collides(b,totMove);
 
 			if(move!=totMove){
 				for(auto &pfunc:hitBlock){
 					if(pfunc.first=="owner")pfunc.second(owner);
-					if(pfunc.first=="self")pfunc.second(a->entity);
-					if(pfunc.first=="target")pfunc.second(b->entity);
+					if(pfunc.first=="self")pfunc.second(ENTITY(a.entity).get());
+					if(pfunc.first=="target")pfunc.second(ENTITY(b.entity).get());
 				}
 				if(vars.count("stick_block")==1){
-					Vec2 pos = a->entity->pos + move + totMove/4.0f;
+					Vec2 pos = ENTITY(a.entity)->pos + move + totMove/4.0f;
 					auto &func = txtFuncsS["AddSprite"];
 					istringstream iss(to_string(pos.x) + " " + to_string(pos.y));
-					func(iss)(a->entity);
-					GAMESTATE.GetLastObject()->AttachTo(b->entity);
+					func(iss)(ENTITY(a.entity).get());
+					GAMESTATE.GetLastObject()->AttachTo(ENTITY(b.entity).get());
 				}
 			}
 		};
-		collider.useDefault[CompCollider::collType::t_ground] = foo2;
-		collider.useDefault[CompCollider::collType::t_h_ground] = foo2;
+		collider.colls[0].useDefault[CompCollider::collType::t_ground] = foo2;
+		collider.colls[0].useDefault[CompCollider::collType::t_h_ground] = foo2;
 
 		CompAnim* anim = new CompAnim{animFile,&collider};
 		Vec2 size{(float)anim->sp.GetWidth(),(float)anim->sp.GetHeight()};
 		bullet->AddComponent(anim);
 
-		bullet->AddComponent(new CompMovement{Vec2::makeVec2(f,ang),CompMovement::moveType::t_bullet});
+		Vec2 mv;
+		if(owner->hasComponent[Component::type::t_movement])mv=COMPMOVEp(owner)->move;
+		bullet->AddComponent(new CompMovement{Vec2::makeVec2(f,ang)+mv,CompMovement::moveType::t_bullet});
 
 		bullet->AddComponent(new CompGravity{500.0f});
 

@@ -49,6 +49,7 @@ public:
 
 	bool IsDead()const;
 	Rect Box()const;
+	Rect Box(const Vec2& p,const Vec2 &sz)const;
 	Rect FullBox()const;
 
 

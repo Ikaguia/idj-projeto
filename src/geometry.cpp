@@ -161,9 +161,53 @@ void Rect::floor(){
 	w=std::floor(w);
 	h=std::floor(h);
 }
+void Rect::setPos(const Vec2& b) {
+	x = b.x;
+	y = b.y;
+}
+void Rect::setCenter(const Vec2& b) {
+	x = b.x-(w/2);
+	y = b.y-(h/2);
+}
 
+float Rect::x2() const{
+	return x+w;
+}
+float Rect::y2() const{
+	return y+h;
+}
+
+Vec2 Rect::distCenter(const Rect& b) const{
+	return center() - b.center();
+}
+Vec2 Rect::distEdge(const Rect& b) const{
+	Vec2 ret;
+	if(!collides(b)){
+		if(!BETWEEN(x,b.x,b.x2()) && !BETWEEN(b.x,x,x2()))
+			ret.x = min(abs(x-(b.x2())),abs((x2())-b.x));
+		if(!BETWEEN(y,b.y,b.y2()) && !BETWEEN(b.y,y,y2()))
+			ret.y = min(abs(y-(b.y2())),abs((y2())-b.y));
+	}
+	return ret;
+}
+Vec2 Rect::hotspot(Hotspot hs){
+	Vec2 v{x,y};
+	auto &add = HotspotPos[hs];
+	v.x -= w * add.first;
+	v.y -= h * add.second;
+	return v;
+}
 Vec2 Rect::corner() const{
 	return {x,y};
+}
+Vec2 Rect::corner2() const{
+	return {x2(),y};
+}
+Vec2 Rect::corner3() const{
+	return {x,y2()};
+}
+Vec2 Rect::corner4() const{
+	return {x2(),y2()};
 }
 Vec2 Rect::center() const{
 	return {x+(w/2),y+(h/2)};
@@ -179,9 +223,6 @@ Vec2 Rect::relativePos(const Vec2 &relative,bool inverted) const{
 	return pos;
 }
 
-Rect Rect::renderBox() const{
-	return {RENDERPOSX(x),RENDERPOSY(y),w*CAMERAZOOM,h*CAMERAZOOM};
-}
 Rect Rect::relativeBox(const Rect &relative,bool inverted) const{
 	Rect box{x,y,w,h};
 	if(inverted)box.x +=    relative.x  * w;
@@ -191,16 +232,15 @@ Rect Rect::relativeBox(const Rect &relative,bool inverted) const{
 	box.h *= relative.h;
 	return box;
 }
-
-
-void Rect::setPos(const Vec2& b) {
-	x = b.x;
-	y = b.y;
+Rect Rect::renderBox() const{
+	return {RENDERPOSX(x),RENDERPOSY(y),w*CAMERAZOOM,h*CAMERAZOOM};
 }
-
-void Rect::setCenter(const Vec2& b) {
-	x = b.x-(w/2);
-	y = b.y-(h/2);
+Rect Rect::sum(const Rect &other) const{
+	float x = min(min(x,x2()),min(other.x,other.x2()));
+	float y = min(min(y,y2()),min(other.y,other.y2()));
+	float xx = max(max(x,x2()),max(other.x,other.x2()));
+	float yy = max(max(y,y2()),max(other.y,other.y2()));
+	return Rect{x,y,xx - x,yy - y};
 }
 
 ConvexPolygon Rect::polygon(const float &r) const{
@@ -222,55 +262,34 @@ SDL_Rect Rect::sdlRect()const{
 	return rect;
 }
 
-
-Vec2 Rect::distCenter(const Rect& b) const{
-	return center() - b.center();
-}
-Vec2 Rect::distEdge(const Rect& b) const{
-	Vec2 ret;
-	if(!collides(b)){
-		if(!BETWEEN(x,b.x,b.x+b.w) && !BETWEEN(b.x,x,x+w))
-			ret.x = min(abs(x-(b.x+b.w)),abs((x+w)-b.x));
-		if(!BETWEEN(y,b.y,b.y+b.h) && !BETWEEN(b.y,y,y+h))
-			ret.y = min(abs(y-(b.y+b.h)),abs((y+h)-b.y));
-	}
-	return ret;
-}
-Vec2 Rect::hotspot(Hotspot hs){
-	Vec2 v{x,y};
-	auto &add = HotspotPos[hs];
-	v.x -= w * add.first;
-	v.y -= h * add.second;
-	return v;
-}
-
 bool Rect::contains(const float &i,const float &j) const{
 	if(i<x)return false;
-	if(i>x+w)return false;
+	if(i>x2())return false;
 	if(j<y)return false;
-	if(j>y+h)return false;
+	if(j>y2())return false;
 	return true;
 }
 bool Rect::contains(const Vec2& b) const{
 	if(b.x<x)return false;
-	if(b.x>x+w)return false;
+	if(b.x>x2())return false;
 	if(b.y<y)return false;
-	if(b.y>y+h)return false;
+	if(b.y>y2())return false;
 	return true;
 }
 bool Rect::collides(const Rect& b) const{
-	// if(BETWEEN(x,b.x,b.x+b.w))return true;
-	// if(BETWEEN(b.x,x,x+w))return true;
-	// if(BETWEEN(y,b.y,b.y+b.h))return true;
-	// if(BETWEEN(b.y,y,y+h))return true;
+	// if(BETWEEN(x,b.x,b.x2()))return true;
+	// if(BETWEEN(b.x,x,x2()))return true;
+	// if(BETWEEN(y,b.y,b.y2()))return true;
+	// if(BETWEEN(b.y,y,y2()))return true;
 	// return false;
 
-	if(x>(b.x+b.w))return false;
-	if(y>(b.y+b.h))return false;
-	if(b.x>(x+w))return false;
-	if(b.y>(y+h))return false;
+	if(x>(b.x2()))return false;
+	if(y>(b.y2()))return false;
+	if(b.x>(x2()))return false;
+	if(b.y>(y2()))return false;
 	return true;
 }
+
 std::ostream& operator<<(std::ostream& os, const Rect& obj){
 	os << "(" << obj.x << "," << obj.y << "," << obj.w << "," << obj.h << ")";
 	return os;
@@ -309,9 +328,9 @@ bool ConvexPolygon::AddPoint(Vec2 p){
 	if(!count)boundingRect += p;
 	else{
 		if(boundingRect.x>p.x)boundingRect.x = p.x;
-		else if(boundingRect.x+boundingRect.w<p.x)boundingRect.w = p.x-boundingRect.x;
+		else if(boundingRect.x2()<p.x)boundingRect.w = p.x-boundingRect.x;
 		if(boundingRect.y>p.y)boundingRect.y = p.y;
-		else if(boundingRect.y+boundingRect.h<p.y)boundingRect.h = p.y-boundingRect.y;
+		else if(boundingRect.y2()<p.y)boundingRect.h = p.y-boundingRect.y;
 	}
 
 	if(find(points.begin(),points.end(),p-GetSource())!=points.end())return false;
@@ -455,8 +474,8 @@ bool ConvexPolygon::Collides(const ConvexPolygon& other)const{
 	if(count<3 || other.GetCount()<3)return false;//degenerated polygons dont collide
 	Rect a=BoundingRect();
 	Rect b=other.BoundingRect();
-	if((a.x+a.w <= b.x) || (b.x+b.w<=a.x))return false;//if bounding boxes dont collide, no need
-	if((a.y+a.h <= b.y) || (b.y+b.h<=a.y))return false;// to do more complex collision check
+	if((a.x2() <= b.x) || (b.x2()<=a.x))return false;//if bounding boxes dont collide, no need
+	if((a.y2() <= b.y) || (b.y2()<=a.y))return false;// to do more complex collision check
 
 	ConvexPolygon ms = (AtOrigin()*-1.0f).MinkowskySum(other);
 

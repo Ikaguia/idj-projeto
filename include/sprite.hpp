@@ -20,6 +20,8 @@ class Sprite{
 	float timeElapsed=0.0f;
 	float frameTime;
 public:
+	bool looped=false;
+
 	Sprite();
 	Sprite(string file,int fCount=1,float fTime=1.0f);
 	~Sprite();
@@ -34,12 +36,13 @@ public:
 	void SetFrameCount(int fCount);
 	void SetFrameTime(float fTime);
 
-	int GetWidth();
-	int GetHeight();
-	int GetCurFrame();
-	int GetFrameCount();
+	int GetWidth()const;
+	int GetHeight()const;
+	int GetCurFrame()const;
+	int GetFrameCount()const;
 
-	bool IsOpen();
+	bool IsOpen()const;
+	bool Looped()const;
 
 	void SetScale(float scale); //Set both scales
 	void SetScaleX(float scale);

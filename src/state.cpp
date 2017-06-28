@@ -2,13 +2,13 @@
 
 State::State(){}
 
-set<GameObject*> State::GetEntitiesInRange(const float &x1,const float &x2){
+set<uint> State::GetEntitiesInRange(const float &x1,const float &x2){
 	//TODO: change this to just iterate trought the areas
-	set<GameObject*> s;
+	set<uint> s;
 	for(const auto &go:entities){
 		if(go.second.get()==nullptr)continue;
 		Rect box = go.second->Box();
-		if(box.x<=x2 || box.x+box.w>=x1)s.insert(go.second.get());
+		if(box.x<=x2 || box.x2()>=x1)s.insert(go.first);
 	}
 	return s;
 }

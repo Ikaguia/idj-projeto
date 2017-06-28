@@ -7,7 +7,7 @@ class GameObject;
 
 class Component{
 public:
-	GameObject* entity;
+	uint entity;
 	enum type{
 		t_input_control,
 		t_ai,
@@ -34,7 +34,7 @@ public:
 
 	virtual void Update(float time)=0;
 	virtual void Render()=0;
-	virtual void Own(GameObject* go)=0;
+	virtual void Own(GameObject *go);
 	virtual type GetType()const=0;
 };
 

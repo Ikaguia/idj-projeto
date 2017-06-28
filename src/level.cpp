@@ -109,7 +109,6 @@ void Level::Load(string file,bool collisors) {
 			if(t){
 				GameObject *tile = new GameObject{r};
 				tile->AddComponent(new CompCollider{CompCollider::collType::t_ground});
-				tile->AddComponent(new CompStaticRender{Sprite{"img/point_yellow.jpg"},Vec2{0,0}});
 				GAMESTATE.AddObject(tile);
 			}
 		}

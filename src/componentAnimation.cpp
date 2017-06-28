@@ -22,9 +22,9 @@ CompAnim::CompAnim(string file,CompCollider* coll){
 		FOR(i,fCount){
 			//TODO: use rotation
 			in >> x >> y >> w >> h >> r >> funcCount;
-			colliders[i]=new CompCollider{Rect{x,y,w,h},coll->cType};
-			colliders[i]->useDefault = coll->useDefault;
-			colliders[i]->active = coll->active;
+			colliders[i]=new CompCollider{coll->colls[0].cType,Rect{x,y,w,h}};
+			colliders[i]->colls[0].useDefault = coll->colls[0].useDefault;
+			colliders[i]->colls[0].active = coll->colls[0].active;
 
 			colliders[i]->entity = entity;
 
@@ -35,6 +35,7 @@ CompAnim::CompAnim(string file,CompCollider* coll){
 		}
 		in.close();
 	}
+	if(frameFunc.count(0))called=false;
 }
 CompAnim::~CompAnim(){
 	FOR(i,colliders.size()){
@@ -44,36 +45,46 @@ CompAnim::~CompAnim(){
 }
 
 
-int CompAnim::GetCurFrame(){
+int CompAnim::GetFrameCount()const{
+	return sp.GetFrameCount();
+}
+int CompAnim::GetCurFrame()const{
 	return sp.GetCurFrame();
 }
 void CompAnim::SetCurFrame(int frame){
-	sp.SetFrame(frame);
-	entity->SetComponent(Component::type::t_collider,colliders[GetCurFrame()]);
-}
-int CompAnim::GetFrameCount(){
-	return sp.GetFrameCount();
+	if(frame != GetCurFrame()){
+		sp.SetFrame(frame);
+		ENTITY(entity)->SetComponent(Component::type::t_collider,colliders[GetCurFrame()]);
+		if(frameFunc.count(frame))frameFunc[frame](ENTITY(entity).get());
+	}
 }
 
+bool CompAnim::Looped()const{
+	return sp.Looped();
+}
 
 void CompAnim::Update(float time){
 	int frame1=GetCurFrame();
+	if(!called){
+		frameFunc[frame1](ENTITY(entity).get());
+		called=true;
+	}
 	sp.Update(time);
 	int frame2=GetCurFrame();
-	if(frame1 != frame2 && frameFunc.count(frame2))frameFunc[frame2](entity);
-	entity->SetComponent(Component::type::t_collider,colliders[frame2]);
+	if(frame1 != frame2 && frameFunc.count(frame2))called=false;
+	ENTITY(entity)->SetComponent(Component::type::t_collider,colliders[frame2]);
 }
 void CompAnim::Render(){
-	Vec2 pos=entity->FullBox().corner().renderPos()	;
+	Vec2 pos=ENTITY(entity)->FullBox().corner().renderPos();
 
-	sp.SetFlipH(entity->flipped);
-	sp.Render(pos,entity->rotation,Camera::zoom);
+	sp.SetFlipH(ENTITY(entity)->flipped);
+	sp.Render(pos,ENTITY(entity)->rotation,Camera::zoom);
 }
-void CompAnim::Own(GameObject* go){
-	entity=go;
+void CompAnim::Own(GameObject *go){
+	entity=go->uid;
 	for(auto& coll:colliders)coll->Own(go);
 	colliders[GetCurFrame()]->Own(go);
-	entity->SetComponent(Component::type::t_collider,colliders[GetCurFrame()]);
+	go->SetComponent(Component::type::t_collider,colliders[GetCurFrame()]);
 }
 Component::type CompAnim::GetType()const{
 	return Component::type::t_animation;

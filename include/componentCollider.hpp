@@ -6,38 +6,43 @@
 #include <component.hpp>
 #include <tileMap.hpp>
 
-class CompCollider;
-
-using colliderFunc=std::function<void(const CompCollider *a,const CompCollider *b)>;
+#define colliderFunc std::function<void(const Coll &a,const Coll &b)>
 
 #define COMPCOLLIDER(x)  ((CompCollider*)x. components[Component::type::t_collider])
 #define COMPCOLLIDERp(x) ((CompCollider*)x->components[Component::type::t_collider])
 
 class CompCollider : public Component{
-	Vec2 pos;
-	Vec2 size;
 public:
-	//static members
-	static set<CompCollider*> colliders;
 	//members
 	enum collType{t_any,t_ground,t_h_ground,t_player,t_monster,t_bullet,t_solid,t_count};
-	const collType cType;
-	map<collType,colliderFunc> useDefault;//use custom collision handler against colliders of _type
-	bool active=true;
+	struct Coll{
+		const uint &entity;
+		Vec2 pos;
+		Vec2 size;
+		const collType cType=t_any;
+		bool active=true;
+		map<collType,colliderFunc> useDefault;//use custom collision handler against colliders of _type
+
+		Coll(const uint &e,collType t,const Rect &r=Rect{0.0f,0.0f,1.0f,1.0f});
+		Coll(const uint &e,collType t,const Vec2 &p,const Vec2 &sz=Vec2{1.0f,1.0f});
+
+		Rect Box() const;
+
+		void CollisionCheck(const Coll &other);
+		Vec2 Collides(const Coll &other,const Vec2& move,const Vec2& moved=Vec2{}) const;
+	};
+	vector<Coll> colls;
 
 	//constructor/destructor
-	CompCollider(collType t);
-	CompCollider(const Rect &box,collType t);
+	CompCollider();
+	CompCollider(collType t,const Rect &r=Rect{0.0f,0.0f,1.0f,1.0f});
+	CompCollider(collType t,const Vec2 &p,const Vec2 &sz=Vec2{1.0f,1.0f});
 	//functions
-	void collisionCheck(CompCollider *other);
-	Vec2 collides(const CompCollider *other,const Vec2 &move) const;
-	Vec2 collides(const CompCollider *other,const Vec2 &move,const Rect &box) const;
-	void Activate();
-	void Deactivate();
+	void CollisionCheck(CompCollider *other);
 
 	void Update(float time);
 	void Render();
-	void Own(GameObject* go);
+	void Own(GameObject *go);
 	Component::type GetType() const;
 };
 
