@@ -16,17 +16,20 @@ class CompAnimControl : public Component{
 	//private members
 	map<string,unique_ptr<CompAnim>> animations;
 	string cur;
+	string prev;
+	bool repeat=true;
 public:
 	//public members
 	CompAnimControl(string file,CompCollider* coll);
 	~CompAnimControl();
 
-	void ChangeCur(string anim);
+	void ChangeCur(string anim,bool rep=true);
 	CompAnim& GetCur();
+	const string& GetCurName()const;
 
 	void Update(float time);
+	void Own(GameObject *go);
 	void Render();
-	void Own(GameObject* go);
 	Component::type GetType()const;
 };
 

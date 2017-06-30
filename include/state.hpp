@@ -8,6 +8,8 @@
 #include <sound.hpp>
 
 
+#define ENTITY(x) (GAMESTATE.entities[x])
+
 class State{
 protected:
 
@@ -47,7 +49,7 @@ public:
 	virtual bool PopRequested();
 	virtual bool QuitRequested();
 	
-	set<GameObject*> GetEntitiesInRange(const float &x1,const float &x2);
+	set<uint> GetEntitiesInRange(const float &x1,const float &x2);
 
 	uint GetUID();
 };

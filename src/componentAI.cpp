@@ -12,10 +12,6 @@ void CompAI::Update(float time){
 
 void CompAI::Render(){}
 
-void CompAI::Own(GameObject* go){
-	entity=go;
-}
-
 Component::type CompAI::GetType()const{
 	return Component::type::t_ai;
 }

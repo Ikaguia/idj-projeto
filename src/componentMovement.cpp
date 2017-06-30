@@ -1,6 +1,6 @@
 #include <componentMovement.hpp>
 #include <gameObject.hpp>
-//#include <game.hpp>
+#include <game.hpp>
 //#include <camera.hpp>
 //#include <inputManager.hpp>
 
@@ -10,13 +10,10 @@ CompMovement::~CompMovement(){}
 
 void CompMovement::Update(float time){
 	UNUSED(time);
-	entity->pos+=move;
-	if(mType==moveType::t_bullet)entity->rotation=speed.angle();
+	ENTITY(entity)->pos+=move;
+	if(mType==moveType::t_bullet)ENTITY(entity)->rotation=speed.angle();
 }
 void CompMovement::Render(){}
-void CompMovement::Own(GameObject* go){
-	entity=go;
-}
 Component::type CompMovement::GetType()const{
 	return Component::type::t_movement;
 }

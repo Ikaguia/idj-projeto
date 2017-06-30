@@ -143,6 +143,14 @@ Rect GameObject::Box() const{
 	r.h *= curSize.y;
 	return Rect{r.hotspot(hotspot),Vec2{r.w,r.h}};
 }
+Rect GameObject::Box(const Vec2& p,const Vec2 &sz) const{
+	Rect r{pos,size};
+	r.x += p.x * r.w;
+	r.y += p.y * r.h;
+	r.w *= sz.x;
+	r.h *= sz.y;
+	return Rect{r.hotspot(hotspot),Vec2{r.w,r.h}};
+}
 Rect GameObject::FullBox() const{
 	Rect r{pos,size};
 	return Rect{r.hotspot(hotspot),size};
@@ -152,12 +160,16 @@ Rect GameObject::FullBox() const{
 
 
 template<int attackDist,int seeDist> void HostileAIfunc(CompAI* ai,float time){
-	CompAnimControl* ac = COMPANIMCONTp(ai->entity);
+	CompAnimControl *ac = COMPANIMCONTp(ENTITY(ai->entity).get());
+	CompMemory *mem = COMPMEMORYp(ENTITY(ai->entity).get());
+
 	GameObject* target=nullptr;
-	uint target_uid = COMPMEMORYp(ai->entity)->ints["target"];
+	int &state = mem->ints["state"];
+	uint target_uid = mem->ints["target"];
 	if(GAMESTATE.entities.count(target_uid))target=GAMESTATE.entities[target_uid].get();
-	int &state = COMPMEMORYp(ai->entity)->ints["state"];
-	Timer &cd = COMPMEMORYp(ai->entity)->timers["cooldown"];
+
+	Timer &cd = mem->timers["cooldown"];
+
 	if(state==CompAI::state::idling){
 		if(cd.Get() > 3 && target!=nullptr){
 			cd.Restart();
@@ -175,7 +187,7 @@ template<int attackDist,int seeDist> void HostileAIfunc(CompAI* ai,float time){
 			return;
 		}
 		//TODO: make line of sight component
-		float dist = ai->entity->Box().distEdge(target->Box()).x;
+		float dist = ENTITY(ai->entity)->Box().distEdge(target->Box()).x;
 		if(dist < seeDist){
 			cd.Restart();
 			if(dist <= attackDist)state=CompAI::state::attacking,ac->ChangeCur("attack");
@@ -189,8 +201,8 @@ template<int attackDist,int seeDist> void HostileAIfunc(CompAI* ai,float time){
 			ac->ChangeCur("idle");
 		}
 		else{
-			float dist = ai->entity->Box().distEdge(target->Box()).x;
-			CompMovement *movement = COMPMOVEp(ai->entity);
+			float dist = ENTITY(ai->entity)->Box().distEdge(target->Box()).x;
+			CompMovement *movement = COMPMOVEp(ENTITY(ai->entity).get());
 
 			//TODO: make line of sight component
 			if(dist > seeDist){
@@ -200,32 +212,32 @@ template<int attackDist,int seeDist> void HostileAIfunc(CompAI* ai,float time){
 			}
 			else if(dist < attackDist+abs(movement->speed.x)*time){
 				movement->speed.x=0;
-				if(ai->entity->Box().x < target->Box().x)movement->move= dist-attackDist;
+				if(ENTITY(ai->entity)->Box().x < target->Box().x)movement->move= dist-attackDist;
 				else                                     movement->move=-dist+attackDist;
 
 				state=CompAI::state::attacking;
 				cd.Restart();
 				ac->ChangeCur("attack");
 			}
-			else if(ai->entity->Box().x < target->Box().x){
-				ai->entity->flipped=true;
+			else if(ENTITY(ai->entity)->Box().x < target->Box().x){
+				ENTITY(ai->entity)->flipped=true;
 				movement->speed.x= 100.0f;
 			}
 			else{
-				ai->entity->flipped=false;
+				ENTITY(ai->entity)->flipped=false;
 				movement->speed.x=-100.0f;
 			}
 		}
 	}
 	else if(state==CompAI::state::attacking){
-		if(ai->entity->Box().distEdge(target->Box()).x > attackDist){
+		if(ENTITY(ai->entity)->Box().distEdge(target->Box()).x > attackDist){
 			cd.Restart();
 			state=CompAI::state::looking;
 			ac->ChangeCur("idle");
 		}
 		else{
-			if(target->Box().x > ai->entity->Box().x && !ai->entity->flipped)ai->entity->flipped=true;
-			if(target->Box().x < ai->entity->Box().x &&  ai->entity->flipped)ai->entity->flipped=false;
+			if(target->Box().x > ENTITY(ai->entity)->Box().x && !ENTITY(ai->entity)->flipped)ENTITY(ai->entity)->flipped=true;
+			if(target->Box().x < ENTITY(ai->entity)->Box().x &&  ENTITY(ai->entity)->flipped)ENTITY(ai->entity)->flipped=false;
 		}
 		if(cd.Get() > 5){
 			cd.Restart();
@@ -235,21 +247,22 @@ template<int attackDist,int seeDist> void HostileAIfunc(CompAI* ai,float time){
 	}
 }
 template<int posCount> void PassiveAIfunc(CompAI* ai,float time){
-	CompAnimControl *ac = COMPANIMCONTp(ai->entity);
-	int &state = COMPMEMORYp(ai->entity)->ints["state"];
-	int &next = COMPMEMORYp(ai->entity)->ints["nextPos"];
-	Timer &cd = COMPMEMORYp(ai->entity)->timers["cooldown"];
+	CompAnimControl *ac = COMPANIMCONTp(ENTITY(ai->entity).get());
+	CompMemory *mem = COMPMEMORYp(ENTITY(ai->entity).get());
+	int &state = mem->ints["state"];
+	int &next = mem->ints["nextPos"];
+	Timer &cd = mem->timers["cooldown"];
 
 	if(state==CompAI::state::idling){
 		if(cd.Get()>0.5f){
 			state=CompAI::state::walking;
-			COMPANIMCONTp(ai->entity)->ChangeCur("walk");
+			ac->ChangeCur("walk");
 		}
 	}
 	else if(state==CompAI::state::walking){
-		float pos = COMPMEMORYp(ai->entity)->floats["pos" + to_string(next)];
-		float dist = pos - ai->entity->Box().x;
-		CompMovement *movement = COMPMOVEp(ai->entity);
+		float pos = mem->floats["pos" + to_string(next)];
+		float dist = pos - ENTITY(ai->entity)->Box().x;
+		CompMovement *movement = COMPMOVEp(ENTITY(ai->entity));
 
 		if(abs(dist)<abs(movement->speed.x)*time){
 			movement->speed.x=0;
@@ -261,25 +274,28 @@ template<int posCount> void PassiveAIfunc(CompAI* ai,float time){
 			ac->ChangeCur("idle");
 		}
 		else if(dist>0){
-			ai->entity->flipped=true;
+			ENTITY(ai->entity)->flipped=true;
 			movement->speed.x= 100.0f;
 		}
 		else{
-			ai->entity->flipped=false;
+			ENTITY(ai->entity)->flipped=false;
 			movement->speed.x=-100.0f;
 		}
 	}
 }
 template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void PumbaAiFunc(CompAI* ai,float time){
-	CompAnimControl* ac = COMPANIMCONTp(ai->entity);
-	GameObject* target=nullptr;
-	uint target_uid = COMPMEMORYp(ai->entity)->ints["target"];
-	if(GAMESTATE.entities.count(target_uid))target=GAMESTATE.entities[target_uid].get();
-	int &state = COMPMEMORYp(ai->entity)->ints["state"];
-	int &attacked = COMPMEMORYp(ai->entity)->ints["attacked"];
+	CompAnimControl *ac = COMPANIMCONTp(ENTITY(ai->entity).get());
+	CompMemory *mem = COMPMEMORYp(ENTITY(ai->entity).get());
 
-	Timer &cd = COMPMEMORYp(ai->entity)->timers["cooldown"];
-	Timer &stompCD = COMPMEMORYp(ai->entity)->timers["stompCooldown"];
+	GameObject* target=nullptr;
+	int &state = mem->ints["state"];
+	int &attacked = mem->ints["attacked"];
+	uint target_uid = mem->ints["target"];
+	if(GAMESTATE.entities.count(target_uid))target=GAMESTATE.entities[target_uid].get();
+
+	Timer &cd = mem->timers["cooldown"];
+	Timer &stompCD = mem->timers["stompCooldown"];
+
 	if(state==CompAI::state::idling){
 		if(cd.Get() > 3 && target!=nullptr){
 			cd.Restart();
@@ -297,7 +313,7 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 			return;
 		}
 		//TODO: make line of sight component
-		float dist = ai->entity->Box().distEdge(target->Box()).x;
+		float dist = ENTITY(ai->entity)->Box().distEdge(target->Box()).x;
 		if(dist < seeDist){
 			cd.Restart();
 			if(dist < 2*atkDist && stompCD.Get()>stCD)
@@ -309,7 +325,7 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 		}
 	}
 	else if(state == CompAI::state::walking){
-		CompMovement *move = COMPMOVEp(ai->entity);
+		CompMovement *move = COMPMOVEp(ENTITY(ai->entity).get());
 		if(cd.Get() > 5){
 			cd.Restart();
 			state=CompAI::state::idling;
@@ -317,7 +333,7 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 			ac->ChangeCur("idle");
 		}
 		else{
-			float dist = ai->entity->Box().distEdge(target->Box()).x;
+			float dist = ENTITY(ai->entity)->Box().distEdge(target->Box()).x;
 			//TODO: make line of sight component
 			if(dist > seeDist){
 				cd.Restart();
@@ -326,8 +342,8 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 			}
 			else if(dist < 2*atkDist+abs(move->speed.x)*time && cd.Get()<1.5 && stompCD.Get() > stCD){
 				move->speed.x=0;
-				if(ai->entity->Box().x < target->Box().x)move->move= dist - (2*atkDist);
-				else                                     move->move=-dist + (2*atkDist);
+				if(ENTITY(ai->entity)->Box().x < target->Box().x)move->move= dist - (2*atkDist);
+				else                                             move->move=-dist + (2*atkDist);
 
 				state=CompAI::state::stomping;
 				cd.Restart();
@@ -335,25 +351,25 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 			}
 			else if(dist <   atkDist+abs(move->speed.x)*time){
 				move->speed.x=0;
-				if(ai->entity->Box().x < target->Box().x)move->move= dist-atkDist;
-				else                                     move->move=-dist+atkDist;
+				if(ENTITY(ai->entity)->Box().x < target->Box().x)move->move= dist-atkDist;
+				else                                             move->move=-dist+atkDist;
 
 				state=CompAI::state::charging;
 				cd.Restart();
 				ac->ChangeCur("charge");
 			}
-			else if(ai->entity->pos.x < target->pos.x){
-				ai->entity->flipped=true;
+			else if(ENTITY(ai->entity)->pos.x < target->pos.x){
+				ENTITY(ai->entity)->flipped=true;
 				move->speed.x= 100.0f;
 			}
 			else{
-				ai->entity->flipped=false;
+				ENTITY(ai->entity)->flipped=false;
 				move->speed.x=-100.0f;
 			}
 		}
 	}
 	else if(state==CompAI::state::attacking){
-		if(ai->entity->Box().distEdge(target->Box()).x > atkDist){
+		if(ENTITY(ai->entity)->Box().distEdge(target->Box()).x > atkDist){
 			attacked=0;
 			cd.Restart();
 			state=CompAI::state::looking;
@@ -361,8 +377,8 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 			return;
 		}
 		else{
-			if(target->Box().x > ai->entity->Box().x && !ai->entity->flipped)ai->entity->flipped=true;
-			if(target->Box().x < ai->entity->Box().x &&  ai->entity->flipped)ai->entity->flipped=false;
+			if(target->Box().x > ENTITY(ai->entity)->Box().x && !ENTITY(ai->entity)->flipped)ENTITY(ai->entity)->flipped=true;
+			if(target->Box().x < ENTITY(ai->entity)->Box().x &&  ENTITY(ai->entity)->flipped)ENTITY(ai->entity)->flipped=false;
 			if(attacked>=atkCount){
 				attacked=0;
 				cd.Restart();
@@ -392,56 +408,56 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 
 void PlayerControlFunc(GameObject* go, float time){
 	Vec2 &speed = COMPMOVEp(go)->speed;
+	int &arrowReady = COMPMEMORYp(go)->ints["arrowReady"];
+	CompAnimControl* ac = COMPANIMCONTp(go);
+	const string &curAnim = ac->GetCurName();
 
-	//TODO change this to prevent infinite jump
-	if(INPUT.KeyPress(KEY_UP))speed.y=-1500.0f;
-	if(INPUT.IsKeyDown(KEY_LEFT) && !INPUT.IsKeyDown(KEY_RIGHT)){
+	if(INPUT.KeyPress(KEY_UP) && curAnim != "jump")speed.y=-1500.0f;
+	else if(INPUT.IsKeyDown(KEY_LEFT) && !INPUT.IsKeyDown(KEY_RIGHT)){
 		speed.x=max(-400.0f,speed.x-800*time);
 		go->flipped=false;
+		if(curAnim == "idle")ac->ChangeCur("walk");
+		//ac->ChangeCur("flip",false);
 	}
 	else if(INPUT.IsKeyDown(KEY_RIGHT) && !INPUT.IsKeyDown(KEY_LEFT)){
 		speed.x=min( 400.0f,speed.x+800*time);
 		go->flipped=true;
+		if(curAnim == "idle")ac->ChangeCur("walk");
+		//ac->ChangeCur("flip",false);
 	}
-	else if(speed.x>0.0f)speed.x=max(0.0f,speed.x-800*time);
-	else if(speed.x<0.0f)speed.x=min(0.0f,speed.x+800*time);
+	else{
+		if     (speed.x>0.0f)speed.x=max(0.0f,speed.x-800*time);
+		else if(speed.x<0.0f)speed.x=min(0.0f,speed.x+800*time);
+	}
 
+	if(curAnim == "walk" && speed.x==0)ac->ChangeCur("idle");
 
-	static Timer t;
-	t.Update(time);
-	if(t.Get()>1)COMPANIMCONTp(go)->ChangeCur("idle");
-	if(INPUT.KeyPress(KEY(z)) && t.Get()>1){
-		COMPANIMCONTp(go)->ChangeCur("walk");
-		t.Restart();
-		//TODO: prevent firing arrows inside other objects
-		float force = 1000 + (RANDR(-1000,1000)/10.0f);
-		float angle =   10 + (RANDR(-2500,2500)/1000.0f);
-		auto &foo = txtFuncsS["FireProjectile"];
-		istringstream iss("0.65 0.38 " + to_string(force) + " " + to_string(angle) + " player_proj1");
-		foo(iss)(go);
+	if(arrowReady && curAnim != "kick"){
+		if     (INPUT.IsKeyDown(KEY(a)))ac->ChangeCur("fire",false);
+		else if(INPUT.IsKeyDown(KEY(s)))ac->ChangeCur("kick",false);
 	}
 }
 
-void PlayerMonsterCollision(const CompCollider* a,const CompCollider* b){
-	Vec2 &speed=COMPMOVEp(a->entity)->speed;
+void PlayerMonsterCollision(const CompCollider::Coll &a,const CompCollider::Coll &b){
+	Vec2 &speed=COMPMOVEp(ENTITY(a.entity).get())->speed;
 	if(speed==Vec2{})return;
 
-	Vec2 &totMove=COMPMOVEp(a->entity)->move;
-	Vec2 move=a->collides(b,totMove);
+	Vec2 &totMove=COMPMOVEp(ENTITY(a.entity).get())->move;
+	Vec2 move=a.Collides(b,totMove);
 
-	if(move!=totMove)COMPHPp(a->entity)->Damage(1);
+	if(move!=totMove)COMPHPp(ENTITY(a.entity).get())->Damage(1);
 }
 
-void EmptyCollision(const CompCollider* a,const CompCollider* b){UNUSED(a);UNUSED(b);}
+void EmptyCollision(const CompCollider::Coll &a,const CompCollider::Coll &b){UNUSED(a);UNUSED(b);}
 
 GameObject* GameObject::MakePlayer(const Vec2 &pos){
 	GameObject* player = new GameObject{pos,0.0f,Hotspot::BOTTOM};
 
-	CompCollider *coll = new CompCollider{CompCollider::collType::t_player};
-	coll->useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
-	coll->useDefault[CompCollider::collType::t_monster]=PlayerMonsterCollision;
+	CompCollider coll{CompCollider::collType::t_player};
+	coll.colls[0].useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
+	coll.colls[0].useDefault[CompCollider::collType::t_monster]=PlayerMonsterCollision;
 
-	CompAnimControl* animControl = new CompAnimControl{"player",coll};
+	CompAnimControl* animControl = new CompAnimControl{"player",&coll};
 	Vec2 size{(float)animControl->GetCur().sp.GetWidth(),(float)animControl->GetCur().sp.GetHeight()};
 	player->AddComponent(animControl);
 
@@ -452,11 +468,13 @@ GameObject* GameObject::MakePlayer(const Vec2 &pos){
 	player->AddComponent(new CompGravity{2500.0f});
 	player->AddComponent(new CompHP{100,100,true,false,0.25f});
 
+	CompMemory *mem = new CompMemory;
+	mem->ints["arrowReady"] = 1;
+	player->AddComponent(mem);
+
 	player->flipped = true;
 	player->team = Team::player;
 	player->size = size;
-
-	delete coll;
 
 	return player;
 }
@@ -479,12 +497,12 @@ GameObject* GameObject::MakeTarget(const Vec2 &pos){
 GameObject* GameObject::MakeMike(const Vec2 &pos){
 	GameObject* mike = new GameObject{pos,0.0f,Hotspot::BOTTOM};
 
-	CompCollider *coll = new CompCollider{CompCollider::collType::t_monster};
-	coll->useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
-	coll->useDefault[CompCollider::collType::t_player]=EmptyCollision;
-	coll->useDefault[CompCollider::collType::t_monster]=EmptyCollision;
+	CompCollider coll{CompCollider::collType::t_monster};
+	coll.colls[0].useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
+	coll.colls[0].useDefault[CompCollider::collType::t_player]=EmptyCollision;
+	coll.colls[0].useDefault[CompCollider::collType::t_monster]=EmptyCollision;
 
-	CompAnimControl* animControl = new CompAnimControl{"mike",coll};
+	CompAnimControl* animControl = new CompAnimControl{"mike",&coll};
 	Vec2 size{(float)animControl->GetCur().sp.GetWidth(),(float)animControl->GetCur().sp.GetHeight()};
 	mike->AddComponent(animControl);
 
@@ -501,20 +519,18 @@ GameObject* GameObject::MakeMike(const Vec2 &pos){
 	mike->team = Team::enemy;
 	mike->size = size;
 
-	delete coll;
-
 	return mike;
 }
 
 GameObject* GameObject::MakeBanshee(const Vec2 &pos,const Vec2 &pos2){
 	GameObject* banshee = new GameObject{pos,0.0f,Hotspot::BOTTOM};
 
-	CompCollider *coll = new CompCollider{CompCollider::collType::t_monster};
-	coll->useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
-	coll->useDefault[CompCollider::collType::t_player]=EmptyCollision;
-	coll->useDefault[CompCollider::collType::t_monster]=EmptyCollision;
+	CompCollider coll{CompCollider::collType::t_monster};
+	coll.colls[0].useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
+	coll.colls[0].useDefault[CompCollider::collType::t_player]=EmptyCollision;
+	coll.colls[0].useDefault[CompCollider::collType::t_monster]=EmptyCollision;
 
-	CompAnimControl* animControl = new CompAnimControl{"banshee",coll};
+	CompAnimControl* animControl = new CompAnimControl{"banshee",&coll};
 	Vec2 size{(float)animControl->GetCur().sp.GetWidth(),(float)animControl->GetCur().sp.GetHeight()};
 	banshee->AddComponent(animControl);
 
@@ -534,20 +550,18 @@ GameObject* GameObject::MakeBanshee(const Vec2 &pos,const Vec2 &pos2){
 	banshee->team = Team::enemy;
 	banshee->size = size;
 
-	delete coll;
-
 	return banshee;
 }
 
 GameObject* GameObject::MakeMask(const Vec2 &pos){
 	GameObject* mask = new GameObject{pos,0.0f,Hotspot::BOTTOM};
 
-	CompCollider *coll = new CompCollider{CompCollider::collType::t_monster};
-	coll->useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
-	coll->useDefault[CompCollider::collType::t_player]=EmptyCollision;
-	coll->useDefault[CompCollider::collType::t_monster]=EmptyCollision;
+	CompCollider coll{CompCollider::collType::t_monster};
+	coll.colls[0].useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
+	coll.colls[0].useDefault[CompCollider::collType::t_player]=EmptyCollision;
+	coll.colls[0].useDefault[CompCollider::collType::t_monster]=EmptyCollision;
 
-	CompAnimControl* animControl = new CompAnimControl{"mascara",coll};
+	CompAnimControl* animControl = new CompAnimControl{"mascara",&coll};
 	Vec2 size{(float)animControl->GetCur().sp.GetWidth(),(float)animControl->GetCur().sp.GetHeight()};
 	mask->AddComponent(animControl);
 
@@ -563,20 +577,18 @@ GameObject* GameObject::MakeMask(const Vec2 &pos){
 	mask->team = Team::enemy;
 	mask->size = size;
 
-	delete coll;
-
 	return mask;
 }
 
 GameObject* GameObject::MakePorco(const Vec2 &pos){
 	GameObject* pumba = new GameObject{pos,0.0f,Hotspot::BOTTOM};
 
-	CompCollider *coll = new CompCollider{CompCollider::collType::t_monster};
-	coll->useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
-	coll->useDefault[CompCollider::collType::t_player]=EmptyCollision;
-	coll->useDefault[CompCollider::collType::t_monster]=EmptyCollision;
+	CompCollider coll{CompCollider::collType::t_monster};
+	coll.colls[0].useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
+	coll.colls[0].useDefault[CompCollider::collType::t_player]=EmptyCollision;
+	coll.colls[0].useDefault[CompCollider::collType::t_monster]=EmptyCollision;
 
-	CompAnimControl* animControl = new CompAnimControl{"porco",coll};
+	CompAnimControl* animControl = new CompAnimControl{"porco",&coll};
 	Vec2 size{(float)animControl->GetCur().sp.GetWidth(),(float)animControl->GetCur().sp.GetHeight()};
 	pumba->AddComponent(animControl);
 
@@ -592,8 +604,6 @@ GameObject* GameObject::MakePorco(const Vec2 &pos){
 
 	pumba->team = Team::enemy;
 	pumba->size = size;
-
-	delete coll;
 
 	return pumba;
 }

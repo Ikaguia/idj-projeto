@@ -73,28 +73,32 @@ public:
 	bool operator!=(const Rect& b);
 
 	void floor();
-
-	Vec2 corner() const;//retorna o canto do retangulo
-	Vec2 center() const;//retorna o centro do retangulo
-	Vec2 size() const;//retorna o tamanho do retangulo
-	Vec2 relativePos(const Vec2 &relative,bool inverted=false) const;
-
-	Rect renderBox() const;//posicao de renderizacao de acordo com a camera
-	Rect relativeBox(const Rect &relative,bool inverted=false) const;
-	
 	void setPos(const Vec2& b);
 	void setCenter(const Vec2& b); 
 
-	ConvexPolygon polygon(const float &r=0.0f) const;
-	SDL_Rect sdlRect()const;
+	float x2() const;
+	float y2() const;
 
 	Vec2 distCenter(const Rect& b) const;//retorna a distancia entre os centros dos retangulos
 	Vec2 distEdge(const Rect& b) const;//retorna a distancia entre os pontos mais proximos dos retangulos
 	Vec2 hotspot(const Hotspot hs=Hotspot::TOP_LEFT);
+	Vec2 corner() const; //retorna o canto esquerdo superior do retangulo
+	Vec2 corner2() const;//retorna o canto direito  superior do retangulo
+	Vec2 corner3() const;//retorna o canto esquerdo inferior do retangulo
+	Vec2 corner4() const;//retorna o canto direito  inferior do retangulo
+	Vec2 center() const;//retorna o centro do retangulo
+	Vec2 size() const;//retorna o tamanho do retangulo
+	Vec2 relativePos(const Vec2 &relative,bool inverted=false) const;
+
+	Rect relativeBox(const Rect &relative,bool inverted=false) const;
+	Rect renderBox() const;//posicao de renderizacao de acordo com a camera
+	Rect sum(const Rect &other) const;//retorna o retangulo que contem ambos
+
+	ConvexPolygon polygon(const float &r=0.0f) const;
+	SDL_Rect sdlRect()const;
 
 	bool contains(const float &i,const float &j) const;//retorna se o ponto pertence ao retangulo
 	bool contains(const Vec2& b) const;//retorna se o ponto pertence ao retangulo
-
 	bool collides(const Rect& b) const;//retorna se o retangulo tem interseção com b
 };
 ostream& operator<<(ostream& os, const Rect& obj);

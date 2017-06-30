@@ -17,7 +17,7 @@ template<class T> txtFuncType1 AddVar(T& in);
 template<class T> txtFuncType1 ChangeVar(T& in);
 template<class T> txtFuncType1 Damage(T& in);
 template<class T> txtFuncType1 DamageArea(T& in);
-// template<class T> txtFuncType1 DamageAreaFixed(T& in);
+template<class T> txtFuncType1 DamageAreaFixed(T& in);
 template<class T> txtFuncType1 FireProjectile(T& in);
 template<class T> txtFuncType1 Remove(T& in);
 

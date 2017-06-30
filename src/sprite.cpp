@@ -57,6 +57,7 @@ void Sprite::Update(float time){
 	if(timeElapsed>frameTime){
 		timeElapsed-=frameTime;
 		SetFrame((currentFrame+1)%frameCount);
+		looped = (currentFrame==0);
 	}
 }
 void Sprite::SetFrame(int frame){
@@ -70,24 +71,27 @@ void Sprite::SetFrameTime(float fTime){
 	frameTime=fTime;
 }
 
-int Sprite::GetWidth(){
+int Sprite::GetWidth()const{
 	return (width*scaleX)/frameCount;
 }
 
-int Sprite::GetHeight(){
+int Sprite::GetHeight()const{
 	return (height*scaleY);
 }
 
-int Sprite::GetCurFrame(){
+int Sprite::GetCurFrame()const{
 	return currentFrame;
 }
 
-int Sprite::GetFrameCount(){
+int Sprite::GetFrameCount()const{
 	return frameCount;
 }
 
-bool Sprite::IsOpen(){
+bool Sprite::IsOpen()const{
 	return (texture!=nullptr);
+}
+bool Sprite::Looped()const{
+	return looped;
 }
 
 void Sprite::SetScale(float scale) {

@@ -29,7 +29,7 @@ void Text::Render(Vec2 camera, Rect* clipRect){
 		for(auto& i : lineArray) {
 			if(clipRectEnd.y < i.box.y)
 				break;	
-			Vec2 lineBoxEnd(i.box.x+i.box.w-1, i.box.y+i.box.h-1);
+			Vec2 lineBoxEnd(i.box.x2()-1, i.box.y2()-1);
 			if(lineBoxEnd.y < clipRect->y)
 				continue;
 			

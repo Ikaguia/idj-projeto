@@ -4,7 +4,7 @@ stick_enemy 1
 stick_block 1
 
 start 1
-	owner ChangeVar int arrowReady 0
+	owner AddVar int fired 1
 hit_enemy 2
 	target Damage 10 16
 	self Remove
