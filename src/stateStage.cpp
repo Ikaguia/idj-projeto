@@ -16,6 +16,7 @@ StateStage::~StateStage(){}
 
 void StateStage::Begin(){
 	level.Load(levelName);
+	level.LoadObjects();
 	GameObject* playerObj = GameObject::MakePlayer(Vec2{150.0f,430.0f});
 	player = playerObj->uid;
 	AddObject(playerObj);

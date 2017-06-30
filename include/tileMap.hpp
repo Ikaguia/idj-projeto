@@ -21,7 +21,7 @@ public:
 	TileMap(TileSet* ts);
 	
 	void Load(ifstream& in);
-	void Save(ofstream& out);
+	void Save(stringstream& out);
 	
 	void SetTileSet(TileSet* ts);
 	

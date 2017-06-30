@@ -35,7 +35,7 @@ void TileMap::Load(ifstream& in){
 		}
 	}
 }
-void TileMap::Save(ofstream& out) {
+void TileMap::Save(stringstream& out) {
 	out<<mapWidth<<","<<mapHeight<<","<<mapDepth<<endl<<endl;
 	
 	FOR(d,mapDepth){

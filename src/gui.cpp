@@ -51,6 +51,8 @@ GUI_Button::GUI_Button(uint a,const Vec2& pos):GUI_Element(pos),action{a}{
 
 void GUI_Button::Update(){
 	if(GUI.IsButtonSelected(this)) return;
+	else if(GUI.IsButtonDown()) return;
+	
 	Rect button = box;
 	CLIP_RECT(button, DEFAULT_MARGIN);
 	hover=button.contains(INPUT.GetMouse());
@@ -58,13 +60,11 @@ void GUI_Button::Update(){
 		GUI.SelectButton(this);
 		if(INPUT.MousePress(MBUTTON_LEFT)){
 			press = true;
-			GUI.FlagButtonUpdate(this);
 			return;
 		}
 	}
 	if(press && INPUT.MouseRelease(MBUTTON_LEFT)){
 		press = false;
-		GUI.FlagButtonUpdate(this);
 	}
 }
 void GUI_Button::Render(){
@@ -103,6 +103,7 @@ GUI_CheckButton::GUI_CheckButton(bool& v,const Vec2& pos):GUI_Button(GUI_NONE,po
 
 void GUI_CheckButton::Update(){
 	if(GUI.IsButtonSelected(this)) return;
+	else if(GUI.IsButtonDown()) return;
 	
 	Rect button = box;
 	CLIP_RECT(button, DEFAULT_MARGIN*2);
@@ -174,6 +175,7 @@ GUI_InputBox::~GUI_InputBox(){
 
 void GUI_InputBox::Update(){
 	if(GUI.IsButtonSelected(this)) return;
+	else if(GUI.IsButtonDown()) return;
 	
 	Rect button = box;
 	CLIP_RECT(button, DEFAULT_MARGIN);
@@ -186,7 +188,6 @@ void GUI_InputBox::Update(){
 		if(!press){
 			if(hover){
 				press = true;
-				GUI.FlagButtonUpdate(this);
 				INPUT.StartTextInput(&input);
 			}
 		}
@@ -198,7 +199,6 @@ void GUI_InputBox::Update(){
 	
 	if(closed || INPUT.KeyPress(KEY_ENTER)){
 		press = false;
-		GUI.FlagButtonUpdate(this);
 		INPUT.StopTextInput(&input);
 		while(input[0] == ' ')
 			input.erase(0,1);
@@ -210,7 +210,6 @@ void GUI_InputBox::Update(){
 	}
 	else if(INPUT.KeyPress(KEY_ESC)){
 		press = false;
-		GUI.FlagButtonUpdate(this);
 		INPUT.StopTextInput(&input);
 		input.clear();
 	}
@@ -449,7 +448,7 @@ void GUI_VBar::Render(){
 }
 
 //GUI_Window
-GUI_Window::GUI_Window(vector<GUI_Element*>& v,uint i,const string& l,const Vec2& pos):GUI_Element(pos),array{v},label{l,DEFAULT_FONT_SIZE},closeButton{GUI_CLOSE,ICON_X},id{i}{
+GUI_Window::GUI_Window(vector<GUI_Element*>& v,int i,const string& l,const Vec2& pos):GUI_Element(pos),array{v},label{l,DEFAULT_FONT_SIZE},closeButton{GUI_CLOSE,ICON_X},id{i}{
 	box.w = array.GetBox().w;
 	box.h = array.GetBox().h + DEFAULT_HEIGHT;
 	if(pos == Vec2(-1,-1)) {
@@ -463,6 +462,11 @@ GUI_Window::GUI_Window(vector<GUI_Element*>& v,uint i,const string& l,const Vec2
 }
 
 void GUI_Window::Update(){
+	if(pop){
+		GUI.RequestPop(this);
+		return;
+	}
+	
 	bool hover=box.contains(INPUT.GetMouse());
 	if(!hover){ 
 		if(INPUT.MousePress(MBUTTON_LEFT))
@@ -473,9 +477,8 @@ void GUI_Window::Update(){
 	if(INPUT.MousePress(MBUTTON_LEFT))
 		GUI.SelectWindow(this);
 	closeButton.Update();
-	if(GUI.ButtonClick(GUI_CLOSE)||GUI.ButtonClick(GUI_CONFIRM)||GUI.ButtonClick(GUI_CONFIRM_AND_CLOSE)){
-		GUI.RequestPop(this);
-	}
+	if(GUI.ButtonClick(GUI_CLOSE)||GUI.ButtonClick(GUI_CONFIRM)||GUI.ButtonClick(GUI_DENY))
+		pop = true;
 	array.Update();
 }
 void GUI_Window::Render(){

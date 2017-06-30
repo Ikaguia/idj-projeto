@@ -21,14 +21,14 @@ Level::Level() : background{Sprite(DEFAULT_BACKGROUND)}, tileSet{TileSet(DEFAULT
 	}
 }
 
-Level::Level(string file,bool collisors) : tileSet{TileSet()}, tileMap{TileMap(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT, &tileSet)} {	
-	Load(file,collisors);
+Level::Level(string file) : tileSet{TileSet()}, tileMap{TileMap(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT, &tileSet)} {	
+	Load(file);
 }
 
 Level::~Level() {
 }
 
-void Level::Load(string file,bool collisors) {
+void Level::Load(const string& file){
 	ifstream in;
 	
 	in.open(LEVEL_PATH + file + ".txt");
@@ -60,73 +60,43 @@ void Level::Load(string file,bool collisors) {
 	int mapHeight = tileMap.GetHeight();
 	collisionLayer.clear();
 	collisionLayer.resize(mapWidth*mapHeight);
-
+	
 	int t,g;
-	int grouped[mapWidth][mapHeight];
+	collisionGroups.clear();
+	collisionGroups.reserve(mapWidth*mapHeight);
 	FOR(y,mapHeight){
 		FOR(x,mapWidth){
 			in >> t;
 			in.ignore(1);
 			collisionLayer[(y*mapWidth)+x] = t-1;
 			if(t == EMPTY_TILE) {
-				grouped[x][y] = 0;
+				collisionGroups[(y*mapWidth)+x] = 0;
 			}
 			else {
 				in >> g;
 				in.ignore(1);
-				grouped[x][y] = g;
+				collisionGroups[(y*mapWidth)+x] = g;
 			}
 		}
 	}
-	
-	//Setting the collision boxes:
-	if(collisors){
-		map<int,pair<Rect,int>> mp;
-		FOR(y,mapHeight){
-			FOR(x,mapWidth){
-				t = collisionLayer[(y*mapWidth)+x]+1;
-				g = grouped[x][y];
-				if(t){
-					if(!mp.count(g)){
-						mp[g]=make_pair(Rect{(float)mapWidth+1,(float)mapHeight+1,(float)-1,(float)-1},t);//default vals to make min and max work
-					}
-					mp[g].first.x=min(mp[g].first.x,(float)x);
-					mp[g].first.y=min(mp[g].first.y,(float)y);
-					mp[g].first.w=max(mp[g].first.w,(float)x);
-					mp[g].first.h=max(mp[g].first.h,(float)y);
-				}
-			}
-		}
-		for(auto &it:mp){
-			Rect r = it.second.first;
-			t=it.second.second;
 
-			r.w-=r.x-1;
-			r.h-=r.y-1;
-			r.x*=tileWidth;
-			r.w*=tileWidth;
-			r.y*=tileHeight;
-			r.h*=tileHeight;
-
-			if(t){
-				GameObject *tile = new GameObject{r};
-				tile->AddComponent(new CompCollider{CompCollider::collType::t_ground});
-				tile->AddComponent(new CompStaticRender{Sprite{"img/point_yellow.jpg"},Vec2{0,0}});
-				GAMESTATE.AddObject(tile);
-			}
-		}
-	}
+	//Loading the object list:
+	objectList.clear();
+	for(string object;getline(in, object);)
+		if(!object.empty()) objectList.push_back(object);
 
 	in.close();
 }
 
-void Level::Save(string file,vector<pair<ii,ii>> grouped) {
-	ofstream out;
-	
-	out.open(LEVEL_PATH + file + ".txt");
-	if(!out.is_open()) {
-		cout<< "Erro ao abrir o arquivo \"" << file << "\", o programa ira encerrar agora" << endl;
-		exit(EXIT_FAILURE);
+string Level::Save(const string& file){
+	stringstream out;
+	ofstream output;
+	if(file != ""){ 
+		output.open(LEVEL_PATH + file + ".txt");
+		if(!output.is_open()) {
+			cout<< "Erro ao abrir o arquivo \"" << file << "\", o programa ira encerrar agora" << endl;
+			exit(EXIT_FAILURE);
+		}
 	}
 	
 	//Saving the background:
@@ -142,24 +112,90 @@ void Level::Save(string file,vector<pair<ii,ii>> grouped) {
 	//Saving the collision layer:
 	int mapWidth = tileMap.GetWidth();
 	int mapHeight = tileMap.GetHeight();
-	int id=1;
-	map<ii,int> ids;
 	FOR(y,mapHeight){
 		FOR(x,mapWidth){
 			char s[200];
-			if(collisionLayer[(y*mapWidth)+x]==EMPTY_TILE)sprintf(s,"00-000, ");
-			else{
-				auto &group = grouped[(mapWidth*y)+x];
-				if(group.first.first==x && group.first.second==y)ids[group.first]=id++;
-				sprintf(s,"%02d-%03d, ",collisionLayer[(y*mapWidth)+x]+1,ids[group.first]);
-			}
+			sprintf(s,"%02d-%03d, ",collisionLayer[(y*mapWidth)+x]+1,collisionGroups[(y*mapWidth)+x]);
 			string str(s);
 			out << str;
 		}
 		out << endl;
 	}
 	out << endl;
-
-	out.close();
+	
+	if(file == "")
+		return out.str();
+	output<<out.str();
+	output.close();
+	return "";
 }
 
+void Level::LoadObjects(bool collisors){	
+	//Creating the objects:
+	
+	
+	//Setting the collision boxes:
+	if(!collisors) return;
+	
+	int tileWidth = tileSet.GetWidth();
+	int tileHeight = tileSet.GetHeight();
+	int mapWidth = tileMap.GetWidth();
+	int mapHeight = tileMap.GetHeight();
+	map<int,pair<Rect,int>> mp;
+	FOR(y,mapHeight){
+		FOR(x,mapWidth){
+			int t = collisionLayer[(y*mapWidth)+x]+1;
+			int g = collisionGroups[(y*mapWidth)+x];
+			if(t){
+				if(!mp.count(g)){
+					mp[g]=make_pair(Rect{(float)mapWidth+1,(float)mapHeight+1,(float)-1,(float)-1},t);//default vals to make min and max work
+				}
+				mp[g].first.x=min(mp[g].first.x,(float)x);
+				mp[g].first.y=min(mp[g].first.y,(float)y);
+				mp[g].first.w=max(mp[g].first.w,(float)x);
+				mp[g].first.h=max(mp[g].first.h,(float)y);
+			}
+		}
+	}
+	for(auto &it:mp){
+		Rect r = it.second.first;
+		int t=it.second.second;
+
+		r.w-=r.x-1;
+		r.h-=r.y-1;
+		r.x*=tileWidth;
+		r.w*=tileWidth;
+		r.y*=tileHeight;
+		r.h*=tileHeight;
+
+		if(t){
+			GameObject *tile = new GameObject{r};
+			tile->AddComponent(new CompCollider{CompCollider::collType::t_ground});
+			tile->AddComponent(new CompStaticRender{Sprite{"img/point_yellow.jpg"},Vec2{0,0}});
+			GAMESTATE.AddObject(tile);
+		}
+	}
+}
+
+void Level::SaveObjects(const vector<pair<ii,ii>>& grouped){
+	//Saving the collision groups:
+	int mapWidth = tileMap.GetWidth();
+	int mapHeight = tileMap.GetHeight();
+	int id=1;
+	map<ii,int> ids;
+	FOR(y,mapHeight){
+		FOR(x,mapWidth){
+			if(collisionLayer[(y*mapWidth)+x]==EMPTY_TILE) collisionGroups[(y*mapWidth)+x] = 0;
+			else{
+				auto &group = grouped[(mapWidth*y)+x];
+				if(group.first.first==x && group.first.second==y)ids[group.first]=id++;
+				collisionGroups[(y*mapWidth)+x] = ids[group.first];
+			}
+		}
+	}
+}
+
+bool Level::operator==(Level& level){
+	if(Save() == level.Save()) return true;
+	return false;
+}

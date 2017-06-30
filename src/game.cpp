@@ -134,14 +134,15 @@ void Game::Run(){
 		storedState=nullptr;
 		GetCurrentState().Begin();
 	}
-	while(stateStack.size() && !(GetCurrentState().QuitRequested())){
+	while(!stateStack.empty()){
 		CalculateDeltaTime();
 		INPUT.Update(dt);
 		//if(INPUT.KeyPress(KEY_F(11))) SwitchWindowMode();
 		GetCurrentState().Update(dt);
 		GetCurrentState().Render();
 		SDL_RenderPresent(renderer);
-
+		
+		if(GetCurrentState().QuitRequested()) break;
 		if(GetCurrentState().PopRequested()){
 			GetCurrentState().Pause();
 			GetCurrentState().End();
@@ -158,7 +159,7 @@ void Game::Run(){
 			GetCurrentState().Begin();
 		}
 
-		SDL_Delay(33);
+		SDL_Delay(17);
 	}
 	while(stateStack.size()){
 		GetCurrentState().End();

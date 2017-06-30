@@ -40,12 +40,15 @@ enum Action{
 	SAVE_LEVEL,
 	RESIZE_LEVEL,
 	SHOW_GRID,
-	SHOW_COLLISION
+	SHOW_COLLISION,
+	EXIT_EDITOR,
+	EXIT_GAME
 };
 
 enum Window{
 	MAIN_WINDOW,
-	RESIZE_WINDOW
+	RESIZE_WINDOW,
+	UNSAVED_CHANGES_WINDOW
 };
 
 StateEditor::StateEditor():helpText{HELP_TEXT,16},statusText{"test",16}{
@@ -58,7 +61,8 @@ void StateEditor::LoadAssets(){}
 
 void StateEditor::Begin(){
 	LoadGUI();
-	level.Load("level_0", false);
+	level.Load(fileName);
+	level.LoadObjects(false);
 	CAMERA = {-100, -100};
 	CAMERAZOOM = 1.0f;
 	
@@ -71,11 +75,19 @@ void StateEditor::Begin(){
 void StateEditor::Update(float time){
 	Camera::Update(time);
 	gui.Update();
-	if(INPUT.QuitRequested())quitRequested=true;
-	if(INPUT.KeyPress(KEY_ESC))popRequested=true;
-	
-	uint window = gui.GetSelectedWindowID();
+	if(INPUT.QuitRequested() || gui.ButtonClick(EXIT_GAME)) {
+		quitRequested = true;
+		Exit();
+	}	
+		
+	auto window = gui.GetSelectedWindowID();
 	if(window == MAIN_WINDOW){
+		//Close Editor
+		if(INPUT.KeyPress(KEY_ESC) || gui.ButtonClick(EXIT_EDITOR)){
+			popRequested = true;
+			Exit();
+		}
+		
 		int tileCount = level.tileSet.GetTileCount();
 		//Select next tile
 		if(INPUT.KeyPress(KEY(a))) tileIndex = (tileIndex + tileCount-1)%tileCount;
@@ -114,10 +126,8 @@ void StateEditor::Update(float time){
 		if(INPUT.KeyPress(KEY(c)) || gui.ButtonClick(SHOW_COLLISION)) showCollision = (!showCollision);
 	
 		//Save level
-		if(INPUT.KeyPress(KEY(s)) || gui.ButtonClick(SAVE_LEVEL)) {
-			RecomputeCollisionRectangles();
-			level.Save("level_0",grouped);
-		}
+		if(INPUT.KeyPress(KEY(s)) || gui.ButtonClick(SAVE_LEVEL)) SaveLevel();
+		
 		//Resize level
 		if(gui.ButtonClick(Action::RESIZE_LEVEL)){
 			CreateWindow(RESIZE_LEVEL);
@@ -139,6 +149,21 @@ void StateEditor::Update(float time){
 	else if(window==RESIZE_WINDOW){
 		if(gui.ButtonClick(GUI_CONFIRM))
 			ResizeLevel();
+	}
+	else if(window==UNSAVED_CHANGES_WINDOW){
+		if(gui.ButtonClick(GUI_CLOSE)){
+			popRequested = false;
+			quitRequested = false;
+		}
+		else if(gui.ButtonClick(GUI_CONFIRM)){
+			SaveLevel();
+			closeFlag = true;
+			DEBUG(closeFlag);
+		}
+		else if(gui.ButtonClick(GUI_DENY)){
+			closeFlag = true;
+			DEBUG(closeFlag);
+		}
 	}
 	
 	UpdateArray(time);
@@ -164,6 +189,15 @@ void StateEditor::Render(){
 
 void StateEditor::Pause(){}
 void StateEditor::Resume(){}
+
+bool StateEditor::PopRequested(){
+	return (closeFlag && popRequested);
+}
+bool StateEditor::QuitRequested(){
+	return (closeFlag && quitRequested);
+}
+
+//Editor Funtcions------------------------------------------------------------
 
 void StateEditor::RenderBackground() {
 	SET_COLOR(EDITOR_BG_COLOR);
@@ -245,6 +279,17 @@ void StateEditor::RenderCollision() {
 	}
 }
 
+void StateEditor::Exit(){
+	Level savedLevel(fileName);
+	RecomputeCollisionRectangles();
+	level.SaveObjects(grouped);
+	
+	if(level == savedLevel)
+		closeFlag = true;
+	else
+		CreateWindow(EXIT_EDITOR);
+}
+
 Vec2 StateEditor::GetCurrentTile() {
 	Vec2 pos = CAMERA+(INPUT.GetMouse()/CAMERAZOOM);
 	int tileWidth = level.tileSet.GetWidth();
@@ -258,6 +303,12 @@ Vec2 StateEditor::GetCurrentTile() {
 	//cout<<"mouse "<<INPUT.GetMouseX()<<" "<<INPUT.GetMouseY()<<endl;
 	//cout<<"tile "<<pos.x<<" "<<pos.y<<endl;
 	return pos;
+}
+
+void StateEditor::SaveLevel(){
+	RecomputeCollisionRectangles();
+	level.SaveObjects(grouped);
+	level.Save(fileName);
 }
 
 void StateEditor::ResizeLevel(){
@@ -331,22 +382,22 @@ void StateEditor::LoadGUI(){
 	GUI_SET(menu);
 	//GUI_ADD(GUI_TextButton(NEW_LEVEL, "New"));
 	//GUI_ADD(GUI_TextButton(LOAD_LEVEL, "Load"));
-	GUI_ADD(GUI_TextButton(SAVE_LEVEL, "Save"));
+	GUI_ADD(TextButton(SAVE_LEVEL, "Save"));
 	GUI_DIV();
-	GUI_ADD(GUI_TextButton(RESIZE_LEVEL, "Resize"));
+	GUI_ADD(TextButton(RESIZE_LEVEL, "Resize"));
 	GUI_DIV();
-	GUI_ADD(GUI_CheckButton(showGrid));
-	GUI_ADD(GUI_Label("Show Grid", SNAP_LEFT));
-	GUI_ADD(GUI_Label("Width:", SNAP_RIGHT));
-	GUI_ADD(GUI_IntBox(gridWidth,0,INT_MAX,SHORT_SIZE));
-	GUI_ADD(GUI_Label("px", SNAP_LEFT));
-	GUI_ADD(GUI_Label("Height:", SNAP_RIGHT));
-	GUI_ADD(GUI_IntBox(gridHeight,0,INT_MAX,SHORT_SIZE));
-	GUI_ADD(GUI_Label("px", SNAP_LEFT));
+	GUI_ADD(CheckButton(showGrid));
+	GUI_ADD(Label("Show Grid", SNAP_LEFT));
+	GUI_ADD(Label("Width:", SNAP_RIGHT));
+	GUI_ADD(IntBox(gridWidth,0,INT_MAX,SHORT_SIZE));
+	GUI_ADD(Label("px", SNAP_LEFT));
+	GUI_ADD(Label("Height:", SNAP_RIGHT));
+	GUI_ADD(IntBox(gridHeight,0,INT_MAX,SHORT_SIZE));
+	GUI_ADD(Label("px", SNAP_LEFT));
 	GUI_DIV();
-	GUI_ADD(GUI_CheckButton(showCollision));
-	GUI_ADD(GUI_Label("Show Collision", SNAP_LEFT));
-	GUI_CREATE(GUI_HBar(GUI_GET(menu),WINSIZE.x));
+	GUI_ADD(CheckButton(showCollision));
+	GUI_ADD(Label("Show Collision", SNAP_LEFT));
+	GUI_CREATE(HBar(GUI_GET(menu),WINSIZE.x));
 }
 
 void StateEditor::CreateWindow(uint type){
@@ -356,29 +407,40 @@ void StateEditor::CreateWindow(uint type){
 		levelHeight = level.tileMap.GetHeight();
 	
 		GUI_SET(labels);
-		GUI_ADD(GUI_Label("Width: "));
-		GUI_ADD(GUI_Label("Height: "));
+		GUI_ADD(Label("Width: "));
+		GUI_ADD(Label("Height: "));
 		
 		GUI_SET(width_box);
-		GUI_ADD(GUI_IntBox(levelWidth, MIN_LVL_WIDTH, MAX_LVL_SIZE));
-		GUI_ADD(GUI_Label("tiles", SNAP_LEFT));
+		GUI_ADD(IntBox(levelWidth, MIN_LVL_WIDTH, MAX_LVL_SIZE));
+		GUI_ADD(Label("tiles", SNAP_LEFT));
 		
 		GUI_SET(height_box);
-		GUI_ADD(GUI_IntBox(levelHeight, MIN_LVL_HEIGHT, MAX_LVL_SIZE));
-		GUI_ADD(GUI_Label("tiles", SNAP_LEFT));
+		GUI_ADD(IntBox(levelHeight, MIN_LVL_HEIGHT, MAX_LVL_SIZE));
+		GUI_ADD(Label("tiles", SNAP_LEFT));
 		
 		GUI_SET(input);
-		GUI_ADD(GUI_HBar(GUI_GET(width_box)));
-		GUI_ADD(GUI_HBar(GUI_GET(height_box)));
+		GUI_ADD(HBar(GUI_GET(width_box)));
+		GUI_ADD(HBar(GUI_GET(height_box)));
 		
 		GUI_SET(menu);
-		GUI_ADD(GUI_VBar(GUI_GET(labels)));
-		GUI_ADD(GUI_VBar(GUI_GET(input)));
+		GUI_ADD(VBar(GUI_GET(labels)));
+		GUI_ADD(VBar(GUI_GET(input)));
 		
 		GUI_SET(window);
-		GUI_ADD(GUI_HBar(GUI_GET(menu)));
-		GUI_ADD(GUI_TextButton(GUI_CONFIRM, "Ok"));
+		GUI_ADD(HBar(GUI_GET(menu)));
+		GUI_ADD(TextButton(GUI_CONFIRM, "Ok"));
 		
-		GUI_CREATE(GUI_Window(GUI_GET(window), RESIZE_WINDOW, "Resize Level"));
+		GUI_CREATE(Window(GUI_GET(window), RESIZE_WINDOW, "Resize Level"));
+	}
+	if(type==EXIT_EDITOR){
+		GUI_SET(buttons);
+		GUI_ADD(TextButton(GUI_DENY,"  No  "));
+		GUI_ADD(TextButton(GUI_CONFIRM,"  Yes  "));
+	
+		GUI_SET(window);
+		GUI_ADD(Label(" Save changes before closing? "));
+		GUI_ADD(HBar(GUI_GET(buttons)));
+		
+		GUI_CREATE(Window(GUI_GET(window), UNSAVED_CHANGES_WINDOW, "Exit Game"));
 	}
 }
