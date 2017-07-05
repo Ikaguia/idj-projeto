@@ -15,7 +15,7 @@ Sprite::~Sprite(){}
 void Sprite::Open(const string& file,int fCount,float fTime){
 	texture = Resources::GetImage(file);
 	if(SDL_QueryTexture(texture.get(),nullptr,nullptr,&width,&height)){
-		cout << "Erro ao carregar as dimensões da textura \"" << file << "\", o programa ira encerrar agora" << endl;
+		cerr << "Erro ao carregar as dimensões da textura \"" << file << "\", o programa ira encerrar agora" << endl;
 		exit(EXIT_FAILURE);
 	}
 

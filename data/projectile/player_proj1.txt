@@ -1,4 +1,5 @@
 player_projectile
+500.0
 
 stick_enemy 1
 stick_block 1

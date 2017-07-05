@@ -7,7 +7,7 @@ CompInputControl::CompInputControl(function<void(GameObject*,float)> f):func{f}{
 CompInputControl::~CompInputControl(){}
 
 void CompInputControl::Update(float time){
-	func(ENTITY(entity).get(),time);
+	func(GO(entity),time);
 }
 void CompInputControl::Render(){}
 Component::type CompInputControl::GetType()const{

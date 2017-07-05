@@ -5,28 +5,33 @@ State::State(){}
 set<uint> State::GetEntitiesInRange(const float &x1,const float &x2){
 	//TODO: change this to just iterate trought the areas
 	set<uint> s;
-	for(const auto &go:entities){
-		if(go.second.get()==nullptr)continue;
-		Rect box = go.second->Box();
-		if(box.x<=x2 || box.x2()>=x1)s.insert(go.first);
+	for(uint uid:entities_){
+		if(GO(uid)==nullptr)continue;
+		Rect box = GO(uid)->Box();
+		if(box.x<=x2 || box.x2()>=x1)s.insert(uid);
 	}
 	return s;
 }
 
 void State::End(){
 	ending=true;
-	entities.clear();
+	for(uint uid:entities_){
+		if(!GameObject::entities.count(uid))continue;
+		GameObject::entities.erase(uid);
+	}
 }
 
-void State::AddObject(GameObject* obj, int layer, int area){
+void State::AddObject(uint uid, int layer, int area){
 	ii key(layer,area);
 
-	group[key].insert(obj->uid);
-	entities[obj->uid]=unique_ptr<GameObject>(obj);
+	group[key].insert(uid);
+	entities_.insert(uid);
+
+	lastGO = uid;
 }
 
 GameObject* State::GetLastObject(){
-	return entities[uid].get();
+	return GO(lastGO);
 }
 
 
@@ -37,24 +42,28 @@ bool State::QuitRequested(){
 	return quitRequested;
 }
 
-uint State::GetUID(){
-	return ++uid;
-}
-
 void State::UpdateArray(float time){
-	for(auto it=entities.begin();it!=entities.end();){
-		if(it->second.get()==nullptr){
-			it++;
+	for(uint uid:entities_){
+		if(!GameObject::entities.count(uid))continue;
+		if(GO(uid)==nullptr){
+			GameObject::entities.erase(uid);
 			continue;
 		}
-		it->second->Update(time);
-		if(it->second->dead)it = entities.erase(it);
-		else it++;
+		GO(uid)->Update(time);
+		if(GO(uid)->Remove()){
+			// cout << "Removing go " << uid << endl;
+			GameObject::entities.erase(uid);
+			entities_.erase(uid);
+		}
 	}
 }
 void State::RenderArray(){
-	for(const auto &i:entities){
-		if(i.second.get()==nullptr)continue;
-		i.second->Render();
+	for(uint uid:entities_){
+		if(!GameObject::entities.count(uid))continue;
+		if(GO(uid)==nullptr){
+			GameObject::entities.erase(uid);
+			continue;
+		}
+		GO(uid)->Render();
 	}
 }

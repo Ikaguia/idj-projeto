@@ -9,6 +9,7 @@ class Component{
 public:
 	uint entity;
 	enum type{
+		t_first,
 		t_input_control,
 		t_ai,
 
@@ -35,6 +36,7 @@ public:
 	virtual void Update(float time)=0;
 	virtual void Render()=0;
 	virtual void Own(GameObject *go);
+	virtual bool Die(float time);//return true to remove this component
 	virtual type GetType()const=0;
 };
 

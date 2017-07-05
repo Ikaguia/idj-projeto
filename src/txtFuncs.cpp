@@ -18,8 +18,20 @@
 	FUNC(Remove,T),\
 }
 
-MAP(txtFuncsF,ifstream);
-MAP(txtFuncsS,istringstream);
+void CallFunc(const string func,const string str,GameObject* go){
+	if(!txtFuncsS.count(func)){
+		cerr << "CallFunc chamada com função inválida '" << func << "'" << endl;
+		return;
+	}
+	istringstream in(str);
+	txtFuncsS[func](in)(go);
+}
+
+
+
+
+
+
 
 // template<class T> txtFuncType1 AddParticle(T& in){}
 template<class T> txtFuncType1 AddSprite(T& in){
@@ -35,7 +47,7 @@ template<class T> txtFuncType1 AddSprite(T& in){
 		else if(self->hasComponent[Component::type::t_static_render])    sp = COMPSTATICRENDERp(self)->sp;
 		sp.SetFrameTime(-1.0f);
 		spr->AddComponent(new CompStaticRender{sp,Vec2{}});
-		GAMESTATE.AddObject(spr);
+		GAMESTATE.AddObject(spr->uid);
 	};
 }
 template<class T> txtFuncType1 AddVar(T& in){
@@ -58,7 +70,7 @@ template<class T> txtFuncType1 AddVar(T& in){
 		};
 	}
 
-	cout << "AddVar called with invalid type '" << type << "'" << endl;
+	cerr << "AddVar called with invalid type '" << type << "'" << endl;
 	return txtFuncType1{};
 }
 template<class T> txtFuncType1 ChangeVar(T& in){
@@ -95,7 +107,7 @@ template<class T> txtFuncType1 ChangeVar(T& in){
 		};
 	}
 
-	cout << "ChangeVar called with invalid type '" << type << "'" << endl;
+	cerr << "ChangeVar called with invalid type '" << type << "'" << endl;
 	return txtFuncType1{};
 }
 template<class T> txtFuncType1 Damage(T& in){
@@ -128,10 +140,10 @@ template<class T> txtFuncType1 DamageArea(T& in){
 
 		set<uint> gos = GAMESTATE.GetEntitiesInRange(rect.x,rect.x2());
 		for(uint go:gos){
-			if(dmgSelf || ENTITY(go)->team != self->team){
+			if(dmgSelf || GO(go)->team != self->team){
 				//TODO: change collision to work with rotation
-				if(ENTITY(go)->hasComponent[Component::type::t_hp] && area.collides(ENTITY(go)->Box())){
-					COMPHPp(ENTITY(go))->Damage(dmgLow+(rand()%(dmgHigh-dmgLow)));
+				if(GO(go)->hasComponent[Component::type::t_hp] && area.collides(GO(go)->Box())){
+					COMPHPp(GO(go))->Damage(dmgLow+(rand()%(dmgHigh-dmgLow)));
 				}
 			}
 		}
@@ -159,10 +171,10 @@ template<class T> txtFuncType1 DamageAreaFixed(T& in){
 
 		set<uint> gos = GAMESTATE.GetEntitiesInRange(rect.x,rect.x2());
 		for(uint go:gos){
-			if(dmgSelf || ENTITY(go)->team != self->team){
+			if(dmgSelf || GO(go)->team != self->team){
 				//TODO: change collision to work with rotation
-				if(ENTITY(go)->hasComponent[Component::type::t_hp] && area.collides(ENTITY(go)->Box())){
-					COMPHPp(ENTITY(go))->Damage(dmgLow+(rand()%(dmgHigh-dmgLow)));
+				if(GO(go)->hasComponent[Component::type::t_hp] && area.collides(GO(go)->Box())){
+					COMPHPp(GO(go))->Damage(dmgLow+(rand()%(dmgHigh-dmgLow)));
 				}
 			}
 		}
@@ -170,7 +182,7 @@ template<class T> txtFuncType1 DamageAreaFixed(T& in){
 }
 template<class T> txtFuncType1 FireProjectile(T& in){
 	int count;
-	float x,y,f,r;
+	float x,y,f,r,g;
 	string projFile,animFile,cur,target,funcN;
 	in >> x >> y >> f >> r >> projFile;
 
@@ -182,7 +194,7 @@ template<class T> txtFuncType1 FireProjectile(T& in){
 		cerr << "Erro ao abrir arquivo " << projFile << endl;
 		exit(EXIT_FAILURE);
 	}
-	file >> animFile;
+	file >> animFile >> g;
 	while(file >> cur >> count){
 		if(cur=="start" || cur=="hit_enemy" || cur=="hit_ally" || cur=="hit_block"){
 			FOR(i,count){
@@ -197,7 +209,7 @@ template<class T> txtFuncType1 FireProjectile(T& in){
 	}
 	file.close();
 
-	return [x,y,f,r,animFile,vars,start,hitAlly,hitEnemy,hitBlock](GameObject* owner){
+	return [x,y,f,r,g,animFile,vars,start,hitAlly,hitEnemy,hitBlock](GameObject* owner){
 		Vec2 pos = owner->Box().relativePos({x,y},owner->flipped);
 		float ang=-r;
 		if(!owner->flipped)ang = 180-ang;
@@ -209,10 +221,10 @@ template<class T> txtFuncType1 FireProjectile(T& in){
 			(const CompCollider::Coll &a,const CompCollider::Coll &b){UNUSED(a);UNUSED(b);};
 
 		auto foo1 = [owner,vars,hitAlly,hitEnemy](const CompCollider::Coll &a,const CompCollider::Coll &b){
-			bool isAlly = ENTITY(a.entity)->team == ENTITY(b.entity)->team;
+			bool isAlly = GO(a.entity)->team == GO(b.entity)->team;
 
 
-			Vec2 &totMove=COMPMOVEp(ENTITY(a.entity).get())->move;
+			Vec2 &totMove=COMPMOVEp(GO(a.entity))->move;
 			if(totMove==Vec2{})return;
 
 			Vec2 move=a.Collides(b,totMove);
@@ -221,31 +233,31 @@ template<class T> txtFuncType1 FireProjectile(T& in){
 				if(isAlly){
 					for(auto &pfunc:hitAlly){
 						if(pfunc.first=="owner")pfunc.second(owner);
-						if(pfunc.first=="self")pfunc.second(ENTITY(a.entity).get());
-						if(pfunc.first=="target")pfunc.second(ENTITY(b.entity).get());
+						if(pfunc.first=="self")pfunc.second(GO(a.entity));
+						if(pfunc.first=="target")pfunc.second(GO(b.entity));
 					}
 				}
 				else{
 					for(auto &pfunc:hitEnemy){
 						if(pfunc.first=="owner")pfunc.second(owner);
-						if(pfunc.first=="self")pfunc.second(ENTITY(a.entity).get());
-						if(pfunc.first=="target")pfunc.second(ENTITY(b.entity).get());
+						if(pfunc.first=="self")pfunc.second(GO(a.entity));
+						if(pfunc.first=="target")pfunc.second(GO(b.entity));
 					}
 				}
-				if(!ENTITY(b.entity)->hasComponent[Component::type::t_movement]){
+				if(!GO(b.entity)->hasComponent[Component::type::t_movement]){
 					if((isAlly && vars.count("stick_ally")==0) || (!isAlly && vars.count("stick_enemy")==0))return;
-					Vec2 pos = ENTITY(a.entity)->Box().corner() + move + totMove/4.0f;
+					Vec2 pos = GO(a.entity)->Box().corner() + move + totMove/4.0f;
 					auto &func = txtFuncsS["AddSprite"];
 					istringstream iss(to_string(pos.x) + to_string(pos.y));
-					func(iss)(ENTITY(a.entity).get());
-					GAMESTATE.GetLastObject()->AttachTo(ENTITY(b.entity).get());
+					func(iss)(GO(a.entity));
+					GAMESTATE.GetLastObject()->AttachTo(GO(b.entity));
 				}
 			}
 		};
 		collider.colls[0].useDefault[CompCollider::collType::t_any] = foo1;
 
 		auto foo2 = [owner,vars,hitBlock](const CompCollider::Coll &a,const CompCollider::Coll &b){
-			Vec2 &totMove=COMPMOVEp(ENTITY(a.entity).get())->move;
+			Vec2 &totMove=COMPMOVEp(GO(a.entity))->move;
 			if(totMove==Vec2{})return;
 
 			Vec2 move=a.Collides(b,totMove);
@@ -253,15 +265,15 @@ template<class T> txtFuncType1 FireProjectile(T& in){
 			if(move!=totMove){
 				for(auto &pfunc:hitBlock){
 					if(pfunc.first=="owner")pfunc.second(owner);
-					if(pfunc.first=="self")pfunc.second(ENTITY(a.entity).get());
-					if(pfunc.first=="target")pfunc.second(ENTITY(b.entity).get());
+					if(pfunc.first=="self")pfunc.second(GO(a.entity));
+					if(pfunc.first=="target")pfunc.second(GO(b.entity));
 				}
 				if(vars.count("stick_block")==1){
-					Vec2 pos = ENTITY(a.entity)->pos + move + totMove/4.0f;
+					Vec2 pos = GO(a.entity)->pos + move + totMove/4.0f;
 					auto &func = txtFuncsS["AddSprite"];
 					istringstream iss(to_string(pos.x) + " " + to_string(pos.y));
-					func(iss)(ENTITY(a.entity).get());
-					GAMESTATE.GetLastObject()->AttachTo(ENTITY(b.entity).get());
+					func(iss)(GO(a.entity));
+					GAMESTATE.GetLastObject()->AttachTo(GO(b.entity));
 				}
 			}
 		};
@@ -276,7 +288,7 @@ template<class T> txtFuncType1 FireProjectile(T& in){
 		if(owner->hasComponent[Component::type::t_movement])mv=COMPMOVEp(owner)->move;
 		bullet->AddComponent(new CompMovement{Vec2::makeVec2(f,ang)+mv,CompMovement::moveType::t_bullet});
 
-		bullet->AddComponent(new CompGravity{500.0f});
+		bullet->AddComponent(new CompGravity{g});
 
 		bullet->team = owner->team;
 		bullet->flipped = true;
@@ -285,7 +297,7 @@ template<class T> txtFuncType1 FireProjectile(T& in){
 
 		if(owner->flipped)bullet->pos.x -= size.x;
 
-		GAMESTATE.AddObject(bullet);
+		GAMESTATE.AddObject(bullet->uid);
 
 		for(auto &pfunc:start){
 			if(pfunc.first=="owner")pfunc.second(owner);
@@ -296,6 +308,27 @@ template<class T> txtFuncType1 FireProjectile(T& in){
 template<class T> txtFuncType1 Remove(T& in){
 	UNUSED(in);
 	return [](GameObject* self){
-		self->dead = true;
+		self->remove = true;
 	};
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MAP(txtFuncsF,ifstream);
+MAP(txtFuncsS,istringstream);

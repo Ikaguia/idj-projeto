@@ -11,9 +11,9 @@ shared_ptr<SDL_Texture> Resources::GetImage(const string& file){
 	if(imageTable.count(file))return imageTable[file];
 	SDL_Texture* texture = IMG_LoadTexture(GAMERENDER,file.c_str());
 	if(!texture){
-		cout << "Erro ao carregar textura \"" << file << "\":" << endl;
+		cerr << "Erro ao carregar textura \"" << file << "\":" << endl;
 		string s=SDL_GetError();
-		cout << s << endl << "o programa ira encerrar agora" << endl;
+		cerr << s << endl << "o programa ira encerrar agora" << endl;
 		exit(EXIT_FAILURE);
 	}
 	auto func = [](SDL_Texture* texture){SDL_DestroyTexture(texture);};
@@ -30,9 +30,9 @@ shared_ptr<Mix_Music> Resources::GetMusic(const string& file){
 	if(musicTable.count(file))return musicTable[file];
 	Mix_Music* music = Mix_LoadMUS(file.c_str());
 	if(!music){
-		cout << "Erro ao carregar musica \"" << file << "\":" << endl;
+		cerr << "Erro ao carregar musica \"" << file << "\":" << endl;
 		string s=SDL_GetError();
-		cout << s << endl << "o programa ira encerrar agora" << endl;
+		cerr << s << endl << "o programa ira encerrar agora" << endl;
 		exit(EXIT_FAILURE);
 	}
 	auto func = [](Mix_Music* music){Mix_FreeMusic(music);};
@@ -49,9 +49,9 @@ shared_ptr<Mix_Chunk> Resources::GetSound(const string& file){
 	if(soundTable.count(file))return soundTable[file];
 	Mix_Chunk* sound = Mix_LoadWAV(file.c_str());
 	if(!sound){
-		cout << "Erro ao carregar som \"" << file << "\":" << endl;
+		cerr << "Erro ao carregar som \"" << file << "\":" << endl;
 		string s=SDL_GetError();
-		cout << s << endl << "o programa ira encerrar agora" << endl;
+		cerr << s << endl << "o programa ira encerrar agora" << endl;
 		exit(EXIT_FAILURE);
 	}
 	auto func = [](Mix_Chunk* sound){Mix_FreeChunk(sound);};
@@ -72,9 +72,9 @@ shared_ptr<TTF_Font> Resources::GetFont(const string& file,int ptsize){
 	}
 	TTF_Font* font = TTF_OpenFont(file.c_str(),ptsize);
 	if(!font){
-		cout << "Erro ao carregar fonte \"" << file << "\":" << endl;
+		cerr << "Erro ao carregar fonte \"" << file << "\":" << endl;
 		string s=SDL_GetError();
-		cout << s << endl << "o programa ira encerrar agora" << endl;
+		cerr << s << endl << "o programa ira encerrar agora" << endl;
 		exit(EXIT_FAILURE);
 	}
 	//return fontTable[key] = shared_ptr<TTF_Font>(font,[](TTF_Font* font){TTF_CloseFont(font);});

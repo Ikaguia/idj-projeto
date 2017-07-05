@@ -33,7 +33,7 @@ void Level::Load(string file,bool collisors) {
 	
 	in.open(LEVEL_PATH + file + ".txt");
 	if(!in.is_open()){
-		cout << "Erro ao abrir o arquivo \"" << file << "\", o programa ira encerrar agora" << endl;
+		cerr << "Erro ao abrir o arquivo \"" << file << "\", o programa ira encerrar agora" << endl;
 		exit(EXIT_FAILURE);
 	}
 	
@@ -111,7 +111,7 @@ void Level::Load(string file,bool collisors) {
 			if(t){
 				GameObject *tile = new GameObject{r};
 				tile->AddComponent(new CompCollider{CompCollider::collType::t_ground});
-				GAMESTATE.AddObject(tile);
+				GAMESTATE.AddObject(tile->uid);
 			}
 		}
 	}
@@ -124,7 +124,7 @@ void Level::Save(string file,vector<pair<ii,ii>> grouped) {
 	
 	out.open(LEVEL_PATH + file + ".txt");
 	if(!out.is_open()) {
-		cout<< "Erro ao abrir o arquivo \"" << file << "\", o programa ira encerrar agora" << endl;
+		cerr<< "Erro ao abrir o arquivo \"" << file << "\", o programa ira encerrar agora" << endl;
 		exit(EXIT_FAILURE);
 	}
 	

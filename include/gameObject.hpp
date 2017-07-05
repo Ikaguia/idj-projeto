@@ -6,12 +6,19 @@
 #include <component.hpp>
 #include <geometry.hpp>
 
+#define GO(uid) ((GameObject*)(GameObject::entities[(uint)uid].get()))
+
 class GameObject{
 public:
+	static uint goCount;
+	static map<uint, unique_ptr<GameObject>> entities;
+
 	const uint uid;
 
 	bitset<Component::type::t_count> hasComponent;
 	array<Component*,Component::type::t_count> components;
+
+	function<void(GameObject*)> onDeath;
 
 	vector<GameObject*> attachedObjs;
 	GameObject* attachedTo=nullptr;
@@ -28,6 +35,7 @@ public:
 
 	bool anchored=false;
 	bool dead=false;
+	bool remove=false;
 	bool flipped=false;
 
 	GameObject();
@@ -37,6 +45,7 @@ public:
 
 	void Update(float time);
 	void Render();
+
 	void AddComponent(Component* component);
 	void ReplaceComponent(Component* component);
 	void RemoveComponent(Component::type t);
@@ -48,18 +57,20 @@ public:
 	void UnAttach();
 
 	bool IsDead()const;
+	bool Remove()const;
+
 	Rect Box()const;
 	Rect Box(const Vec2& p,const Vec2 &sz)const;
 	Rect FullBox()const;
 
 
-	static GameObject* MakePlayer(const Vec2 &pos);
-	static GameObject* MakeTarget(const Vec2 &pos);
-	static GameObject* MakeMike(const Vec2 &pos);
-	static GameObject* MakeBanshee(const Vec2 &pos,const Vec2 &pos2);
-	static GameObject* MakeMask(const Vec2 &pos);
-	static GameObject* MakePorco(const Vec2 &pos);
-	//static GameObject* Make...(const Vec2 &pos);
+	static uint MakePlayer(const Vec2 &pos);
+	static uint MakeTarget(const Vec2 &pos);
+	static uint MakeMike(const Vec2 &pos);
+	static uint MakeBanshee(const Vec2 &pos,const Vec2 &pos2);
+	static uint MakeMask(const Vec2 &pos);
+	static uint MakePorco(const Vec2 &pos);
+	//static uint Make...(const Vec2 &pos);
 };
 
 

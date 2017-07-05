@@ -42,7 +42,7 @@ void Camera::Update(float time){
 	}
 	CenterTo(center);
 	
-	if(following)CenterTo(GAMESTATE.entities[focus]->Box().center());
+	if(following)CenterTo(GO(focus)->Box().center());
 	else if(!lock){
 		speed=Vec2(0,0);
 		if(INPUT.IsKeyDown(KEY_LEFT)) speed.x-=CAMERA_SPEED;

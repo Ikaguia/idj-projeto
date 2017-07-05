@@ -14,7 +14,7 @@ CompCollider::CompCollider(collType t,const Vec2 &p,const Vec2 &sz){
 }
 
 void CompCollider::CollisionCheck(CompCollider *other){
-	if(ENTITY(entity)->dead || ENTITY(other->entity)->dead)return;
+	if(GO(entity)->dead || GO(other->entity)->dead)return;
 	for(Coll &collA:colls)for(Coll &collB:other->colls)collA.CollisionCheck(collB);
 }
 
@@ -24,8 +24,8 @@ void CompCollider::Update(float time){
 		if(coll.active){
 			set<uint> ent = GAMESTATE.GetEntitiesInRange(coll.Box().x-10,coll.Box().x2()+10);
 			for(uint go:ent)
-				if(go != entity && ENTITY(go)->hasComponent[Component::type::t_collider])
-					CollisionCheck(COMPCOLLIDERp(ENTITY(go).get()));
+				if(go != entity && GO(go)->hasComponent[Component::type::t_collider])
+					CollisionCheck(COMPCOLLIDERp(GO(go)));
 		}
 	}
 }
@@ -57,6 +57,13 @@ void CompCollider::Own(GameObject *go){
 		}
 	}
 }
+bool CompCollider::Die(float time){
+	UNUSED(time);
+
+	if(GO(entity)->hasComponent[Component::type::t_animation])return true;
+	if(GO(entity)->hasComponent[Component::type::t_animation_control])return true;
+	return false;
+}
 Component::type CompCollider::GetType() const{
 	return Component::type::t_collider;
 }
@@ -71,30 +78,32 @@ CompCollider::Coll::Coll(const uint &e,collType t,const Vec2 &p,const Vec2 &sz):
 	entity{e},pos{p},size{sz},cType{t}{}
 
 Rect CompCollider::Coll::Box() const{
-	Rect r = ENTITY(entity)->Box(pos,size);
+	Rect r = GO(entity)->Box(pos,size);
 	return r;
 }
 
 void CompCollider::Coll::CollisionCheck(const CompCollider::Coll &other){
 	if(useDefault.count(other.cType))useDefault[other.cType](*this,other);
 	else if(useDefault.count(collType::t_any))useDefault[collType::t_any](*this,other);
-	else if(ENTITY(entity)->hasComponent[Component::type::t_movement]){
-		Vec2 &speed=COMPMOVEp(ENTITY(entity).get())->speed;
+	else if(GO(entity)->hasComponent[Component::type::t_movement]){
+		CompMovement *compMove = COMPMOVEp(GO(entity));
 
-		if(speed==Vec2{})return;
-
-		Vec2 &totMove=COMPMOVEp(ENTITY(entity).get())->move;
+		Vec2 &speed=compMove->speed;
+		Vec2 &totMove=compMove->move;
 		Vec2 move;
+
+		if(totMove==Vec2{})return;
+
 
 		move.x = Collides(other,{totMove.x,0.0f},move).x;
 		if(move.x != totMove.x){
-			// cout << "collision X " << ENTITY(entity)->Box() << " with " << ENTITY(other.entity)->Box() << endl;
+			// cout << "collision X " << GO(entity)->Box() << " with " << GO(other.entity)->Box() << endl;
 			speed.x=0.0f;
 		}
 
 		move.y = Collides(other,{0.0f,totMove.y},move).y;
 		if(move.y != totMove.y){
-			// cout << "collision Y " << ENTITY(entity)->Box() << " with " << ENTITY(other.entity)->Box() << endl;
+			// cout << "collision Y " << GO(entity)->Box() << " with " << GO(other.entity)->Box() << endl;
 			speed.y=0.0f;
 		}
 

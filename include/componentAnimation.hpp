@@ -14,7 +14,7 @@
 class CompAnim : public Component{
 public:
 	vector<CompCollider*> colliders;
-	map<int,function<void(GameObject*)>> frameFunc;
+	map<int,vector<function<void(GameObject*)>>> frameFunc;
 	Sprite sp;
 	bool called=true;
 
@@ -25,7 +25,7 @@ public:
 
 	int GetFrameCount()const;
 	int GetCurFrame()const;
-	void SetCurFrame(int frame);
+	void SetCurFrame(int frame,bool force=false);
 
 	bool Looped()const;
 

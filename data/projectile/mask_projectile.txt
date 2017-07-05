@@ -1,4 +1,5 @@
 mascara_projectile
+100.0
 
 start 1
 	owner AddVar int fired 1

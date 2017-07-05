@@ -8,14 +8,12 @@
 #include <sound.hpp>
 
 
-#define ENTITY(x) (GAMESTATE.entities[x])
-
 class State{
 protected:
 
 	bool popRequested=false;
 	bool quitRequested=false;
-	uint uid=0;
+	uint lastGO=-1;
 
 	virtual void UpdateArray(float time);
 	virtual void RenderArray();
@@ -24,7 +22,7 @@ public:
 	
 	bool ending=false;
 
-	map<uint, unique_ptr<GameObject>> entities;
+	set<uint> entities_;
 	map<ii,set<uint>> group;
 
 	State();
@@ -41,7 +39,7 @@ public:
 	virtual void LoadAssets()=0;
 	virtual void LoadGUI()=0;
 
-	virtual void AddObject(GameObject* obj, int layer=0, int area=0);
+	virtual void AddObject(uint uid, int layer=0, int area=0);
 	GameObject* GetLastObject();
 
 	void AddSound(string file,int times);
@@ -50,8 +48,6 @@ public:
 	bool QuitRequested();
 	
 	set<uint> GetEntitiesInRange(const float &x1,const float &x2);
-
-	uint GetUID();
 };
 
 #endif//STATEHPP

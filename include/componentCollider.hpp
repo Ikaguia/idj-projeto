@@ -43,6 +43,7 @@ public:
 	void Update(float time);
 	void Render();
 	void Own(GameObject *go);
+	bool Die(float time);//return true to remove this component
 	Component::type GetType() const;
 };
 

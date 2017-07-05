@@ -8,12 +8,11 @@ CompAnimControl::CompAnimControl(string file,CompCollider* coll){
 	string name,animFile;
 
 	ifstream in(ANIMATION_PATH + file + ".txt");
-	if(!in.is_open())cout << "Erro ao abrir arquivo de grupo de animações '" << file << "'" << endl;
+	if(!in.is_open())cerr << "Erro ao abrir arquivo de grupo de animações '" << file << "'" << endl;
 	else{
 		in >> name >> animFile;
 		animations[name] = make_unique<CompAnim>(animFile,coll);
-		cur=name;
-		prev = cur;
+		cur=prev=name;
 		while(in >> name >> animFile)animations[name] = make_unique<CompAnim>(animFile,coll);
 		in.close();
 	}
@@ -29,10 +28,10 @@ void CompAnimControl::ChangeCur(string anim,bool rep){
 			cur=anim;
 			GetCur().SetCurFrame(0);
 			GetCur().sp.looped=false;
-			GetCur().Own(ENTITY(entity).get());
+			GetCur().Own(GO(entity));
 		}
 	}
-	else cout << "Erro: Controle de animação nao tem animação '" << anim << "' entity uid = " << entity << endl;
+	else cerr << "Erro: Controle de animação nao tem animação '" << anim << "' entity uid = " << entity << endl;
 }
 CompAnim& CompAnimControl::GetCur(){
 	return *animations[cur];
@@ -43,19 +42,36 @@ const string& CompAnimControl::GetCurName()const{
 
 
 void CompAnimControl::Update(float time){
-	GetCur().Update(time);
-	if(!repeat && GetCur().Looped()){
-		ChangeCur(prev);
+	if(animations.count(cur)){
 		GetCur().Update(time);
+		if(!repeat && GetCur().Looped()){
+			if(dying)cur = "dead";
+			else{
+				GetCur().sp.looped=false;
+				ChangeCur(prev);
+				GetCur().Update(time);
+			}
+		}
 	}
 }
 void CompAnimControl::Render(){
-	GetCur().Render();
+	if(animations.count(cur))GetCur().Render();
 }
 void CompAnimControl::Own(GameObject *go){
 	entity=go->uid;
 	for(auto &anim:animations)anim.second->Own(go);
 	GetCur().Own(go);
+}
+bool CompAnimControl::Die(float time){
+	UNUSED(time);
+
+	if(!animations.count("die"))return true;
+	if(dying){if(cur != "die")return true;}
+	else{
+		ChangeCur("die",false);
+		dying = true;
+	}
+	return false;
 }
 Component::type CompAnimControl::GetType()const{
 	return Component::type::t_animation_control;

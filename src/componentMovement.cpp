@@ -10,8 +10,8 @@ CompMovement::~CompMovement(){}
 
 void CompMovement::Update(float time){
 	UNUSED(time);
-	ENTITY(entity)->pos+=move;
-	if(mType==moveType::t_bullet)ENTITY(entity)->rotation=speed.angle();
+	GO(entity)->pos+=move;
+	if(mType==moveType::t_bullet)GO(entity)->rotation=speed.angle();
 }
 void CompMovement::Render(){}
 Component::type CompMovement::GetType()const{

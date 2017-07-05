@@ -18,6 +18,7 @@ class CompAnimControl : public Component{
 	string cur;
 	string prev;
 	bool repeat=true;
+	bool dying=false;
 public:
 	//public members
 	CompAnimControl(string file,CompCollider* coll);
@@ -28,8 +29,9 @@ public:
 	const string& GetCurName()const;
 
 	void Update(float time);
-	void Own(GameObject *go);
 	void Render();
+	void Own(GameObject *go);
+	bool Die(float time);//return true to remove this component
 	Component::type GetType()const;
 };
 

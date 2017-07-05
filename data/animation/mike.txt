@@ -1,3 +1,4 @@
 idle mike_idle
 walk mike_walk
 attack mike_atacando
+die mike_die

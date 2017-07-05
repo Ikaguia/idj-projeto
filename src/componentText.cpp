@@ -17,10 +17,10 @@ void CompText::Update(float time){
 	UNUSED(time);
 }
 void CompText::Render(){
-	Vec2 p = pos + ENTITY(entity)->Box().corner();
+	Vec2 p = pos + GO(entity)->Box().corner();
 	txt.SetPos(p);
 	
-	if(ENTITY(entity)->anchored) txt.Render();
+	if(GO(entity)->anchored) txt.Render();
 	else txt.Render(CAMERA);
 }
 Component::type CompText::GetType()const{
