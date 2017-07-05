@@ -5,6 +5,7 @@ unordered_map<string,shared_ptr<SDL_Texture>> Resources::imageTable;
 unordered_map<string,shared_ptr<Mix_Music>> Resources::musicTable;
 unordered_map<string,shared_ptr<Mix_Chunk>> Resources::soundTable;
 unordered_map<string,shared_ptr<TTF_Font>> Resources::fontTable;
+map<string,vector<string>> Resources::blueprintTable;
 
 
 shared_ptr<SDL_Texture> Resources::GetImage(const string& file){
@@ -86,4 +87,19 @@ void Resources::ClearFonts(){
 		if(i->second.use_count()==1)i=fontTable.erase(i);
 		else i++;
 	}
+}
+
+const vector<string>& Resources::GetBlueprint(const string& file){
+	if(blueprintTable.count(file))return blueprintTable[file];
+	
+	ifstream in;
+	in.open(BLUEPRINT_PATH + file + ".txt");
+	if(!in.is_open()){
+		cout << "Erro ao abrir o arquivo \"" << file << "\", o programa ira encerrar agora" << endl;
+		exit(EXIT_FAILURE);
+	}
+	for(string component;getline(in, component);)
+		blueprintTable[file].push_back(component);
+	in.close();
+	return blueprintTable[file];
 }

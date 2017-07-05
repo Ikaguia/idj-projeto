@@ -30,7 +30,7 @@ void Sprite::SetClip(int x,int y,int w,int h){
 	clipRect.h=h;
 }
 
-void Sprite::Render(int x,int y,float angle, float extScale){
+void Sprite::Render(float x,float y,float angle, float extScale){
 	SDL_Rect dest;
 	
 	dest.x=(x);
@@ -47,7 +47,7 @@ void Sprite::Render(int x,int y,float angle, float extScale){
 	SDL_RenderCopyEx(GAMERENDER,texture.get(),&clipRect,&dest,angle,nullptr,flip);
 }
 
-void Sprite::Render(Vec2 v, float angle, float extScale) {
+void Sprite::Render(const Vec2& v, float angle, float extScale) {
 	Render(v.x, v.y, angle, extScale);
 }
 

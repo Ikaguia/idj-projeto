@@ -6,4 +6,3 @@ hitpoints 100 1 0 1.0
 inputControl player
 movement
 shooter player_projetil 10 16 1.0 0.2
-

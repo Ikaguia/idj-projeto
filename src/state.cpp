@@ -25,6 +25,12 @@ void State::AddObject(GameObject* obj, int layer, int area){
 	entities[obj->uid]=unique_ptr<GameObject>(obj);
 }
 
+void State::clearObjects(){
+	entities.clear();
+	group.clear();
+	uid = 0;
+}
+
 GameObject* State::GetLastObject(){
 	return entities[uid].get();
 }

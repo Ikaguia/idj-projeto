@@ -42,6 +42,7 @@ public:
 	virtual void LoadGUI()=0;
 
 	virtual void AddObject(GameObject* obj, int layer=0, int area=0);
+	void clearObjects();
 	GameObject* GetLastObject();
 
 	void AddSound(string file,int times);

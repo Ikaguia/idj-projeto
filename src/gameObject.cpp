@@ -479,6 +479,29 @@ GameObject* GameObject::MakePlayer(const Vec2 &pos){
 	return player;
 }
 
+GameObject* GameObject::Create(const string& blueprint, const Vec2& pos, const Vec2& aux){
+	if(blueprint == "mike")		return MakeMike(pos);
+	if(blueprint == "banshee")	return MakeBanshee(pos,aux);
+	if(blueprint == "mask")		return MakeMask(pos);
+	if(blueprint == "porco")	return MakePorco(pos);
+	
+	GameObject* obj = new GameObject{pos};
+	CompStaticRender* img = new CompStaticRender{Sprite{blueprint}};
+	Vec2 size{(float)img->sp.GetWidth(),(float)img->sp.GetHeight()};
+	obj->AddComponent(img);
+	obj->size = size;
+	
+	return obj;
+	/*vector<string> components = Resources::GetBlueprint(blueprint);
+	stringstream comp;
+	string compType;
+	for(auto& i:components){
+		comp.str(i);
+		comp >> compType;
+		if(compType == "movement")
+	}*/
+}
+
 GameObject* GameObject::MakeTarget(const Vec2 &pos){
 	GameObject* target = new GameObject{pos,0.0f,Hotspot::BOTTOM};
 

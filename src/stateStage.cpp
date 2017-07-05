@@ -16,10 +16,10 @@ StateStage::~StateStage(){}
 
 void StateStage::Begin(){
 	level.Load(levelName);
-	level.LoadObjects();
 	GameObject* playerObj = GameObject::MakePlayer(Vec2{150.0f,430.0f});
 	player = playerObj->uid;
 	AddObject(playerObj);
+	level.LoadObjects();
 	Camera::Follow(player);
 }
 
@@ -34,6 +34,9 @@ void StateStage::Update(float time){
 	if(INPUT.KeyPress(KEY(p))) AddObject(GameObject::MakeMike(Vec2{850.0f,300.0f}));
 	if(INPUT.KeyPress(KEY(o))) AddObject(GameObject::MakeBanshee(Vec2{850.0f,400.0f},Vec2{230.0f,130.0f}));
 	if(INPUT.KeyPress(KEY(i))) AddObject(GameObject::MakeMask(Vec2{850.0f,300.0f}));
+
+	if(INPUT.KeyPress(KEY(n))) SETTINGS.showHP = !SETTINGS.showHP;
+	if(INPUT.KeyPress(KEY(m))) SETTINGS.showCollision = !SETTINGS.showCollision;
 
 	UpdateArray(time);
 }

@@ -63,11 +63,14 @@ void StateEditor::Begin(){
 	LoadGUI();
 	level.Load(fileName);
 	level.LoadObjects(false);
+	
 	CAMERA = {-100, -100};
 	CAMERAZOOM = 1.0f;
+	SETTINGS.showHP = false;
+	SETTINGS.showCollision = false;
 	
 	helpText.SetPos(0,0);
-	statusText.SetPos(WINSIZE-Vec2(0,50));
+	statusText.SetPos(WINSIZE-Vec2(0,0));
 	statusText.SetAlignment(Text::Align::RIGHT);
 	statusText.SetHotspot(Hotspot::BOTTOM_RIGHT);
 }
@@ -158,15 +161,13 @@ void StateEditor::Update(float time){
 		else if(gui.ButtonClick(GUI_CONFIRM)){
 			SaveLevel();
 			closeFlag = true;
-			DEBUG(closeFlag);
 		}
 		else if(gui.ButtonClick(GUI_DENY)){
 			closeFlag = true;
-			DEBUG(closeFlag);
 		}
 	}
 	
-	UpdateArray(time);
+	//UpdateArray(time);
 	
 	statusText.SetText("Mouse:("+to_string(INPUT.GetMouseX())+","+to_string(INPUT.GetMouseY())+")  Zoom:"+FloatToStr(100*CAMERAZOOM)+"%");
 }
@@ -229,8 +230,8 @@ void StateEditor::RenderBorder() {
 	SDL_Rect rect;
 	rect.x = RENDERPOSX(0);
 	rect.y = RENDERPOSY(0);
-	rect.w = (level.tileMap.GetWidth()*level.tileSet.GetWidth()*CAMERAZOOM)+1;
-	rect.h = (level.tileMap.GetHeight()*level.tileSet.GetHeight()*CAMERAZOOM)+1;
+	rect.w = (level.tileMap.GetWidth()*level.tileSet.GetWidth()*CAMERAZOOM);
+	rect.h = (level.tileMap.GetHeight()*level.tileSet.GetHeight()*CAMERAZOOM);
 	
 	DRAW_RECT(&rect);
 }
@@ -389,10 +390,10 @@ void StateEditor::LoadGUI(){
 	GUI_ADD(CheckButton(showGrid));
 	GUI_ADD(Label("Show Grid", SNAP_LEFT));
 	GUI_ADD(Label("Width:", SNAP_RIGHT));
-	GUI_ADD(IntBox(gridWidth,0,INT_MAX,SHORT_SIZE));
+	GUI_ADD(IntBox(gridWidth,2,INT_MAX,SHORT_SIZE));
 	GUI_ADD(Label("px", SNAP_LEFT));
 	GUI_ADD(Label("Height:", SNAP_RIGHT));
-	GUI_ADD(IntBox(gridHeight,0,INT_MAX,SHORT_SIZE));
+	GUI_ADD(IntBox(gridHeight,2,INT_MAX,SHORT_SIZE));
 	GUI_ADD(Label("px", SNAP_LEFT));
 	GUI_DIV();
 	GUI_ADD(CheckButton(showCollision));

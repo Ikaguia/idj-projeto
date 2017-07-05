@@ -51,7 +51,8 @@ public:
 	Rect Box()const;
 	Rect Box(const Vec2& p,const Vec2 &sz)const;
 	Rect FullBox()const;
-
+	
+	static GameObject* Create(const string&, const Vec2& pos, const Vec2& aux=Vec2{}); 
 
 	static GameObject* MakePlayer(const Vec2 &pos);
 	static GameObject* MakeTarget(const Vec2 &pos);

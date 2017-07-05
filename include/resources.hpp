@@ -8,6 +8,7 @@ class Resources{
 	static unordered_map<string,shared_ptr<Mix_Music>> musicTable;
 	static unordered_map<string,shared_ptr<Mix_Chunk>> soundTable;
 	static unordered_map<string,shared_ptr<TTF_Font>> fontTable;
+	static map<string,vector<string>> blueprintTable;
 public:
 	static shared_ptr<SDL_Texture> GetImage(const string& file);
 	static void ClearImages();
@@ -20,6 +21,8 @@ public:
 
 	static shared_ptr<TTF_Font> GetFont(const string& file,int ptsize);
 	static void ClearFonts();
+	
+	static const vector<string>& GetBlueprint(const string& file); 
 };
 
 #endif//RESOURCESHPP

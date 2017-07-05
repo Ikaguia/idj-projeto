@@ -46,5 +46,4 @@ string FloatToStr(float f) {
 	char s[15];
 	sprintf(s,"%.2f",f);
 	return s;
-}	
-
+}

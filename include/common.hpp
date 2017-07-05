@@ -36,6 +36,7 @@ using std::floor;
 using std::function;
 using std::getline;
 using std::ifstream;
+using std::isdigit;
 using std::map;
 using std::max;
 using std::make_unique;
