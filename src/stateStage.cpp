@@ -19,6 +19,7 @@ void StateStage::Begin(){
 	player = GameObject::MakePlayer(Vec2{150.0f,430.0f});
 	AddObject(player);
 	Camera::Follow(player);
+	level.LoadObjects();
 }
 
 void StateStage::Update(float time){

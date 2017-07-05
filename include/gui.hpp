@@ -9,16 +9,16 @@
 
 #define GUI_NEW map<string,vector<GUI_Element*>> GUI_MAP; string GUI_CURRENT
 #define GUI_SET(container) GUI_CURRENT=#container
-#define GUI_ADD(element) GUI_MAP[GUI_CURRENT].push_back(new element)
+#define GUI_ADD(element) GUI_MAP[GUI_CURRENT].push_back(new GUI_ ## element)
 #define GUI_DIV() GUI_MAP[GUI_CURRENT].push_back(nullptr)
 #define GUI_CLEAR() GUI_MAP.erase(GUI_CURRENT)
 #define GUI_GET(container) GUI_MAP[#container]
-#define GUI_CREATE(element) gui.PushElement(new element)
+#define GUI_CREATE(element) gui.PushElement(new GUI_ ## element)
 
 #define GUI_NONE 0
 #define GUI_CLOSE (uint)-1
 #define GUI_CONFIRM (uint)-2
-#define GUI_CONFIRM_AND_CLOSE (uint)-3
+#define GUI_DENY (uint)-3
 
 typedef enum {NORMAL_SIZE, SHORT_SIZE, LONG_SIZE} Size;
 typedef enum {SNAP_NONE, SNAP_LEFT, SNAP_RIGHT} Snap;
@@ -161,10 +161,11 @@ class GUI_Window:public GUI_Element{
 	GUI_VBar array;
 	Text label;
 	GUI_IconButton closeButton;
+	bool pop=false;
 public:
-	uint const id;
+	int const id;
 	
-	GUI_Window(vector<GUI_Element*>& v, uint i, const string& l, const Vec2& pos={-1,-1});
+	GUI_Window(vector<GUI_Element*>& v, int i, const string& l, const Vec2& pos={-1,-1});
 	
 	virtual void Update();
 	virtual void Render();

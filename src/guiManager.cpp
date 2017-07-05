@@ -19,7 +19,6 @@ void GUIManager::Update(){
 		if(selectedButton){
 			selectedButton->Reset();
 			selectedButton = nullptr;
-			selectedWindow = nullptr; 
 		}
 		elements.emplace_back(unique_ptr<GUI_Element>(storedElement));
 		storedElement = nullptr;
@@ -28,16 +27,17 @@ void GUIManager::Update(){
 	if(elements.empty()) return;
 	
 	popRequested = false;
-	buttonUpdate = false;
+	
+	previousButtonState = currentButtonState;
 	if(selectedButton){
 		GUI_Button* selectedButtonCopy = selectedButton;
 		selectedButton = nullptr;
 		selectedButtonCopy->Update();
 		selectedButton = selectedButtonCopy;
-		if(selectedButton->IsPressed()) return;
+		currentButtonState = selectedButton->IsPressed();
 	}
-	if(selectedButton != elements.back().get())
-		elements.back()->Update();	
+	
+	elements.back()->Update();	
 }
 void GUIManager::Render(){
 	for(auto& it:elements)
@@ -60,10 +60,10 @@ void GUIManager::SelectWindow(GUI_Window* window){
 bool GUIManager::IsWindowSelected(GUI_Window* window)const{
 	return window==selectedWindow;
 }
-uint GUIManager::GetSelectedWindowID()const{
+int GUIManager::GetSelectedWindowID()const{
 	if(selectedWindow) return selectedWindow->id;
 	else if(elements.size() == 1) return 0;
-	else return (uint)-1;
+	else return -1;
 }
 
 void GUIManager::SelectButton(GUI_Button* button){
@@ -72,27 +72,24 @@ void GUIManager::SelectButton(GUI_Button* button){
 bool GUIManager::IsButtonSelected(GUI_Button* button)const{
 	return button && button==selectedButton;
 }
-void GUIManager::FlagButtonUpdate(GUI_Button* button){
-	if(button!=nullptr && button==selectedButton)
-		buttonUpdate = true;
-}
+
 bool GUIManager::ButtonPress(uint action)const{
 	if(!selectedButton) return false;
-	if(selectedButton->action != action) return false;
-	return (buttonUpdate && selectedButton->IsPressed());
+	if(action && selectedButton->action != action) return false;
+	return (!previousButtonState && currentButtonState);
 }
 bool GUIManager::ButtonRelease(uint action)const{
 	if(!selectedButton) return false;
-	if(selectedButton->action != action) return false;
-	return (buttonUpdate && !selectedButton->IsPressed());
+	if(action && selectedButton->action != action) return false;
+	return (previousButtonState && !currentButtonState);
 }
 bool GUIManager::ButtonClick(uint action)const{
 	if(!selectedButton) return false;
-	if(selectedButton->action != action) return false;
-	return (buttonUpdate && !selectedButton->IsPressed() && selectedButton->IsHovered());
+	if(action && selectedButton->action != action) return false;
+	return (previousButtonState && !currentButtonState && selectedButton->IsHovered());
 }
 bool GUIManager::IsButtonDown(uint action)const{
 	if(!selectedButton) return false;
-	if(selectedButton->action != action) return false;
-	return selectedButton->IsPressed();
+	if(action && selectedButton->action != action) return false;
+	return currentButtonState;
 }

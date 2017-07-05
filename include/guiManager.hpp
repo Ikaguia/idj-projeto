@@ -16,10 +16,12 @@ class GUIManager{
 	
 	bool mouseHover = false;
 	
+	vector<GUI_Window*> windows;
 	GUI_Window* selectedWindow=nullptr;
 	
 	GUI_Button* selectedButton=nullptr;
-	bool buttonUpdate=false;
+	bool currentButtonState=false;
+	bool previousButtonState=false;
 public:
 	GUIManager();
 	~GUIManager();
@@ -32,16 +34,15 @@ public:
 	
 	void SelectWindow(GUI_Window* window);
 	bool IsWindowSelected(GUI_Window* window)const;
-	uint GetSelectedWindowID()const;
+	int GetSelectedWindowID()const;
 
 	void SelectButton(GUI_Button* button);
 	bool IsButtonSelected(GUI_Button* button)const;
-	void FlagButtonUpdate(GUI_Button* button);
 											//These functions return true if a button with the same action:
-	bool ButtonPress(uint action)const;		//	-was pressed in the current frame;
-	bool ButtonRelease(uint action)const;	//	-was released in the current frame
-	bool ButtonClick(uint action)const;		//	-was released with the cursor over it in the current frame
-	bool IsButtonDown(uint action)const;	//	-is being pressed
+	bool ButtonPress(uint action=0)const;	//	-was pressed in the current frame;
+	bool ButtonRelease(uint action=0)const;	//	-was released in the current frame
+	bool ButtonClick(uint action=0)const;	//	-was released with the cursor over it in the current frame
+	bool IsButtonDown(uint action=0)const;	//	-is being pressed
 };
 
 #endif//GUIMANAGERHPP

@@ -44,8 +44,8 @@ public:
 
 	void AddSound(string file,int times);
 
-	bool PopRequested();
-	bool QuitRequested();
+	virtual bool PopRequested();
+	virtual bool QuitRequested();
 	
 	set<uint> GetEntitiesInRange(const float &x1,const float &x2);
 };

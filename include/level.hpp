@@ -8,8 +8,10 @@
 #include <tileSet.hpp>
 
 class Level {
-	string backgroundFilename;
 	string tileSetFilename;
+	string backgroundFilename;
+	vector<string> objectList;
+	vector<int> collisionGroups;
 public:
 	Sprite background;
 	TileSet tileSet;
@@ -17,11 +19,15 @@ public:
 	vector<int> collisionLayer;
 	
 	Level();
-	Level(string file,bool collisors=true);
+	Level(string file);
 	~Level();
 	
-	void Load(string file,bool collisors=true);
-	void Save(string file,vector<pair<ii,ii>> grouped);
+	void Load(const string& file);
+	string Save(const string& file="");
 	
+	void LoadObjects(bool collisors=true);
+	void SaveObjects(const vector<pair<ii,ii>>& grouped);
+	
+	bool operator==(Level& level);
 };
 #endif //LEVELHPP

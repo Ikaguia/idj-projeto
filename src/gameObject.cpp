@@ -45,9 +45,7 @@ void GameObject::Update(float time){
 		remove = true;
 		// for(auto i=Component::type::t_first+1;i!=Component::type::t_count;i++){
 		FOR(i,Component::type::t_count){
-			DEBUG(i);
 			if(hasComponent[i]){
-				DEBUG(components[i]);
 				if(components[i]->Die(time))RemoveComponent((Component::type)i);
 				else remove=false;
 			}
