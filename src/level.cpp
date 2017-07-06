@@ -79,6 +79,7 @@ void Level::Load(const string& file){
 			}
 		}
 	}
+	in.ignore(1);
 
 	//Loading the object list:
 	objectList.clear();
@@ -132,7 +133,18 @@ string Level::Save(const string& file){
 
 void Level::LoadObjects(bool collisors){	
 	//Creating the objects:
-	
+	char objType[50];
+	Vec2 objPos;
+	int layer;
+	uint uid;
+	for(auto& i:objectList){
+		if(i.empty()) continue;
+		sscanf(i.c_str(), " %s %f %f %d", objType, &objPos.x, &objPos.y, &layer);
+		DEBUG(objType);
+		DEBUG(objPos);
+		uid = GameObject::Create(objType, objPos);
+		GAMESTATE.AddObject(uid,layer);
+	}
 	
 	//Setting the collision boxes:
 	if(!collisors) return;

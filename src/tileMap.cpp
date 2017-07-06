@@ -3,6 +3,7 @@
 #include <camera.hpp>
 #include <componentCollider.hpp>
 #include <componentStaticRender.hpp>
+#include <game.hpp>
 #include <gameObject.hpp>
 #include <tileSet.hpp>
 
@@ -64,8 +65,21 @@ void TileMap::RenderLayer(int layer,int posX ,int posY){
 	int w=tileSet->GetWidth();
 	int h=tileSet->GetHeight();
 	int tile;
-	FOR(y,mapHeight){
-		FOR(x,mapWidth){
+	int firstX=0,firstY=0,lastX=mapWidth,lastY=mapHeight;
+	
+	if(posX<CAMERA.x)
+		firstX = (CAMERA.x-posX)/w;
+	if(posY<CAMERA.y)
+		firstY = (CAMERA.y-posY)/h;
+	Vec2 mapCorner = Vec2(posX+(mapWidth*w),posY+(mapHeight*h));
+	Vec2 cameraCorner = CAMERA+(WINSIZE/CAMERAZOOM);
+	if(mapCorner.x>cameraCorner.x)
+		lastX -= (mapCorner.x-cameraCorner.x)/w;
+	if(mapCorner.y>cameraCorner.y)
+		lastY -= (mapCorner.y-cameraCorner.y)/h;
+	
+	for(int y=firstY;y<=lastY;y++){
+		for(int x=firstX;x<=lastX;x++){
 			tile = At(x, y, layer);
 			if(tile != EMPTY_TILE)
 				tileSet->Render(tile, RENDERPOSX(posX+(x*w)), RENDERPOSY(posY+(y*h)), CAMERAZOOM);

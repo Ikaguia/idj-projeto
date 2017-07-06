@@ -1,7 +1,2 @@
 player
 mike
-banshee
-mask
-bullet
-background
-

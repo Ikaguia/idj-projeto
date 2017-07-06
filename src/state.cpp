@@ -14,11 +14,7 @@ set<uint> State::GetEntitiesInRange(const float &x1,const float &x2){
 }
 
 void State::End(){
-	ending=true;
-	for(uint uid:entities_){
-		if(!GameObject::entities.count(uid))continue;
-		GameObject::entities.erase(uid);
-	}
+	ClearObjects();
 }
 
 void State::AddObject(uint uid, int layer, int area){
@@ -28,6 +24,14 @@ void State::AddObject(uint uid, int layer, int area){
 	entities_.insert(uid);
 
 	lastGO = uid;
+}
+
+void State::ClearObjects(){
+	for(uint uid:entities_){
+		if(!isGO(uid))continue;
+		GameObject::entities.erase(uid);
+	}
+	group.clear();
 }
 
 GameObject* State::GetLastObject(){
@@ -44,7 +48,7 @@ bool State::QuitRequested(){
 
 void State::UpdateArray(float time){
 	for(uint uid:entities_){
-		if(!GameObject::entities.count(uid))continue;
+		if(!isGO(uid))continue;
 		if(GO(uid)==nullptr){
 			GameObject::entities.erase(uid);
 			continue;
@@ -59,7 +63,7 @@ void State::UpdateArray(float time){
 }
 void State::RenderArray(){
 	for(uint uid:entities_){
-		if(!GameObject::entities.count(uid))continue;
+		if(!isGO(uid))continue;
 		if(GO(uid)==nullptr){
 			GameObject::entities.erase(uid);
 			continue;

@@ -30,7 +30,7 @@ void CompCollider::Update(float time){
 	}
 }
 void CompCollider::Render(){
-	#ifdef RENDERCOLLISION
+	if(SETTINGS.showCollision)
 		for(Coll coll:colls){
 			if     (coll.cType==CompCollider::collType::t_player) SET_COLOR4(255,0,0,100);
 			else if(coll.cType==CompCollider::collType::t_monster)SET_COLOR4(0,255,0,100);
@@ -40,7 +40,6 @@ void CompCollider::Render(){
 			SDL_Rect r = (coll.Box().renderBox().sdlRect());
 			FILL_RECT(&r);
 		}
-	#endif//RENDERCOLLISION
 };
 void CompCollider::Own(GameObject *go){
 	entity=go->uid;

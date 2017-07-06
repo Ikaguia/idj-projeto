@@ -3,7 +3,7 @@
 #include <game.hpp>
 #include <stateTitle.hpp>
 
-Game game(NOMEPROJETO,1366,768);
+Game game(NOMEPROJETO,1024,768);
 
 int main(){
 	GAMEINST.Push(new StateTitle);

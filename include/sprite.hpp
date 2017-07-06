@@ -28,8 +28,8 @@ public:
 
 	void Open(const string& file,int fCount=1,float fTime=1.0f);
 	void SetClip(int x,int y,int w,int h);
-	void Render(int x,int y,float angle=0.0f, float extScale = 1.0f);
-	void Render(Vec2 v, float angle=0.0f, float extScale = 1.0f);//extScale = External Scale. Example: camera zoom
+	void Render(float x,float y,float angle=0.0f, float extScale = 1.0f);
+	void Render(const Vec2& v, float angle=0.0f, float extScale = 1.0f);//extScale = External Scale. Example: camera zoom
 
 	void Update(float time);
 	void SetFrame(int frame);

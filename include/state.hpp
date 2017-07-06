@@ -20,8 +20,6 @@ protected:
 public:
 	GUIManager gui;
 	
-	bool ending=false;
-
 	set<uint> entities_;
 	map<ii,set<uint>> group;
 
@@ -40,6 +38,7 @@ public:
 	virtual void LoadGUI()=0;
 
 	virtual void AddObject(uint uid, int layer=0, int area=0);
+	virtual void ClearObjects();
 	GameObject* GetLastObject();
 
 	void AddSound(string file,int times);

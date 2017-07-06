@@ -63,11 +63,9 @@ void Camera::CenterTo(const Vec2& v) {
 Vec2 Camera::RenderPos(const Vec2& v) {
 	return (v-CAMERA)*CAMERAZOOM;
 }
-
 float Camera::RenderPosX(const float& x) {
 	return (x-CAMERA.x)*CAMERAZOOM;
 }
-
 float Camera::RenderPosY(const float& y) {
 	return (y-CAMERA.y)*CAMERAZOOM;
 }

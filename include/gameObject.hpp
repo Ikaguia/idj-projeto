@@ -7,6 +7,7 @@
 #include <geometry.hpp>
 
 #define GO(uid) ((GameObject*)(GameObject::entities[(uint)uid].get()))
+#define isGO(uid) (GameObject::entities.count((uint)uid))
 
 class GameObject{
 public:
@@ -62,8 +63,8 @@ public:
 	Rect Box()const;
 	Rect Box(const Vec2& p,const Vec2 &sz)const;
 	Rect FullBox()const;
-
-
+	
+	static uint Create(const string&, const Vec2& pos, const Vec2& aux=Vec2{});
 	static uint MakePlayer(const Vec2 &pos);
 	static uint MakeTarget(const Vec2 &pos);
 	static uint MakeMike(const Vec2 &pos);

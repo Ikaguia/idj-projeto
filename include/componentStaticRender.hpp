@@ -18,7 +18,7 @@ public:
 	Vec2 pos;
 	bool camScaling;
 
-	CompStaticRender(const Sprite &sp,const Vec2 &p, const bool cs = true);
+	CompStaticRender(const Sprite &sp,const Vec2 &p=Vec2{}, const bool cs = true);
 	~CompStaticRender();
 
 	void Update(float time);

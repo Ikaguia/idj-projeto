@@ -33,6 +33,9 @@ void StateStage::Update(float time){
 	if(INPUT.KeyPress(KEY(i))) AddObject(GameObject::MakeMask(Vec2{850.0f,300.0f}));
 	if(INPUT.KeyPress(KEY(y))) GO(player)->dead=true;
 
+	if(INPUT.KeyPress(KEY(n))) SETTINGS.showHP = !SETTINGS.showHP;
+	if(INPUT.KeyPress(KEY(m))) SETTINGS.showCollision = !SETTINGS.showCollision;
+
 	UpdateArray(time);
 }
 void StateStage::Render(){

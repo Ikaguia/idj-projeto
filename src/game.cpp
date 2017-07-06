@@ -135,14 +135,21 @@ void Game::Run(){
 		GetCurrentState().Begin();
 	}
 	while(!stateStack.empty()){
+		COUTL(a1);
 		CalculateDeltaTime();
+		COUTL(a2);
 		INPUT.Update(dt);
+		COUTL(a3);
 		//if(INPUT.KeyPress(KEY_F(11))) SwitchWindowMode();
 		GetCurrentState().Update(dt);
+		COUTL(a4);
 		GetCurrentState().Render();
+		COUTL(a5);
 		SDL_RenderPresent(renderer);
 		
+		COUTL(a6);
 		if(GetCurrentState().QuitRequested()) break;
+		COUTL(a7);
 		if(GetCurrentState().PopRequested()){
 			GetCurrentState().Pause();
 			GetCurrentState().End();
@@ -152,19 +159,26 @@ void Game::Run(){
 			Resources::ClearFonts();
 			if(stateStack.size())GetCurrentState().Resume();
 		}
+		COUTL(a8);
 		if(storedState){
 			GetCurrentState().Pause();
 			stateStack.push(unique_ptr<State>(storedState));
 			storedState=nullptr;
 			GetCurrentState().Begin();
 		}
+		COUTL(a9);
 
 		SDL_Delay(17);
 	}
+		COUTL(a10);
 	while(stateStack.size()){
+		COUTL(a11);
 		GetCurrentState().End();
+		COUTL(a12);
 		stateStack.pop();
+		COUTL(a13);
 	}
+		COUTL(a14);
 }
 
 float Game::GetDeltaTime(){

@@ -28,7 +28,7 @@ void CompHP::Update(float time){
 	dmgCoolDown.Update(time);
 }
 void CompHP::Render(){
-	if(showHP && current>0){
+	if(SETTINGS.showHP && showHP && current>0){
 		Rect box{0,-GO(entity)->Box().w/5.0f - GO(entity)->Box().w/10.0f,GO(entity)->Box().w,GO(entity)->Box().w/5.0f};
 		box+=GO(entity)->Box().corner();
 
