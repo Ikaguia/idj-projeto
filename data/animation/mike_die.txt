@@ -1,6 +1,6 @@
 img/mike-morrendo.png
 
-11 0.175
+11 1 0.1
 0	0
 0	0
 0	0

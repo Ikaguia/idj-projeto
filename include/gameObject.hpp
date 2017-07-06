@@ -16,7 +16,6 @@ public:
 
 	const uint uid;
 
-	bitset<Component::type::t_count> hasComponent;
 	array<Component*,Component::type::t_count> components;
 
 	function<void(GameObject*)> onDeath;
@@ -51,6 +50,7 @@ public:
 	void ReplaceComponent(Component* component);
 	void RemoveComponent(Component::type t);
 	void SetComponent(Component::type t,Component* component);//override current component, doesnt dealloc
+	bool HasComponent(size_t t)const;
 
 	void AttachObj(GameObject* obj);
 	void AttachTo(GameObject* obj);

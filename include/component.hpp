@@ -27,6 +27,7 @@ public:
 		t_movement,
 		t_gravity,
 		t_memory,
+		t_timer,
 		t_count,
 	};
 

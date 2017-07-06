@@ -10,16 +10,16 @@
 CompAnim::CompAnim(){}
 CompAnim::CompAnim(string file,CompCollider* tempColl){
 	string name,imgFile,func,animFile,type;
-	int fCount,collCount,funcCount;
+	int fCountX,fCountY,collCount,funcCount;
 	float fTime,x,y,w,h,r;
 
 	ifstream in(ANIMATION_PATH + file + ".txt");
 	if(!in.is_open())cerr << "Erro ao abrir arquivo de animação '" << file << "'" << endl;
 	else{
-		in >> imgFile >> fCount >> fTime;
-		sp.Open(imgFile,fCount,fTime);
-		colliders.resize(fCount,nullptr);
-		FOR(i,fCount){
+		in >> imgFile >> fCountX >> fCountY >> fTime;
+		sp.Open(imgFile,fCountX,fTime);
+		colliders.resize(fCountX,nullptr);
+		FOR(i,fCountX){
 			in >> collCount;
 			if(collCount){
 				colliders[i]=new CompCollider{};
@@ -70,8 +70,7 @@ void CompAnim::SetCurFrame(int frame,bool force){
 		if(colliders[frame] != nullptr){
 			GO(entity)->SetComponent(Component::type::t_collider,colliders[frame]);
 		}
-		else if(GO(entity)->hasComponent[Component::type::t_collider]){
-			GO(entity)->hasComponent[Component::type::t_collider]=false;
+		else if(GO(entity)->HasComponent(Component::type::t_collider)){
 			GO(entity)->components[Component::type::t_collider]=nullptr;
 		}
 	}

@@ -18,7 +18,7 @@ void CompHP::Damage(int dmg){
 		if(showDMG){
 			//TODO: renderiza dano
 		}
-		if(GO(entity)->hasComponent[Component::type::t_memory])COMPMEMORYp(GO(entity))->ints["hit"]++;
+		if(GO(entity)->HasComponent(Component::type::t_memory))COMPMEMORYp(GO(entity))->ints["hit"]++;
 	}
 }
 

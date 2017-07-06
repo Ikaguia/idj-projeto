@@ -1,5 +1,5 @@
+walk player_walk
 idle player_idle
 fire player_fire
 kick player_kick
-walk player_walk
 die player_die

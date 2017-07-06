@@ -10,6 +10,7 @@ uint GameObject::goCount=0;
 map<uint, unique_ptr<GameObject>> GameObject::entities;
 
 GameObject::GameObject():uid{goCount++}{
+	components.fill(nullptr);
 	entities[uid]=unique_ptr<GameObject>(this);
 }
 GameObject::GameObject(const Vec2 &pos_,float r,Hotspot hs,bool a):
@@ -18,6 +19,7 @@ GameObject::GameObject(const Vec2 &pos_,float r,Hotspot hs,bool a):
 						rotation{r},
 						hotspot{hs},
 						anchored{a}{
+	components.fill(nullptr);
 	entities[uid]=unique_ptr<GameObject>(this);
 }
 GameObject::GameObject(const Rect &rect,float r,Hotspot hs,bool a):
@@ -27,13 +29,14 @@ GameObject::GameObject(const Rect &rect,float r,Hotspot hs,bool a):
 						rotation{r},
 						hotspot{hs},
 						anchored{a}{
+	components.fill(nullptr);
 	entities[uid]=unique_ptr<GameObject>(this);
 }
 GameObject::~GameObject(){
 	UnAttach();
 	for(GameObject* obj:attachedObjs)obj->dead=true;
 
-	FOR(i,Component::type::t_count)if(hasComponent[i])delete components[i];
+	FOR(i,Component::type::t_count)if(HasComponent(i))delete components[i];
 
 	if(Camera::GetFocus()==uid)Camera::Unfollow();
 
@@ -41,31 +44,52 @@ GameObject::~GameObject(){
 }
 
 void GameObject::Update(float time){
+	COUTL(d1);
+	DEBUG(uid);
 	if(IsDead()){
+		COUTL(d2);
 		remove = true;
+		COUTL(d3);
 		// for(auto i=Component::type::t_first+1;i!=Component::type::t_count;i++){
+		COUTL(d4);
 		FOR(i,Component::type::t_count){
-			if(hasComponent[i]){
+			COUTL(d5);
+			DEBUG(i);
+			if(HasComponent(i)){
+			COUTL(d6);
 				if(components[i]->Die(time))RemoveComponent((Component::type)i);
 				else remove=false;
+			COUTL(d7);
 			}
 		}
 	}
+			COUTL(d8);
 	//reset move
-	if(hasComponent[Component::type::t_movement])COMPMOVEp(this)->move=0.0f;
+			COUTL(d9);
+	if(HasComponent(Component::type::t_movement))COMPMOVEp(this)->move=0.0f;
+			COUTL(d10);
 	//process input control and ai first
-	if(hasComponent[Component::type::t_input_control])COMPINPUTCONTp(this)->Update(time);
-	if(hasComponent[Component::type::t_ai])COMPAIp(this)->Update(time);
+			COUTL(d11);
+	if(HasComponent(Component::type::t_input_control))COMPINPUTCONTp(this)->Update(time);
+			COUTL(d12);
+	if(HasComponent(Component::type::t_ai))COMPAIp(this)->Update(time);
+			COUTL(d13);
 	//then set move
-	if(hasComponent[Component::type::t_movement])COMPMOVEp(this)->move+=COMPMOVEp(this)->speed*time;
+			COUTL(d14);
+	if(HasComponent(Component::type::t_movement))COMPMOVEp(this)->move+=COMPMOVEp(this)->speed*time;
+			COUTL(d15);
 	//and then do the rest
+			COUTL(d16);
 	FOR2(i,Component::type::t__+1,Component::type::t_count){
-		if(hasComponent[i])components[i]->Update(time);
+			COUTL(d17);
+			DEBUG(i);
+		if(HasComponent(i))components[i]->Update(time);
+			COUTL(d18);
 	}
 }
 void GameObject::Render(){
 	FOR(i,Component::type::t_count){
-		if(hasComponent[i]){
+		if(HasComponent(i)){
 			components[i]->Render();
 		}
 	}
@@ -73,33 +97,30 @@ void GameObject::Render(){
 
 void GameObject::AddComponent(Component* component){
 	auto t=component->GetType();
-	if(hasComponent[t])cerr << "Error, adding component " << t << " to a GameObject that already has it" << endl;
-	hasComponent[t]=true;
+	if(HasComponent(t))cerr << "Error, adding component " << t << " to a GameObject that already has it" << endl;
 	components[t]=component;
 	component->Own(this);
 }
 void GameObject::ReplaceComponent(Component* component){
 	auto t=component->GetType();
-	if(!hasComponent[t]){
-		cerr << "Error, replacing component " << t << " on a GameObject that doesnt have it" << endl;
-		hasComponent[t]=true;
-	}
+	if(!HasComponent(t))cerr << "Error, replacing component " << t << " on a GameObject that doesnt have it" << endl;
 	else delete components[t];
 	components[t]=component;
 	component->Own(this);
 }
 void GameObject::RemoveComponent(Component::type t){
-	if(!hasComponent[t])cerr << "Error, removing component " << t << " on a GameObject that doesnt have it" << endl;
+	if(!HasComponent(t))cerr << "Error, removing component " << t << " on a GameObject that doesnt have it" << endl;
 	else{
 		delete components[t];
 		components[t]=nullptr;
-		hasComponent[t]=false;
 	}
 }
 void GameObject::SetComponent(Component::type t,Component* component){
-	if(!hasComponent[t])hasComponent[t]=true;
 	components[t]=component;
 	component->Own(this);
+}
+bool GameObject::HasComponent(size_t t) const{
+	return (components[t] != nullptr);
 }
 
 
@@ -277,12 +298,13 @@ template<int atkDist,int seeDist> void HostileAIfunc(CompAI* ai,float time){
 		}
 	}
 }
-template<int posCount> void PassiveAIfunc(CompAI* ai,float time){
+void PassiveAIfunc(CompAI* ai,float time){
 	CompAnimControl *ac = COMPANIMCONTp(GO(ai->entity));
 	CompMemory *mem = COMPMEMORYp(GO(ai->entity));
 
 	int &state = mem->ints["state"];
 	int &next = mem->ints["nextPos"];
+	int &posCount = mem->ints["posCount"];
 
 	Timer &cd = mem->timers["cooldown"];
 
@@ -293,12 +315,12 @@ template<int posCount> void PassiveAIfunc(CompAI* ai,float time){
 		}
 	}
 	else if(state==CompAI::state::walking){
-		float pos = mem->floats["pos" + to_string(next)];
-		float dist = pos - GO(ai->entity)->Box().x;
+		Vec2 pos{mem->floats["pos" + to_string(next) + "x"],mem->floats["pos" + to_string(next) + "y"]};
+		Vec2 dist = pos - GO(ai->entity)->pos;
 		CompMovement *movement = COMPMOVEp(GO(ai->entity));
 
-		if(abs(dist)<abs(movement->speed.x)*time){
-			movement->speed.x=0;
+		if(dist.len() < movement->speed.len() * time){
+			movement->speed=Vec2{};
 			movement->move=dist;
 
 			state=CompAI::state::idling;
@@ -306,13 +328,9 @@ template<int posCount> void PassiveAIfunc(CompAI* ai,float time){
 			next=(next+1)%posCount;
 			ac->ChangeCur("idle");
 		}
-		else if(dist>0){
-			GO(ai->entity)->flipped=true;
-			movement->speed.x= 100.0f;
-		}
 		else{
-			GO(ai->entity)->flipped=false;
-			movement->speed.x=-100.0f;
+			movement->speed = dist.unit() * 100.0f;
+			GO(ai->entity)->flipped = (movement->speed.x>0);
 		}
 	}
 }
@@ -365,10 +383,10 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 		}
 	}
 	else if(state == CompAI::state::walking){
-		CompMovement *movement = COMPMOVEp(GO(ai->entity));
+		CompMovement *move = COMPMOVEp(GO(ai->entity));
 		if(al.Get() > 10 && cd.Get() > 5){
 			state=CompAI::state::looking;
-			movement->speed.x = 0;
+			move->speed.x = 0;
 			ac->ChangeCur("idle");
 			cd.Restart();
 			return;
@@ -379,28 +397,37 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 			//TODO: make line of sight component
 			if(dist > (seeDist*2) || (!alerted && dist > seeDist)){
 				state=CompAI::state::looking;
-				movement->speed.x = 0;
+				move->speed.x = 0;
 				ac->ChangeCur("idle");
 				cd.Restart();
 				return;
 			}
-			else if(dist < atkDist+abs(movement->speed.x)*time){
-				if(GO(ai->entity)->Box().x < target->Box().x)movement->move= dist-atkDist;
-				else                                         movement->move=-dist+atkDist;
+			else if(dist < 2*atkDist+abs(move->speed.x)*time && cd.Get()<1.5 && stompCD.Get() > stCD){
+				if(GO(ai->entity)->Box().x < target->Box().x)move->move= dist - (2*atkDist);
+				else                                         move->move=-dist + (2*atkDist);
 
-				state=CompAI::state::attacking;
-				movement->speed.x=0;
-				ac->ChangeCur("idle");
+				state=CompAI::state::stomping;
+				move->speed.x=0;
+				ac->ChangeCur("stomp");
+				cd.Restart();
+			}
+			else if(dist < atkDist+abs(move->speed.x)*time){
+				if(GO(ai->entity)->Box().x < target->Box().x)move->move= dist-atkDist;
+				else                                         move->move=-dist+atkDist;
+
+				if(cd.Get()<1.5)state=CompAI::state::attacking,ac->ChangeCur("idle");
+				else            state=CompAI::state::charging, ac->ChangeCur("charge",false);
+				move->speed.x=0;
 				cd.Restart();
 				return;
 			}
 			else if(GO(ai->entity)->Box().x < target->Box().x){
 				GO(ai->entity)->flipped=true;
-				movement->speed.x = 100.0f;
+				move->speed.x = 350.0f;
 			}
 			else{
 				GO(ai->entity)->flipped=false;
-				movement->speed.x =-100.0f;
+				move->speed.x =-350.0f;
 			}
 		}
 	}
@@ -428,89 +455,122 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 			if(target->Box().x < GO(ai->entity)->Box().x &&  GO(ai->entity)->flipped)GO(ai->entity)->flipped=false;
 		}
 	}
+	else if(state==CompAI::state::stomping){
+		if(attacked>stompCount){
+			state=CompAI::state::attacking;
+			attacked=0;
+			ac->ChangeCur("idle");
+			cd.Restart();
+			return;
+		}
+		else if(ac->GetCurName() != "stomp"){
+			float dist = GO(ai->entity)->Box().distEdge(target->Box()).x;
+			if(dist > atkDist*2){
+				state=CompAI::state::looking;
+				attacked=0;
+				ac->ChangeCur("idle");
+				cd.Restart();
+				return;
+			}
+			else ac->ChangeCur("stomp",false);
+		}
+		else{
+			if(target->Box().x > GO(ai->entity)->Box().x && !GO(ai->entity)->flipped)GO(ai->entity)->flipped=true;
+			if(target->Box().x < GO(ai->entity)->Box().x &&  GO(ai->entity)->flipped)GO(ai->entity)->flipped=false;
+		}
+	}
+	else if(state==CompAI::state::charging){
+		if(ac->GetCurName() != "charge"){
+			state=CompAI::state::looking;
+			attacked=0;
+			ac->ChangeCur("idle");
+			cd.Restart();
+			return;
+		}
+	}
 
 
 
-	// else if(state == CompAI::state::walking){
-	// 	CompMovement *move = COMPMOVEp(GO(ai->entity));
-	// 	if(cd.Get() > 5){
-	// 		cd.Restart();
-	// 		state=CompAI::state::idling;
-	// 		move->speed = move->move = 0.0f;
-	// 		ac->ChangeCur("idle");
-	// 	}
-	// 	else{
-	// 		float dist = GO(ai->entity)->Box().distEdge(target->Box()).x;
-	// 		//TODO: make line of sight component
-	// 		if(dist > seeDist){
-	// 			cd.Restart();
-	// 			state=CompAI::state::looking;
-	// 			ac->ChangeCur("idle");
-	// 		}
-	// 		else if(dist < 2*atkDist+abs(move->speed.x)*time && cd.Get()<1.5 && stompCD.Get() > stCD){
-	// 			move->speed.x=0;
-	// 			if(GO(ai->entity)->Box().x < target->Box().x)move->move= dist - (2*atkDist);
-	// 			else                                             move->move=-dist + (2*atkDist);
+	else if(state == CompAI::state::walking){
+		CompMovement *move = COMPMOVEp(GO(ai->entity));
+		if(cd.Get() > 5){
+			cd.Restart();
+			state=CompAI::state::idling;
+			move->speed = move->move = 0.0f;
+			ac->ChangeCur("idle");
+		}
+		else{
+			float dist = GO(ai->entity)->Box().distEdge(target->Box()).x;
+			//TODO: make line of sight component
+			if(dist > seeDist){
+				cd.Restart();
+				state=CompAI::state::looking;
+				ac->ChangeCur("idle");
+			}
+			else if(dist < 2*atkDist+abs(move->speed.x)*time && cd.Get()<1.5 && stompCD.Get() > stCD){
+				move->speed.x=0;
+				if(GO(ai->entity)->Box().x < target->Box().x)move->move= dist - (2*atkDist);
+				else                                             move->move=-dist + (2*atkDist);
 
-	// 			state=CompAI::state::stomping;
-	// 			cd.Restart();
-	// 			ac->ChangeCur("stomp");
-	// 		}
-	// 		else if(dist <   atkDist+abs(move->speed.x)*time){
-	// 			move->speed.x=0;
-	// 			if(GO(ai->entity)->Box().x < target->Box().x)move->move= dist-atkDist;
-	// 			else                                             move->move=-dist+atkDist;
+				state=CompAI::state::stomping;
+				cd.Restart();
+				ac->ChangeCur("stomp");
+			}
+			else if(dist <   atkDist+abs(move->speed.x)*time){
+				move->speed.x=0;
+				if(GO(ai->entity)->Box().x < target->Box().x)move->move= dist-atkDist;
+				else                                         move->move=-dist+atkDist;
 
-	// 			state=CompAI::state::charging;
-	// 			cd.Restart();
-	// 			ac->ChangeCur("charge");
-	// 		}
-	// 		else if(GO(ai->entity)->pos.x < target->pos.x){
-	// 			GO(ai->entity)->flipped=true;
-	// 			move->speed.x= 100.0f;
-	// 		}
-	// 		else{
-	// 			GO(ai->entity)->flipped=false;
-	// 			move->speed.x=-100.0f;
-	// 		}
-	// 	}
-	// }
-	// else if(state==CompAI::state::attacking){
-	// 	if(GO(ai->entity)->Box().distEdge(target->Box()).x > atkDist){
-	// 		attacked=0;
-	// 		cd.Restart();
-	// 		state=CompAI::state::looking;
-	// 		ac->ChangeCur("idle");
-	// 		return;
-	// 	}
-	// 	else{
-	// 		if(target->Box().x > GO(ai->entity)->Box().x && !GO(ai->entity)->flipped)GO(ai->entity)->flipped=true;
-	// 		if(target->Box().x < GO(ai->entity)->Box().x &&  GO(ai->entity)->flipped)GO(ai->entity)->flipped=false;
-	// 		if(attacked>=atkCount){
-	// 			attacked=0;
-	// 			cd.Restart();
-	// 			state=CompAI::state::idling;
-	// 			ac->ChangeCur("idle");
-	// 		}
-	// 	}
-	// }
-	// else if(state==CompAI::state::stomping){
-	// 	if(attacked>=stompCount){
-	// 		attacked=0;
-	// 		cd.Restart();
-	// 		stompCD.Restart();
-	// 		state=CompAI::state::looking;
-	// 		ac->ChangeCur("idle");
-	// 	}
-	// }
-	// else if(state==CompAI::state::charging){
-	// 	if(attacked>=1){
-	// 		attacked=0;
-	// 		cd.Restart();
-	// 		state=CompAI::state::idling;
-	// 		ac->ChangeCur("idle");
-	// 	}
-	// }
+				cd.Restart();
+				if(cd.Get()<1.5)state=CompAI::state::attacking,ac->ChangeCur("idle");
+				else            state=CompAI::state::charging, ac->ChangeCur("charge");
+			}
+			else if(GO(ai->entity)->pos.x < target->pos.x){
+				GO(ai->entity)->flipped=true;
+				move->speed.x= 100.0f;
+			}
+			else{
+				GO(ai->entity)->flipped=false;
+				move->speed.x=-100.0f;
+			}
+		}
+	}
+	else if(state==CompAI::state::attacking){
+		if(GO(ai->entity)->Box().distEdge(target->Box()).x > atkDist){
+			attacked=0;
+			cd.Restart();
+			state=CompAI::state::looking;
+			ac->ChangeCur("idle");
+			return;
+		}
+		else{
+			if(target->Box().x > GO(ai->entity)->Box().x && !GO(ai->entity)->flipped)GO(ai->entity)->flipped=true;
+			if(target->Box().x < GO(ai->entity)->Box().x &&  GO(ai->entity)->flipped)GO(ai->entity)->flipped=false;
+			if(attacked>=atkCount){
+				attacked=0;
+				cd.Restart();
+				state=CompAI::state::idling;
+				ac->ChangeCur("idle");
+			}
+		}
+	}
+	else if(state==CompAI::state::stomping){
+		if(attacked>=stompCount){
+			attacked=0;
+			cd.Restart();
+			stompCD.Restart();
+			state=CompAI::state::looking;
+			ac->ChangeCur("idle");
+		}
+	}
+	else if(state==CompAI::state::charging){
+		if(attacked>=1){
+			attacked=0;
+			cd.Restart();
+			state=CompAI::state::idling;
+			ac->ChangeCur("idle");
+		}
+	}
 }
 
 void PlayerControlFunc(GameObject* go, float time){
@@ -522,6 +582,9 @@ void PlayerControlFunc(GameObject* go, float time){
 	int &arrowReady = mem->ints["arrowReady"];
 	Vec2 &speed = mv->speed;
 
+	// if(mem->ints["hit"]){
+	// 	mem->timers["stunned"].Restart();
+	// }
 
 	if(curAnim == "kick")return;
 	if(INPUT.KeyPress(KEY(s)) && curAnim == "idle")ac->ChangeCur("kick",false);
@@ -697,6 +760,7 @@ uint GameObject::MakeBanshee(const Vec2 &pos,const Vec2 &pos2){
 	GameObject* banshee = new GameObject{pos,0.0f,Hotspot::BOTTOM};
 
 	CompCollider coll{CompCollider::collType::t_monster};
+	coll.colls[0].useDefault[CompCollider::collType::t_ground]=EmptyCollision;
 	coll.colls[0].useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
 	coll.colls[0].useDefault[CompCollider::collType::t_player]=EmptyCollision;
 	coll.colls[0].useDefault[CompCollider::collType::t_monster]=EmptyCollision;
@@ -706,16 +770,19 @@ uint GameObject::MakeBanshee(const Vec2 &pos,const Vec2 &pos2){
 	banshee->AddComponent(animControl);
 
 	banshee->AddComponent(new CompMovement{});
-	banshee->AddComponent(new CompGravity{2500.0f});
+	banshee->AddComponent(new CompGravity{250.0f});
 	// banshee->AddComponent(new CompHP{100,100,true,false});
 
-	banshee->AddComponent(new CompAI{PassiveAIfunc<2>});
+	banshee->AddComponent(new CompAI{PassiveAIfunc});
 
 	CompMemory *memory = new CompMemory{};
-	memory->floats["pos0"]=pos.x;
-	memory->floats["pos1"]=pos2.x;
+	memory->floats["pos0x"]=pos.x;
+	memory->floats["pos0y"]=pos.y;
+	memory->floats["pos1x"]=pos2.x;
+	memory->floats["pos1y"]=pos2.y;
 	memory->ints["state"]=CompAI::state::idling;
 	memory->ints["nextPos"]=0;
+	memory->ints["posCount"]=2;
 	banshee->AddComponent(memory);
 
 	banshee->team = Team::enemy;

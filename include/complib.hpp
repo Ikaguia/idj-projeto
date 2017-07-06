@@ -12,6 +12,7 @@
 #include <componentMovement.hpp>
 #include <componentStaticRender.hpp>
 #include <componentText.hpp>
+#include <componentTimer.hpp>
 //#include <component.hpp>
 
 #endif //COMPLIBHPP
