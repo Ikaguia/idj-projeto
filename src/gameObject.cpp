@@ -582,9 +582,11 @@ void PlayerControlFunc(GameObject* go, float time){
 	int &arrowReady = mem->ints["arrowReady"];
 	Vec2 &speed = mv->speed;
 
-	// if(mem->ints["hit"]){
-	// 	mem->timers["stunned"].Restart();
-	// }
+	if(mem->ints["hit"]){
+		mem->timers["stunned"].Restart();
+		mem->ints["hit"]=0;
+	}
+	if(mem->timers["stunned"].Get() < 1)return;
 
 	if(curAnim == "kick")return;
 	if(INPUT.KeyPress(KEY(s)) && curAnim == "idle")ac->ChangeCur("kick",false);
@@ -601,13 +603,10 @@ void PlayerControlFunc(GameObject* go, float time){
 		}
 
 		if(INPUT.IsKeyDown(KEY_LEFT) && !INPUT.IsKeyDown(KEY_RIGHT))
-			speed.x=max(-400.0f,min(0.0f,speed.x)-800*time);
+			speed.x=-400.0f;
 		else if(INPUT.IsKeyDown(KEY_RIGHT) && !INPUT.IsKeyDown(KEY_LEFT))
-			speed.x=min( 400.0f,max(0.0f,speed.x)+800*time);
-		else if(speed.x>0.0f)
-			speed.x=max(0.0f,speed.x-800*time);
-		else if(speed.x<0.0f)
-			speed.x=min(0.0f,speed.x+800*time);
+			speed.x= 400.0f;
+		else speed.x=0.0f;
 	}
 
 
