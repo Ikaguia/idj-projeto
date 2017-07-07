@@ -63,5 +63,26 @@ public:
 	bool PopRequested();
 	bool QuitRequested();
 };
+/*
+class GUI_LayerButton:public GUI_Button{
+	GUI_CheckButton renderButton;
+	GUI_TextButton layerLabel;
+	
+	//State::Layer& layer;
+public:
+	GUI_LayerButton(State::Layer& l);
+
+	void Update();
+	void Render();
+};
+
+class GUI_LayerWindow:public GUI_Window{
+	//vector<State::Layer>& layers;
+public:
+	GUI_LayerWindow(vector<State::Layer>& v, const Vec2& pos);
+	
+	void Update();
+	void Render();
+};*/
 
 #endif//STATEEDITORHPP

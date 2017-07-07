@@ -69,22 +69,24 @@ void Level::Load(const string& file){
 			in >> t;
 			in.ignore(1);
 			collisionLayer[(y*mapWidth)+x] = t-1;
+			in >> g;
+			in.ignore(1);
 			if(t == EMPTY_TILE) {
 				collisionGroups[(y*mapWidth)+x] = 0;
 			}
 			else {
-				in >> g;
-				in.ignore(1);
 				collisionGroups[(y*mapWidth)+x] = g;
 			}
 		}
 	}
-	in.ignore(1);
-
+	in.ignore(3);
+	
 	//Loading the object list:
 	objectList.clear();
-	for(string object;getline(in, object);)
-		if(!object.empty()) objectList.push_back(object);
+	for(string line;getline(in, line);){
+		objectList.push_back(line);
+		DEBUG(line);
+	}
 
 	in.close();
 }
@@ -124,6 +126,10 @@ string Level::Save(const string& file){
 	}
 	out << endl;
 	
+	//Saving the objects:
+	for(auto& line:objectList)
+		out<<line<<endl;
+	
 	if(file == "")
 		return out.str();
 	output<<out.str();
@@ -133,15 +139,41 @@ string Level::Save(const string& file){
 
 void Level::LoadObjects(bool collisors){	
 	//Creating the objects:
-	char objType[50];
+	stringstream line;
+	string layerName;
+	char layerType;
+	float layerParallax;
+	string objType;
 	Vec2 objPos;
-	int layer;
 	uint uid;
-	for(auto& i:objectList){
-		if(i.empty()) continue;
-		sscanf(i.c_str(), " %s %f %f %d", objType, &objPos.x, &objPos.y, &layer);
-		uid = GameObject::Create(objType, objPos);
-		GAMESTATE.AddObject(uid,layer);
+	for(auto i=objectList.begin();i!=objectList.end();i++){
+		if(i->empty()){
+			layerName.clear();
+			continue;
+		}
+		line.clear();
+		line.str(*i);
+		if(layerName.empty()){
+			line>>layerName>>layerType>>layerParallax;
+			cout<<endl;
+			GAMESTATE.layerList.emplace_back(layerName,layerType,layerParallax);
+			DEBUG(layerName);
+			DEBUG(layerType);
+			DEBUG(layerParallax);
+			continue;
+		}
+		
+		if(layerType == '*'){
+			line>>objType>>objPos.x>>objPos.y;
+			DEBUG(objType);
+			DEBUG(objPos);
+			uid = GameObject::Create(objType, objPos);
+			GAMESTATE.AddObject(uid,layerName);
+		}
+		else if(layerType == '#'){
+			GAMESTATE.layerList.back().tileMapLayer = stoi(*i);
+			COUTL(tileMapLayer = stoi(*i));
+		}
 	}
 	
 	//Setting the collision boxes:
@@ -187,6 +219,29 @@ void Level::LoadObjects(bool collisors){
 }
 
 void Level::SaveObjects(const vector<pair<ii,ii>>& grouped){
+	//Saving the objects:
+	stringstream line;
+	objectList.clear();
+	for(auto& layer:GAMESTATE.layerList){
+		line.str("");
+		line<<layer.name<<" "<<layer.type<<" "<<layer.parallax;
+		objectList.push_back(line.str());
+		if(layer.type == '*'){
+			set<uint>& objects = GAMESTATE.objectLayer[layer.name];
+			for(uint uid:objects) {
+				if(!isGO(uid))continue;
+				const GameObject& obj = *GO(uid);
+				line.str("");
+				line<<obj.type<<" "<<(int)obj.pos.x<<" "<<(int)obj.pos.y;
+				objectList.push_back(line.str());
+			}
+		}
+		else if(layer.type == '#'){
+			objectList.push_back(to_string(layer.tileMapLayer));
+		}
+		objectList.push_back("");
+	}
+	for(auto& out:objectList) DEBUG(out);
 	//Saving the collision groups:
 	int mapWidth = tileMap.GetWidth();
 	int mapHeight = tileMap.GetHeight();

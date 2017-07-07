@@ -29,6 +29,8 @@ X - Zoom Out"
 #define LEVEL_BORDER_COLOR 255,255,255,255
 #define TILE_CURSOR_COLOR 255,255,0,255
 #define COLLISION_COLOR 255,0,0,255
+#define LAYER_WINDOW_WIDTH 300
+#define LAYER_WINDOW_HEIGHT 
 
 //TODO: Remove placeholder index 
 #define COLLISION_BLOCK 0
@@ -173,18 +175,34 @@ void StateEditor::Update(float time){
 }
 void StateEditor::Render(){
 	RenderBackground();
-
-	//Tirei background daqui
-	//level.background.Render(RENDERPOSX(0), RENDERPOSY(0), 0, CAMERAZOOM);
-	level.tileMap.Render();
-	RenderArray();
+	
+	for(auto& layer:layerList){
+		if(!layer.visible) continue;
+		DEBUG(layer.name);
+		if(layer.type == '*'){
+			set<uint>& objects=objectLayer[layer.name];
+			DEBUG(objects.size());
+			
+			for(uint uid:objects){
+				if(!isGO(uid))continue;
+				if(GO(uid)==nullptr){
+					GameObject::entities.erase(uid);
+					continue;
+				}
+				GO(uid)->Render();
+			}
+		}
+		else if(layer.type == '#'){
+			level.tileMap.RenderLayer(layer.tileMapLayer);
+		}
+	}
+	
 	if(showGrid) RenderGrid(gridWidth, gridHeight);
 	RenderBorder();
 	if(showCollision) RenderCollision();
 	RenderCursor();
 	
 	gui.Render();
-	//helpText.Render();
 	statusText.Render();
 }
 
@@ -380,7 +398,7 @@ void StateEditor::RecomputeCollisionRectangles(){
 void StateEditor::LoadGUI(){
 	GUI_NEW;
 	
-	GUI_SET(menu);
+	GUI_SET(menuBar);
 	//GUI_ADD(GUI_TextButton(NEW_LEVEL, "New"));
 	//GUI_ADD(GUI_TextButton(LOAD_LEVEL, "Load"));
 	GUI_ADD(TextButton(SAVE_LEVEL, "Save"));
@@ -398,7 +416,12 @@ void StateEditor::LoadGUI(){
 	GUI_DIV();
 	GUI_ADD(CheckButton(showCollision));
 	GUI_ADD(Label("Show Collision", SNAP_LEFT));
-	GUI_CREATE(HBar(GUI_GET(menu),WINSIZE.x));
+	
+	GUI_SET(mainWindow);
+	GUI_ADD(HBar(GUI_GET(menuBar),WINSIZE.x));
+	//GUI_ADD(LayerWindow({WINSIZE.x-LAYER_WINDOW_WIDTH,WINSIZE.y+24}))
+
+	GUI_CREATE(Array(GUI_GET(mainWindow)));
 }
 
 void StateEditor::CreateWindow(uint type){
@@ -445,3 +468,21 @@ void StateEditor::CreateWindow(uint type){
 		GUI_CREATE(Window(GUI_GET(window), UNSAVED_CHANGES_WINDOW, "Exit Game"));
 	}
 }
+/*
+GUI_LayerButton::GUI_LayerButton(State::Layer& l){}
+
+void GUI_LayerButton::Update(){
+
+}
+void GUI_LayerButton::Render(){
+
+}
+
+GUI_LayerWindow::GUI_LayerWindow(vector<State::Layer>& v, const Vec2& pos){}
+
+void GUI_LayerWindow::Update(){
+
+}
+void GUI_LayerWindow::Render(){
+
+}*/

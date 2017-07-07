@@ -71,7 +71,7 @@ public:
 class GUI_TextButton:public GUI_Button{
 	Text label;
 public:
-	GUI_TextButton(uint a, const string& l = "Text", const Vec2& pos={0,0});
+	GUI_TextButton(uint a, const string& l = "Text", uint w=0, const Vec2& pos={0,0});
 	
 	virtual void Render();
 };
