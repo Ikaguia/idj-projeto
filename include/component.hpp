@@ -29,6 +29,7 @@ public:
 		t_memory,
 		t_timer,
 		t_count,
+		t_sound,
 	};
 
 	Component(){};
