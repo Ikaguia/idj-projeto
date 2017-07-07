@@ -5,6 +5,7 @@
 #include <complib.hpp>
 #include <stateStage.hpp>
 #include <txtFuncs.hpp>
+#include <music.hpp>
 
 uint GameObject::goCount=0;
 map<uint, unique_ptr<GameObject>> GameObject::entities;
@@ -187,7 +188,8 @@ Rect GameObject::FullBox() const{
 
 
 
-template<int atkDist,int seeDist> void HostileAIfunc(CompAI* ai,float time){
+template<int atkDist,int seeDist, int id> void HostileAIfunc(CompAI* ai,float time){
+    Music music;
 	CompAnimControl *ac = COMPANIMCONTp(GO(ai->entity));
 	CompMemory *mem = COMPMEMORYp(GO(ai->entity));
 
@@ -235,6 +237,8 @@ template<int atkDist,int seeDist> void HostileAIfunc(CompAI* ai,float time){
 	}
 	else if(state == CompAI::state::walking){
 		CompMovement *movement = COMPMOVEp(GO(ai->entity));
+		if(id == 1) // Mike
+            music.Open("audio/mike-arrastando-clava.wav");
 		if(al.Get() > 10 && cd.Get() > 5){
 			state=CompAI::state::looking;
 			movement->speed.x = 0;
@@ -274,6 +278,10 @@ template<int atkDist,int seeDist> void HostileAIfunc(CompAI* ai,float time){
 		}
 	}
 	else if(state==CompAI::state::attacking){
+        if(id == 1) // Mike
+            music.Open("audio/mike-hit-chao.wav");
+        else // Mask
+            music.Open("audio/alma-firebal.wav");
 		if(!alerted && attacked>3){
 			state=CompAI::state::idling;
 			attacked=0;
@@ -299,6 +307,7 @@ template<int atkDist,int seeDist> void HostileAIfunc(CompAI* ai,float time){
 	}
 }
 void PassiveAIfunc(CompAI* ai,float time){
+    Music music;
 	CompAnimControl *ac = COMPANIMCONTp(GO(ai->entity));
 	CompMemory *mem = COMPMEMORYp(GO(ai->entity));
 
@@ -315,6 +324,7 @@ void PassiveAIfunc(CompAI* ai,float time){
 		}
 	}
 	else if(state==CompAI::state::walking){
+        music.Open("audio/banshee-vozes-1.wav");
 		Vec2 pos{mem->floats["pos" + to_string(next) + "x"],mem->floats["pos" + to_string(next) + "y"]};
 		Vec2 dist = pos - GO(ai->entity)->pos;
 		CompMovement *movement = COMPMOVEp(GO(ai->entity));
@@ -335,6 +345,7 @@ void PassiveAIfunc(CompAI* ai,float time){
 	}
 }
 template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void PumbaAiFunc(CompAI* ai,float time){
+    Music music;
 	CompAnimControl *ac = COMPANIMCONTp(GO(ai->entity));
 	CompMemory *mem = COMPMEMORYp(GO(ai->entity));
 
@@ -345,6 +356,7 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 	Timer &cd = mem->timers["cooldown"];
 	Timer &al = mem->timers["alerted"];
 	Timer &stompCD = mem->timers["stomp"];
+    music.Open("audio/batalha-miniboss.ogg");
 
 	if(mem->ints["hit"]){
 		mem->ints["hit"]=0;
@@ -367,6 +379,7 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 		return;
 	}
 	else if(state==CompAI::state::looking){
+        music.Open("audio/porco-grunhido-3.wav");
 		if(al.Get() > 10 && cd.Get() > 5) {
 			state=CompAI::state::idling;
 			cd.Restart();
@@ -375,14 +388,18 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 		//TODO: make line of sight component
 		float dist = GO(ai->entity)->Box().distEdge(target->Box()).x;
 		if((alerted && dist < (seeDist*2)) || dist < seeDist){
-			if(dist < 2*atkDist && stompCD.Get()>stCD)state=CompAI::state::stomping,ac->ChangeCur("stomp");
-			else if(dist < atkDist)                state=CompAI::state::attacking;
+			if(dist < 2*atkDist && stompCD.Get()>stCD) {
+                    state=CompAI::state::stomping;
+                    ac->ChangeCur("stomp");
+                    music.Open("audio/porco-pisada.wav");
+			} else if(dist < atkDist)                state=CompAI::state::attacking;
 			else                                      state=CompAI::state::walking, ac->ChangeCur("walk");
 			cd.Restart();
 			return;
 		}
 	}
 	else if(state == CompAI::state::walking){
+        music.Open("audio/porco-walking-grunhido.wav");
 		CompMovement *move = COMPMOVEp(GO(ai->entity));
 		if(al.Get() > 10 && cd.Get() > 5){
 			state=CompAI::state::looking;
@@ -432,6 +449,7 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 		}
 	}
 	else if(state==CompAI::state::attacking){
+        music.Open("audio/porco-investida-1.wav");
 		if(!alerted && attacked>3){
 			state=CompAI::state::idling;
 			attacked=0;
@@ -694,13 +712,13 @@ uint GameObject::Create(const string& blueprint, const Vec2& pos, const Vec2& au
 	if(blueprint == "banshee")	return MakeBanshee(pos,aux);
 	if(blueprint == "mask")		return MakeMask(pos);
 	if(blueprint == "porco")	return MakePorco(pos);
-	
+
 	GameObject* obj = new GameObject{pos};
 	CompStaticRender* img = new CompStaticRender{Sprite{blueprint}};
 	Vec2 size{(float)img->sp.GetWidth(),(float)img->sp.GetHeight()};
 	obj->AddComponent(img);
 	obj->size = size;
-	
+
 	return obj->uid;
 	/*vector<string> components = Resources::GetBlueprint(blueprint);
 	stringstream comp;
@@ -742,7 +760,7 @@ uint GameObject::MakeMike(const Vec2 &pos){
 	mike->AddComponent(new CompMovement{});
 	mike->AddComponent(new CompGravity{2500.0f});
 	mike->AddComponent(new CompHP{100,100,true,false});
-	mike->AddComponent(new CompAI{HostileAIfunc<5,500>});
+	mike->AddComponent(new CompAI{HostileAIfunc<5,500,1>});
 
 	CompMemory *memory = new CompMemory{};
 	memory->ints["state"]=CompAI::state::idling;
@@ -805,7 +823,7 @@ uint GameObject::MakeMask(const Vec2 &pos){
 	mask->AddComponent(new CompMovement{});
 	// mask->AddComponent(new CompGravity{2500.0f});
 	mask->AddComponent(new CompHP{50,50,true,false});
-	mask->AddComponent(new CompAI{HostileAIfunc<500,1000>});
+	mask->AddComponent(new CompAI{HostileAIfunc<500,1000,2>});
 
 	CompMemory *memory = new CompMemory{};
 	memory->ints["target"]=PLAYER_UID;
@@ -832,7 +850,7 @@ uint GameObject::MakePorco(const Vec2 &pos){
 	pumba->AddComponent(new CompMovement{});
 	pumba->AddComponent(new CompGravity{2500.0f});
 	pumba->AddComponent(new CompHP{100,100,true,false});
-	pumba->AddComponent(new CompAI{PumbaAiFunc<5,500,2,3,1>});
+	pumba->AddComponent(new CompAI{PumbaAiFunc<8,800,2,3,1>});
 
 	CompMemory *memory = new CompMemory{};
 	memory->ints["state"]=CompAI::state::idling;
