@@ -1,6 +1,6 @@
 img/banshee/banshee-desaparecendo.png
 
-6 1 0.175
+6 6 1 0.175
 0	0
 0	0
 0	0

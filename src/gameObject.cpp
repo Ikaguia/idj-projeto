@@ -168,7 +168,7 @@ Rect GameObject::FullBox() const{
 
 
 template<int atkDist,int seeDist, int id> void HostileAIfunc(CompAI* ai,float time){
-    Music music;
+	Music music;
 	CompAnimControl *ac = COMPANIMCONTp(GO(ai->entity));
 	CompMemory *mem = COMPMEMORYp(GO(ai->entity));
 
@@ -217,7 +217,7 @@ template<int atkDist,int seeDist, int id> void HostileAIfunc(CompAI* ai,float ti
 	else if(state == CompAI::state::walking){
 		CompMovement *movement = COMPMOVEp(GO(ai->entity));
 		if(id == 1) // Mike
-            music.Open("audio/mike-arrastando-clava.wav");
+			music.Open("audio/mike-arrastando-clava.wav");
 		if(al.Get() > 10 && cd.Get() > 5){
 			state=CompAI::state::looking;
 			movement->speed.x = 0;
@@ -257,10 +257,10 @@ template<int atkDist,int seeDist, int id> void HostileAIfunc(CompAI* ai,float ti
 		}
 	}
 	else if(state==CompAI::state::attacking){
-        if(id == 1) // Mike
-            music.Open("audio/mike-hit-chao.wav");
-        else // Mask
-            music.Open("audio/alma-firebal.wav");
+		if(id == 1) // Mike
+			music.Open("audio/mike-hit-chao.wav");
+		else // Mask
+			music.Open("audio/alma-firebal.wav");
 		if(!alerted && attacked>3){
 			state=CompAI::state::idling;
 			attacked=0;
@@ -286,7 +286,7 @@ template<int atkDist,int seeDist, int id> void HostileAIfunc(CompAI* ai,float ti
 	}
 }
 void PassiveAIfunc(CompAI* ai,float time){
-    Music music;
+	Music music;
 	CompAnimControl *ac = COMPANIMCONTp(GO(ai->entity));
 	CompMemory *mem = COMPMEMORYp(GO(ai->entity));
 
@@ -303,7 +303,7 @@ void PassiveAIfunc(CompAI* ai,float time){
 		}
 	}
 	else if(state==CompAI::state::walking){
-        music.Open("audio/banshee-vozes-1.wav");
+		music.Open("audio/banshee-vozes-1.wav");
 		Vec2 pos{mem->floats["pos" + to_string(next) + "x"],mem->floats["pos" + to_string(next) + "y"]};
 		Vec2 dist = pos - GO(ai->entity)->pos;
 		CompMovement *movement = COMPMOVEp(GO(ai->entity));
@@ -324,7 +324,7 @@ void PassiveAIfunc(CompAI* ai,float time){
 	}
 }
 template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void PumbaAiFunc(CompAI* ai,float time){
-    Music music;
+	Music music;
 	CompAnimControl *ac = COMPANIMCONTp(GO(ai->entity));
 	CompMemory *mem = COMPMEMORYp(GO(ai->entity));
 
@@ -335,7 +335,21 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 	Timer &cd = mem->timers["cooldown"];
 	Timer &al = mem->timers["alerted"];
 	Timer &stompCD = mem->timers["stomp"];
-    music.Open("audio/batalha-miniboss.ogg");
+	music.Open("audio/batalha-miniboss.ogg");
+
+	string &curAnim = ac->GetCurName();
+	if(curAnim.substr(curAnim.size()-2)=="_r"){
+		if(!GO(ai->entity)->flipped){
+			int frame = ac->GetCur().GetCurFrame();
+			curAnim=curAnim.substr(0,curAnim.size()-2);
+			ac->GetCur().SetCurFrame(frame);
+		}
+	}
+	else if(GO(ai->entity)->flipped){
+		int frame = ac->GetCur().GetCurFrame();
+		curAnim=curAnim+"_r";
+		ac->GetCur().SetCurFrame(frame);
+	}
 
 	if(mem->ints["hit"]){
 		mem->ints["hit"]=0;
@@ -358,7 +372,7 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 		return;
 	}
 	else if(state==CompAI::state::looking){
-        music.Open("audio/porco-grunhido-3.wav");
+	music.Open("audio/porco-grunhido-3.wav");
 		if(al.Get() > 10 && cd.Get() > 5) {
 			state=CompAI::state::idling;
 			cd.Restart();
@@ -368,17 +382,18 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 		float dist = GO(ai->entity)->Box().distEdge(target->Box()).x;
 		if((alerted && dist < (seeDist*2)) || dist < seeDist){
 			if(dist < 2*atkDist && stompCD.Get()>stCD) {
-                    state=CompAI::state::stomping;
-                    ac->ChangeCur("stomp");
-                    music.Open("audio/porco-pisada.wav");
-			} else if(dist < atkDist)                state=CompAI::state::attacking;
-			else                                      state=CompAI::state::walking, ac->ChangeCur("walk");
+				state=CompAI::state::stomping;
+				ac->ChangeCur("stomp");
+				music.Open("audio/porco-pisada.wav");
+			}
+			else if(dist < atkDist)state=CompAI::state::attacking;
+			else                   state=CompAI::state::walking, ac->ChangeCur("walk");
 			cd.Restart();
 			return;
 		}
 	}
 	else if(state == CompAI::state::walking){
-        music.Open("audio/porco-walking-grunhido.wav");
+		music.Open("audio/porco-walking-grunhido.wav");
 		CompMovement *move = COMPMOVEp(GO(ai->entity));
 		if(al.Get() > 10 && cd.Get() > 5){
 			state=CompAI::state::looking;
@@ -400,7 +415,7 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 			}
 			else if(dist < 2*atkDist+abs(move->speed.x)*time && cd.Get()<1.5 && stompCD.Get() > stCD){
 				if(GO(ai->entity)->Box().x < target->Box().x)move->move= dist - (2*atkDist);
-				else                                         move->move=-dist + (2*atkDist);
+				else	move->move=-dist + (2*atkDist);
 
 				state=CompAI::state::stomping;
 				move->speed.x=0;
@@ -409,7 +424,7 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 			}
 			else if(dist < atkDist+abs(move->speed.x)*time){
 				if(GO(ai->entity)->Box().x < target->Box().x)move->move= dist-atkDist;
-				else                                         move->move=-dist+atkDist;
+				else	move->move=-dist+atkDist;
 
 				if(cd.Get()<1.5)state=CompAI::state::attacking,ac->ChangeCur("idle");
 				else            state=CompAI::state::charging, ac->ChangeCur("charge",false);
@@ -428,7 +443,7 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 		}
 	}
 	else if(state==CompAI::state::attacking){
-        music.Open("audio/porco-investida-1.wav");
+		music.Open("audio/porco-investida-1.wav");
 		if(!alerted && attacked>3){
 			state=CompAI::state::idling;
 			attacked=0;
@@ -436,7 +451,7 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 			cd.Restart();
 			return;
 		}
-		else if(ac->GetCurName() != "attack"){
+		else if(ac->GetCurName() != "attack" && ac->GetCurName() != "attack_r"){
 			float dist = GO(ai->entity)->Box().distEdge(target->Box()).x;
 			if(dist > atkDist){
 				state=CompAI::state::looking;
@@ -460,7 +475,7 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 			cd.Restart();
 			return;
 		}
-		else if(ac->GetCurName() != "stomp"){
+		else if(ac->GetCurName() != "stomp" && ac->GetCurName() != "stomp_r"){
 			float dist = GO(ai->entity)->Box().distEdge(target->Box()).x;
 			if(dist > atkDist*2){
 				state=CompAI::state::looking;
@@ -477,7 +492,7 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 		}
 	}
 	else if(state==CompAI::state::charging){
-		if(ac->GetCurName() != "charge"){
+		if(ac->GetCurName() != "charge" && ac->GetCurName() != "charge_r"){
 			state=CompAI::state::looking;
 			attacked=0;
 			ac->ChangeCur("idle");
@@ -507,7 +522,7 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 			else if(dist < 2*atkDist+abs(move->speed.x)*time && cd.Get()<1.5 && stompCD.Get() > stCD){
 				move->speed.x=0;
 				if(GO(ai->entity)->Box().x < target->Box().x)move->move= dist - (2*atkDist);
-				else                                             move->move=-dist + (2*atkDist);
+				else	move->move=-dist + (2*atkDist);
 
 				state=CompAI::state::stomping;
 				cd.Restart();
@@ -581,17 +596,17 @@ void PlayerControlFunc(GameObject* go, float time){
 	int &arrowReady = mem->ints["arrowReady"];
 	Vec2 &speed = mv->speed;
 
-	if(mem->ints["hit"]){
-		mem->timers["stunned"].Restart();
-		mem->ints["hit"]=0;
-	}
-	if(mem->timers["stunned"].Get() < 1)return;
+	//TODO: stun
+	// if(mem->ints["hit"]){
+	// 	mem->timers["stunned"].Restart();
+	// 	mem->ints["hit"]=0;
+	// }
+	// if(mem->timers["stunned"].Get() < 0.5)return;
 
-	if(curAnim == "kick")return;
-	if(INPUT.KeyPress(KEY(s)) && curAnim == "idle")ac->ChangeCur("kick",false);
+	if(curAnim == "kick" || curAnim == "fire")return;
+	if(arrowReady && INPUT.IsKeyDown(KEY(a)) && curAnim == "idle")ac->ChangeCur("fire",false);
+	else if(         INPUT.KeyPress (KEY(s)) && curAnim == "idle")ac->ChangeCur("kick",false);
 	else{
-		if(INPUT.IsKeyDown(KEY(a)) && arrowReady)ac->ChangeCur("fire",false);
-
 		if(!mem->ints["onAir"])mem->ints["doubleJump"]=0;
 		if(INPUT.KeyPress(KEY_UP) && !mem->ints["doubleJump"]){
 			if(!mem->ints["onAir"])speed.y=-1500.0f;
@@ -673,7 +688,7 @@ uint GameObject::MakePlayer(const Vec2 &pos){
 	player->AddComponent(new CompMovement{});
 
 	player->AddComponent(new CompGravity{2500.0f});
-	player->AddComponent(new CompHP{100,100,true,false,0.25f});
+	player->AddComponent(new CompHP{100,100,true,false,0.75f});
 
 	CompMemory *mem = new CompMemory;
 	mem->ints["arrowReady"] = 1;

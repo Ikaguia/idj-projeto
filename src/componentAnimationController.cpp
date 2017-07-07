@@ -39,6 +39,9 @@ CompAnim& CompAnimControl::GetCur(){
 const string& CompAnimControl::GetCurName()const{
 	return cur;
 }
+string& CompAnimControl::GetCurName(){
+	return cur;
+}
 
 
 void CompAnimControl::Update(float time){

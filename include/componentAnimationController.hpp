@@ -27,6 +27,7 @@ public:
 	void ChangeCur(string anim,bool rep=true);
 	CompAnim& GetCur();
 	const string& GetCurName()const;
+	string& GetCurName();
 
 	void Update(float time);
 	void Render();
