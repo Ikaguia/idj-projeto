@@ -1,13 +1,27 @@
 player/player_projectile2
+img/player/flecha-especial-estatica.png
 500.0
 
-stick_block 1
-
-start 2
+start 1
 	owner AddVar int fired 1
-	owner AddVar float mana -1.0
-hit_enemy 1
-	target Damage 10 16 
-hit_block 2
-	self DamageAreaFixed 0 0 200 200 0.0 5 11 0
+hit_enemy 10
+	target Damage 6 5
+	self FireProjectile  1  0 1000 0 player_proj1
+	self FireProjectile  1  1 1000 45 player_proj1
+	self FireProjectile  0  1 1000 90 player_proj1
+	self FireProjectile -1  1 1000 135 player_proj1
+	self FireProjectile -1  0 1000 180 player_proj1
+	self FireProjectile -1 -1 1000 225 player_proj1
+	self FireProjectile  0 -1 1000 270 player_proj1
+	self FireProjectile  1 -1 1000 315 player_proj1
+	self Remove
+hit_block 9
+	self FireProjectile  1  0 1000 0 player_proj1
+	self FireProjectile  1  1 1000 45 player_proj1
+	self FireProjectile  0  1 1000 90 player_proj1
+	self FireProjectile -1  1 1000 135 player_proj1
+	self FireProjectile -1  0 1000 180 player_proj1
+	self FireProjectile -1 -1 1000 225 player_proj1
+	self FireProjectile  0 -1 1000 270 player_proj1
+	self FireProjectile  1 -1 1000 315 player_proj1
 	self Remove

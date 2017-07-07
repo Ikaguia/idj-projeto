@@ -327,6 +327,7 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 	Music music;
 	CompAnimControl *ac = COMPANIMCONTp(GO(ai->entity));
 	CompMemory *mem = COMPMEMORYp(GO(ai->entity));
+	// CompHP *hp - COMPHPp(GO(ai->entity));
 
 	int &state = mem->ints["state"];
 	int &attacked = mem->ints["attacked"];
@@ -603,9 +604,10 @@ void PlayerControlFunc(GameObject* go, float time){
 	// }
 	// if(mem->timers["stunned"].Get() < 0.5)return;
 
-	if(curAnim == "kick" || curAnim == "fire")return;
-	if(arrowReady && INPUT.IsKeyDown(KEY(a)) && curAnim == "idle")ac->ChangeCur("fire",false);
-	else if(         INPUT.KeyPress (KEY(s)) && curAnim == "idle")ac->ChangeCur("kick",false);
+	if(curAnim == "kick" || curAnim == "fire" || curAnim == "fire2")return;
+	if     (arrowReady && INPUT.IsKeyDown(KEY(a)) && curAnim == "idle")ac->ChangeCur("fire", false);
+	else if(arrowReady && INPUT.IsKeyDown(KEY(s)) && curAnim == "idle")ac->ChangeCur("fire2",false);
+	//else if(              INPUT.KeyPress (KEY(s)) && curAnim == "idle")ac->ChangeCur("kick", false);
 	else{
 		if(!mem->ints["onAir"])mem->ints["doubleJump"]=0;
 		if(INPUT.KeyPress(KEY_UP) && !mem->ints["doubleJump"]){

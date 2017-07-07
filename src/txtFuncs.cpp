@@ -9,6 +9,7 @@
 #define MAP(N,T) map<string,txtFuncType2(T)> N = {\
 	/*FUNC(AddParticle,T),*/\
 	FUNC(AddSprite,T),\
+	FUNC(AddSprite2,T),\
 	FUNC(AddVar,T),\
 	FUNC(ChangeVar,T),\
 	FUNC(Damage,T),\
@@ -46,6 +47,22 @@ template<class T> txtFuncType1 AddSprite(T& in){
 		if     (self->HasComponent(Component::type::t_animation))        sp = COMPANIMp(self)->sp;
 		else if(self->HasComponent(Component::type::t_animation_control))sp = COMPANIMCONTp(self)->GetCur().sp;
 		else if(self->HasComponent(Component::type::t_static_render))    sp = COMPSTATICRENDERp(self)->sp;
+		sp.SetFrameTime(-1.0f);
+		if(limit != -1)spr->AddComponent(new CompTimer{limit});
+		spr->AddComponent(new CompStaticRender{sp,Vec2{}});
+		GAMESTATE.AddObject(spr->uid);
+	};
+}
+template<class T> txtFuncType1 AddSprite2(T& in){
+	Vec2 pos;
+	float limit;
+	string file;
+	in >> file >> pos.x >> pos.y >> limit;
+	return [file,pos,limit](GameObject* self){
+		GameObject *spr = new GameObject{pos};
+		spr->flipped=true;
+		spr->rotation=self->rotation;
+		Sprite sp(file);
 		sp.SetFrameTime(-1.0f);
 		if(limit != -1)spr->AddComponent(new CompTimer{limit});
 		spr->AddComponent(new CompStaticRender{sp,Vec2{}});
@@ -183,21 +200,36 @@ template<class T> txtFuncType1 DamageAreaFixed(T& in){
 	};
 }
 template<class T> txtFuncType1 FireProjectile(T& in){
+	COUTL(FireProjectile read begin);
 	int count;
 	float x,y,f,r,g;
-	string projFile,animFile,cur,target,funcN;
+	string projFile,projFileStatic,animFile,cur,target,funcN;
 	in >> x >> y >> f >> r >> projFile;
 
+	DEBUG(x);
+	DEBUG(y);
+	DEBUG(f);
+	DEBUG(r);
+	DEBUG(projFile);
+
+	COUTL(aaaa1);
 	map<string,int> vars;
+	COUTL(aaaa2);
 	vector<pair<string,txtFuncType1>> start,hitEnemy,hitAlly,hitBlock;
+	COUTL(aaaa3);
 
 	ifstream file(PROJECTILE_PATH + projFile + ".txt");
+	COUTL(aaaa4);
 	if(!file.is_open()){
 		cerr << "Erro ao abrir arquivo " << projFile << endl;
 		exit(EXIT_FAILURE);
 	}
-	file >> animFile >> g;
+	COUTL(aaaa5);
+	file >> animFile >> projFileStatic >> g;
+	COUTL(aaaa6);
 	while(file >> cur >> count){
+		DEBUG(cur);
+		DEBUG(count);
 		if(cur=="start" || cur=="hit_enemy" || cur=="hit_ally" || cur=="hit_block"){
 			FOR(i,count){
 				file >> target >> funcN;
@@ -209,9 +241,11 @@ template<class T> txtFuncType1 FireProjectile(T& in){
 		}
 		else vars[cur] = count;
 	}
+	COUTL(aaaa7);
 	file.close();
+	COUTL(aaaa8);
 
-	return [x,y,f,r,g,animFile,vars,start,hitAlly,hitEnemy,hitBlock](GameObject* owner){
+	auto foo = [x,y,f,r,g,animFile,vars,start,hitAlly,hitEnemy,hitBlock,projFileStatic](GameObject* owner){
 		Vec2 pos = owner->Box().relativePos({x,y},owner->flipped);
 		float ang=-r;
 		if(!owner->flipped)ang = 180-ang;
@@ -222,7 +256,7 @@ template<class T> txtFuncType1 FireProjectile(T& in){
 		collider.colls[0].useDefault[CompCollider::collType::t_bullet] = []
 			(const CompCollider::Coll &a,const CompCollider::Coll &b){UNUSED(a);UNUSED(b);};
 
-		auto foo1 = [owner,vars,hitAlly,hitEnemy](const CompCollider::Coll &a,const CompCollider::Coll &b){
+		auto foo1 = [owner,vars,hitAlly,hitEnemy,projFileStatic](const CompCollider::Coll &a,const CompCollider::Coll &b){
 			bool isAlly = GO(a.entity)->team == GO(b.entity)->team;
 
 
@@ -249,8 +283,8 @@ template<class T> txtFuncType1 FireProjectile(T& in){
 				if(!GO(b.entity)->HasComponent(Component::type::t_movement)){
 					if((isAlly && vars.count("stick_ally")==0) || (!isAlly && vars.count("stick_enemy")==0))return;
 					Vec2 pos = GO(a.entity)->Box().corner() + move + totMove/4.0f;
-					auto &func = txtFuncsS["AddSprite"];
-					istringstream iss(to_string(pos.x) + to_string(pos.y));
+					auto &func = txtFuncsS["AddSprite2"];
+					istringstream iss(projFileStatic + " " + to_string(pos.x) + to_string(pos.y) + " 5");
 					func(iss)(GO(a.entity));
 					GAMESTATE.GetLastObject()->AttachTo(GO(b.entity));
 				}
@@ -258,7 +292,7 @@ template<class T> txtFuncType1 FireProjectile(T& in){
 		};
 		collider.colls[0].useDefault[CompCollider::collType::t_any] = foo1;
 
-		auto foo2 = [owner,vars,hitBlock](const CompCollider::Coll &a,const CompCollider::Coll &b){
+		auto foo2 = [owner,vars,hitBlock,projFileStatic](const CompCollider::Coll &a,const CompCollider::Coll &b){
 			Vec2 &totMove=COMPMOVEp(GO(a.entity))->move;
 			if(totMove==Vec2{})return;
 
@@ -272,8 +306,8 @@ template<class T> txtFuncType1 FireProjectile(T& in){
 				}
 				if(vars.count("stick_block")==1){
 					Vec2 pos = GO(a.entity)->pos + move + totMove/4.0f;
-					auto &func = txtFuncsS["AddSprite"];
-					istringstream iss(to_string(pos.x) + " " + to_string(pos.y) + " 5");
+					auto &func = txtFuncsS["AddSprite2"];
+					istringstream iss(projFileStatic + " " + to_string(pos.x) + " " + to_string(pos.y) + " 5");
 					func(iss)(GO(a.entity));
 					GAMESTATE.GetLastObject()->AttachTo(GO(b.entity));
 				}
@@ -306,6 +340,9 @@ template<class T> txtFuncType1 FireProjectile(T& in){
 			if(pfunc.first=="self")pfunc.second(bullet);
 		}
 	};
+	COUTL(aaaa9);
+	COUTL(FireProjectile read end);
+	return foo;
 }
 template<class T> txtFuncType1 Remove(T& in){
 	UNUSED(in);

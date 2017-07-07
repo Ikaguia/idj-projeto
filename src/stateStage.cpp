@@ -16,7 +16,7 @@ StateStage::~StateStage(){}
 
 void StateStage::Begin(){
 	level.Load(levelName);
-	player = GameObject::MakePlayer(Vec2{150.0f,430.0f});
+	player = GameObject::MakePlayer(Vec2{550.0f,430.0f});
 	AddObject(player);
 	Camera::Follow(player);
 	level.LoadObjects();

@@ -1,4 +1,5 @@
 player/player_projectile1
+img/player/flecha-estatica.png
 500.0
 
 stick_enemy 1
@@ -7,7 +8,7 @@ stick_block 1
 start 1
 	owner AddVar int fired 1
 hit_enemy 2
-	target Damage 100 160
+	target Damage 10 16
 	self Remove
 hit_block 1
 	self Remove

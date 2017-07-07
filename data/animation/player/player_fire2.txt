@@ -2,7 +2,7 @@ img/player/player_fire.png
 
 6 6 1 0.125
 1	0 0 0.4 1.0 0	1 ChangeVar int arrowReady 0
-1	0 0 0.4 1.0 0	1 FireProjectile 0.65 0.38 1500 5 player_proj1
+1	0 0 0.4 1.0 0	1 FireProjectile 0.65 0.38 1500 5 player_proj2
 1	0 0 0.4 1.0 0	0
 1	0 0 0.4 1.0 0	0
 1	0 0 0.4 1.0 0	0
