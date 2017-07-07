@@ -31,6 +31,10 @@ public:
 
 	virtual void LoadAssets();
 	virtual void LoadGUI();
+
+	Sprite floresta_bg1;
+	Sprite floresta_bg2;
+	Sprite floresta_bg3;
 };
 
 #endif//STATESTAGEHPP

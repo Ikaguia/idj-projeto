@@ -9,6 +9,8 @@
 
 class StateTitle: public State{
 	Sprite bg;
+	Sprite bt1;
+	Sprite bt2;
 public:
 
 	StateTitle();

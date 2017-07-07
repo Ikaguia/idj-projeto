@@ -102,8 +102,12 @@ void StateEditor::Update(float time){
 			Vec2 cursor = GetCurrentTile();
 			Rect canvas(0, 0, level.tileMap.GetWidth()-1, level.tileMap.GetHeight()-1);
 			if(canvas.contains(cursor)) {
-				level.tileMap.At(cursor.x, cursor.y, 0) = tileIndex;
-				level.collisionLayer[(cursor.y*level.tileMap.GetWidth())+cursor.x] = COLLISION_BLOCK;
+				if(showCollision){
+					level.collisionLayer[(cursor.y*level.tileMap.GetWidth())+cursor.x] = COLLISION_BLOCK;
+				}
+				else{
+					level.tileMap.At(cursor.x, cursor.y, 0) = tileIndex;
+				}
 			}
 		}
 		//Erase a tile
@@ -111,8 +115,12 @@ void StateEditor::Update(float time){
 			Vec2 cursor = GetCurrentTile();
 			Rect canvas(0, 0, level.tileMap.GetWidth()-1, level.tileMap.GetHeight()-1);
 			if(canvas.contains(cursor)) {
-				level.tileMap.At(cursor.x, cursor.y, 0) = -1;
-				level.collisionLayer[(cursor.y*level.tileMap.GetWidth())+cursor.x] = EMPTY_TILE;
+				if(showCollision){
+					level.collisionLayer[(cursor.y*level.tileMap.GetWidth())+cursor.x] = EMPTY_TILE;
+				}
+				else{
+					level.tileMap.At(cursor.x, cursor.y, 0) = -1;
+				}
 			}
 		}
 	

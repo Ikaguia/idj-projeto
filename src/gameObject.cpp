@@ -340,6 +340,10 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 
 	// bool enraged = hp->current < hp->total/2;
 	// if(enraged && !mem->ints["enraged"]){
+	// 	CompCollider *coll = COMPANIMCONTp(GO(ai->entity))->GetCur().colliders[0];
+	// 	CompAnimControl *animControl = new CompAnimControl{"porco_rage",coll};
+	// 	GO(ai->entity)->RemoveComponent(Component::type::t_animation_control);
+	// 	GO(ai->entity)->AddComponent(animControl);
 	// }
 
 	string &curAnim = ac->GetCurName();
@@ -615,8 +619,8 @@ void PlayerControlFunc(GameObject* go, float time){
 	else{
 		if(!mem->ints["onAir"])mem->ints["doubleJump"]=0;
 		if(INPUT.KeyPress(KEY_UP) && !mem->ints["doubleJump"]){
-			if(!mem->ints["onAir"])speed.y=-1500.0f;
-			else speed.y=-1000.0f;
+			if(!mem->ints["onAir"])speed.y=-1000.0f;
+			else speed.y=-750.0f;
 			mem->ints["doubleJump"]=mem->ints["onAir"];
 			mem->ints["onAir"]=1;
 			//ac->ChangeCur("jump");

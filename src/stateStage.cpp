@@ -8,7 +8,11 @@
 #include <game.hpp>
 #include <gameObject.hpp>
 #include <complib.hpp>
-StateStage::StateStage(string lvl):levelName{lvl}{
+StateStage::StateStage(string lvl):levelName{lvl},
+	// floresta_bg1{"img/jogotela-campo-1-away.png"},
+	floresta_bg2{"img/floresta-away.png"},
+	floresta_bg3{"img/jogotela-ponte-away.png"}
+	{
 	LoadAssets();
 }
 
@@ -27,10 +31,11 @@ void StateStage::Update(float time){
 	if(INPUT.QuitRequested())quitRequested=true;
 	if(INPUT.KeyPress(KEY_ESC))popRequested=true;
 	
-	if(INPUT.KeyPress(KEY(u))) AddObject(GameObject::MakePorco(Vec2{2000.0f,800.0f}));
-	if(INPUT.KeyPress(KEY(p))) AddObject(GameObject::MakeMike(Vec2{850.0f,300.0f}));
-	if(INPUT.KeyPress(KEY(o))) AddObject(GameObject::MakeBanshee(Vec2{850.0f,400.0f},Vec2{230.0f,130.0f}));
-	if(INPUT.KeyPress(KEY(i))) AddObject(GameObject::MakeMask(Vec2{850.0f,400.0f}));
+	Vec2 pos = GO(PLAYER_UID)->pos;
+	if(INPUT.KeyPress(KEY(u))) AddObject(GameObject::MakePorco(pos+Vec2{2000.0f,-100.0f}));
+	if(INPUT.KeyPress(KEY(p))) AddObject(GameObject::MakeMike(pos+Vec2{850.0f,-100.0f}));
+	if(INPUT.KeyPress(KEY(o))) AddObject(GameObject::MakeBanshee(pos+Vec2{850.0f,-100.0f},pos+Vec2{230.0f,-200.0f}));
+	if(INPUT.KeyPress(KEY(i))) AddObject(GameObject::MakeMask(pos+Vec2{850.0f,-100.0f}));
 	if(INPUT.KeyPress(KEY(y))) GO(player)->dead=true;
 
 	if(INPUT.KeyPress(KEY(n))) SETTINGS.showHP = !SETTINGS.showHP;
@@ -40,6 +45,16 @@ void StateStage::Update(float time){
 }
 void StateStage::Render(){
 	level.background.Render(0, 0);
+	// floresta_bg1.Render(RENDERPOS(Vec2(0,0)));
+	// floresta_bg2.Render(RENDERPOS(Vec2(4433,0)));
+	// floresta_bg3.Render(RENDERPOS(Vec2(8465,0)));
+	floresta_bg2.Render(RENDERPOS(Vec2(0,0)));
+	floresta_bg2.Render(RENDERPOS(Vec2(4032*1,0)));
+	floresta_bg2.Render(RENDERPOS(Vec2(4032*2,0)));
+	floresta_bg2.Render(RENDERPOS(Vec2(4032*3,0)));
+	floresta_bg2.Render(RENDERPOS(Vec2(4032*4,0)));
+	floresta_bg2.Render(RENDERPOS(Vec2(4032*5,0)));
+	floresta_bg3.Render(RENDERPOS(Vec2(4032*6,0)));
 	level.tileMap.Render();
 	RenderArray();
 }
