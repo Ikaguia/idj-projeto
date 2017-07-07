@@ -4,9 +4,11 @@ attack porco_attack_l
 stomp porco_stomp_l
 charge porco_charge_l
 die porco_die_l
+turn porco_virando_l
 idle_r porco_idle_r
 walk_r porco_walk_r
 attack_r porco_attack_r
 stomp_r porco_stomp_r
 charge_r porco_charge_r
 die_r porco_die_r
+turn_r porco_virando_r

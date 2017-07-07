@@ -140,8 +140,6 @@ void Level::LoadObjects(bool collisors){
 	for(auto& i:objectList){
 		if(i.empty()) continue;
 		sscanf(i.c_str(), " %s %f %f %d", objType, &objPos.x, &objPos.y, &layer);
-		DEBUG(objType);
-		DEBUG(objPos);
 		uid = GameObject::Create(objType, objPos);
 		GAMESTATE.AddObject(uid,layer);
 	}

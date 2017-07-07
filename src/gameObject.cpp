@@ -44,47 +44,26 @@ GameObject::~GameObject(){
 }
 
 void GameObject::Update(float time){
-	COUTL(d1);
-	DEBUG(uid);
 	if(IsDead()){
-		COUTL(d2);
 		remove = true;
-		COUTL(d3);
 		// for(auto i=Component::type::t_first+1;i!=Component::type::t_count;i++){
-		COUTL(d4);
 		FOR(i,Component::type::t_count){
-			COUTL(d5);
-			DEBUG(i);
 			if(HasComponent(i)){
-			COUTL(d6);
 				if(components[i]->Die(time))RemoveComponent((Component::type)i);
 				else remove=false;
-			COUTL(d7);
 			}
 		}
 	}
-			COUTL(d8);
 	//reset move
-			COUTL(d9);
 	if(HasComponent(Component::type::t_movement))COMPMOVEp(this)->move=0.0f;
-			COUTL(d10);
 	//process input control and ai first
-			COUTL(d11);
 	if(HasComponent(Component::type::t_input_control))COMPINPUTCONTp(this)->Update(time);
-			COUTL(d12);
 	if(HasComponent(Component::type::t_ai))COMPAIp(this)->Update(time);
-			COUTL(d13);
 	//then set move
-			COUTL(d14);
 	if(HasComponent(Component::type::t_movement))COMPMOVEp(this)->move+=COMPMOVEp(this)->speed*time;
-			COUTL(d15);
 	//and then do the rest
-			COUTL(d16);
 	FOR2(i,Component::type::t__+1,Component::type::t_count){
-			COUTL(d17);
-			DEBUG(i);
 		if(HasComponent(i))components[i]->Update(time);
-			COUTL(d18);
 	}
 }
 void GameObject::Render(){
@@ -574,6 +553,8 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 }
 
 void PlayerControlFunc(GameObject* go, float time){
+	UNUSED(time);
+
 	CompAnimControl *ac = COMPANIMCONTp(go);
 	CompMemory *mem = COMPMEMORYp(go);
 	CompMovement *mv = COMPMOVEp(go);

@@ -1,6 +1,6 @@
-img/player-andando4.png
+img/player/player-andando4.png
 
-8 1 0.25
+8 8 1 0.25
 1	0 0 0.4 1.0 0	0
 1	0 0 0.4 1.0 0	0
 1	0 0 0.4 1.0 0	0

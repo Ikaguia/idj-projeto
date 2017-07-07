@@ -6,20 +6,27 @@
 #include <game.hpp>
 #include <resources.hpp>
 
-Sprite::Sprite():texture{nullptr},scaleX{1.0f},scaleY{1.0f},flipH{false},flipV{false},timeElapsed{0.0f}{}
-Sprite::Sprite(const string& file,int fCount,float fTime):texture{nullptr},scaleX{1.0f},scaleY{1.0f},flipH{false},flipV{false},timeElapsed{0.0f}{
-	Open(file,fCount,fTime);
+Sprite::Sprite():texture{nullptr}{}
+Sprite::Sprite(const string& file,int fCountX,int fCountY,float fTime,int fCount):texture{nullptr}{
+	if(fCount==-1)fCount=fCountX*fCountY;
+	Open(file,fCountX,fCountY,fTime,fCount);
+}
+Sprite::Sprite(const string& file,int fCountX,float fTime,int fCount):texture{nullptr}{
+	if(fCount==-1)fCount=fCountX;
+	Open(file,fCountX,1,fTime,fCount);
 }
 Sprite::~Sprite(){}
 
-void Sprite::Open(const string& file,int fCount,float fTime){
+void Sprite::Open(const string& file,int fCountX,int fCountY,float fTime,int fCount){
+	if(fCount==-1)fCount=fCountX*fCountY;
+
 	texture = Resources::GetImage(file);
 	if(SDL_QueryTexture(texture.get(),nullptr,nullptr,&width,&height)){
 		cerr << "Erro ao carregar as dimensões da textura \"" << file << "\", o programa ira encerrar agora" << endl;
 		exit(EXIT_FAILURE);
 	}
 
-	SetFrameCount(fCount);
+	SetFrameCount(fCountX,fCountY,fCount);
 	SetFrameTime(fTime);
 	SetFrame(0);
 }
@@ -52,19 +59,22 @@ void Sprite::Render(const Vec2& v, float angle, float extScale) {
 }
 
 void Sprite::Update(float time){
-	if(frameCount==1 || frameTime<0)return;
+	if(GetFrameCount()==1 || frameTime<0)return;
 	timeElapsed+=time;
 	if(timeElapsed>frameTime){
 		timeElapsed-=frameTime;
-		SetFrame((currentFrame+1)%frameCount);
+		SetFrame((currentFrame+1)%GetFrameCount());
 		looped = (currentFrame==0);
 	}
 }
 void Sprite::SetFrame(int frame){
 	currentFrame = frame;
-	SetClip(frame*GetWidth(),0,GetWidth(),GetHeight());
+	SetClip((frame%frameCountX)*GetWidth(),(frame/frameCountX)*GetHeight(),GetWidth(),GetHeight());
 }
-void Sprite::SetFrameCount(int fCount){
+void Sprite::SetFrameCount(int fCountX,int fCountY,int fCount){
+	if(fCount==-1)fCount=fCountX*fCountY;
+	frameCountX=fCountX;
+	frameCountY=fCountY;
 	frameCount=fCount;
 }
 void Sprite::SetFrameTime(float fTime){
@@ -72,11 +82,11 @@ void Sprite::SetFrameTime(float fTime){
 }
 
 int Sprite::GetWidth()const{
-	return (width*scaleX)/frameCount;
+	return (width*scaleX)/frameCountX;
 }
 
 int Sprite::GetHeight()const{
-	return (height*scaleY);
+	return (height*scaleY)/frameCountY;
 }
 
 int Sprite::GetCurFrame()const{
@@ -85,6 +95,11 @@ int Sprite::GetCurFrame()const{
 
 int Sprite::GetFrameCount()const{
 	return frameCount;
+}
+
+Vec2 Sprite::GetFrameCount(bool b)const{
+	UNUSED(b);
+	return {(float)frameCountX,(float)frameCountY};
 }
 
 bool Sprite::IsOpen()const{

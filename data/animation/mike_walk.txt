@@ -1,6 +1,6 @@
-img/mike-andandov2.png
+img/mike/mike-andando.png
 
-8 1 0.125
+8 8 1 0.125
 1	0 0 0.4 0.65 0	0
 1	0 0 0.4 0.65 0	0
 1	0 0 0.4 0.65 0	0

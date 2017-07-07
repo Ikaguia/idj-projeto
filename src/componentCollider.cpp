@@ -19,33 +19,19 @@ void CompCollider::CollisionCheck(CompCollider *other){
 }
 
 void CompCollider::Update(float time){
-	COUTL(e1);
 	UNUSED(time);
-	COUTL(e2);
 	for(Coll &coll:colls){
-		COUTL(e3);
 		if(coll.active){
-			COUTL(e4);
 			int x1 = coll.Box().x-10;
-			COUTL(e4);
 			int x2 = coll.Box().x2()+10;
-			COUTL(e4);
 			set<uint> ent = GAMESTATE.GetEntitiesInRange(x1,x2);
-			COUTL(e5);
 			for(uint go:ent){
-			COUTL(e6);
 				if(go != entity && GO(go)->HasComponent(Component::type::t_collider)){
-			COUTL(e7);
 					CollisionCheck(COMPCOLLIDERp(GO(go)));
-			COUTL(e8);
 				}
-			COUTL(e9);
 			}
-			COUTL(e10);
 		}
-			COUTL(e11);
 	}
-			COUTL(e12);
 }
 void CompCollider::Render(){
 	if(SETTINGS.showCollision)

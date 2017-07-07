@@ -59,7 +59,9 @@ void CompAnimControl::Render(){
 }
 void CompAnimControl::Own(GameObject *go){
 	entity=go->uid;
-	for(auto &anim:animations)anim.second->Own(go);
+	for(auto &anim:animations){
+		anim.second->Own(go);
+	}
 	GetCur().Own(go);
 }
 bool CompAnimControl::Die(float time){
