@@ -12,7 +12,7 @@ class Level {
 	string backgroundFilename;
 	vector<string> objectList;
 	vector<int> collisionGroups;
-public:
+public:	
 	Sprite background;
 	TileSet tileSet;
 	TileMap tileMap;

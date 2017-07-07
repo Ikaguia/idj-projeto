@@ -137,16 +137,24 @@ void GUI_CheckButton::Render(){
 }
 
 //GUI_TextButton
-GUI_TextButton::GUI_TextButton(uint a,const string& l,const Vec2& pos):GUI_Button(a,pos),label{l, DEFAULT_FONT_SIZE}{
-	label.SetHotspot();
-	box.w = label.GetBox().w+DEFAULT_MARGIN*4;
+GUI_TextButton::GUI_TextButton(uint a,const string& l, uint w, const Vec2& pos):GUI_Button(a,pos),label{l, DEFAULT_FONT_SIZE}{
+	label.SetHotspot(Hotspot::LEFT);
+	label.SetAlignment(Text::Align::LEFT);
+	if(w) box.w=w;
+	else box.w = label.GetBox().w+DEFAULT_MARGIN*4;
 }
 
 void GUI_TextButton::Render(){
 	GUI_Button::Render();
 	
-	label.SetPos(box.center());
-	label.Render();
+	label.SetPos({box.x+(DEFAULT_MARGIN*2),box.y+(DEFAULT_WIDTH/2)});
+	if(label.GetBox().w > (box.w-DEFAULT_MARGIN*4)){
+		Rect textClip{0,0,box.w-DEFAULT_MARGIN*2,DEFAULT_FONT_SIZE+2};
+		label.Render({0,0}, &textClip);
+	}
+	else{
+		label.Render();
+	}
 }
 
 //GUI_IconButton
