@@ -17,10 +17,10 @@ void State::End(){
 	ClearObjects();
 }
 
-void State::AddObject(uint uid, const string& layer, int area){
-	//ii key(layer,area);
-	//group[key].insert(uid);
-	objectLayer[layer].insert(uid);
+void State::AddObject(uint uid, int layer, int area){
+	ii key(layer,area);
+
+	group[key].insert(uid);
 	entities_.insert(uid);
 
 	lastGO = uid;
@@ -71,5 +71,3 @@ void State::RenderArray(){
 		GO(uid)->Render();
 	}
 }
-
-State::Layer::Layer(const string& n, char t, const float& p):name{n},type{t},parallax{p}{}

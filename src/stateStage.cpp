@@ -39,27 +39,9 @@ void StateStage::Update(float time){
 	UpdateArray(time);
 }
 void StateStage::Render(){
-	SET_COLOR4(127,127,127,255);
-	CLEAR_SCREEN();
-	for(auto& layer:layerList){
-		if(!layer.visible) continue;
-
-		if(layer.type == '*'){
-			set<uint>& objects= objectLayer[layer.name];
-			
-			for(uint uid:objects){
-				if(!isGO(uid))continue;
-				if(GO(uid)==nullptr){
-					GameObject::entities.erase(uid);
-					continue;
-				}
-				GO(uid)->Render();
-			}
-		}
-		else if(layer.type == '#'){
-			level.tileMap.RenderLayer(layer.tileMapLayer);
-		}
-	}
+	level.background.Render(0, 0);
+	level.tileMap.Render();
+	RenderArray();
 }
 
 void StateStage::Pause(){

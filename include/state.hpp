@@ -7,9 +7,8 @@
 #include <guiManager.hpp>
 #include <sound.hpp>
 
+
 class State{
-public:
-	class Layer;
 protected:
 
 	bool popRequested=false;
@@ -21,10 +20,8 @@ protected:
 public:
 	GUIManager gui;
 	
-	vector<Layer> layerList;
-	map<string,set<uint>> objectLayer;
-	map<ii,set<uint>> group;
 	set<uint> entities_;
+	map<ii,set<uint>> group;
 
 	State();
 	virtual ~State(){}
@@ -40,7 +37,7 @@ public:
 	virtual void LoadAssets()=0;
 	virtual void LoadGUI()=0;
 
-	virtual void AddObject(uint uid, const string& layer="MAIN", int area=0);
+	virtual void AddObject(uint uid, int layer=0, int area=0);
 	virtual void ClearObjects();
 	GameObject* GetLastObject();
 
@@ -50,17 +47,6 @@ public:
 	virtual bool QuitRequested();
 	
 	set<uint> GetEntitiesInRange(const float &x1,const float &x2);
-};
-
-class State::Layer{
-public:
-	string name;
-	const char type;
-	float parallax;
-	uint tileMapLayer=0;
-	bool visible=true;
-	
-	Layer(const string& n, char t, const float& p);
 };
 
 #endif//STATEHPP
