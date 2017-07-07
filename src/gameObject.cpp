@@ -327,7 +327,7 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 	Music music;
 	CompAnimControl *ac = COMPANIMCONTp(GO(ai->entity));
 	CompMemory *mem = COMPMEMORYp(GO(ai->entity));
-	// CompHP *hp - COMPHPp(GO(ai->entity));
+	CompHP *hp = COMPHPp(GO(ai->entity));
 
 	int &state = mem->ints["state"];
 	int &attacked = mem->ints["attacked"];
@@ -337,6 +337,10 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 	Timer &al = mem->timers["alerted"];
 	Timer &stompCD = mem->timers["stomp"];
 	music.Open("audio/batalha-miniboss.ogg");
+
+	// bool enraged = hp->current < hp->total/2;
+	// if(enraged && !mem->ints["enraged"]){
+	// }
 
 	string &curAnim = ac->GetCurName();
 	if(curAnim.substr(curAnim.size()-2)=="_r"){
