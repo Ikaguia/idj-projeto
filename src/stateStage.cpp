@@ -27,10 +27,10 @@ void StateStage::Update(float time){
 	if(INPUT.QuitRequested())quitRequested=true;
 	if(INPUT.KeyPress(KEY_ESC))popRequested=true;
 	
-	if(INPUT.KeyPress(KEY(u))) AddObject(GameObject::MakePorco(Vec2{850.0f,300.0f}));
+	if(INPUT.KeyPress(KEY(u))) AddObject(GameObject::MakePorco(Vec2{2000.0f,800.0f}));
 	if(INPUT.KeyPress(KEY(p))) AddObject(GameObject::MakeMike(Vec2{850.0f,300.0f}));
 	if(INPUT.KeyPress(KEY(o))) AddObject(GameObject::MakeBanshee(Vec2{850.0f,400.0f},Vec2{230.0f,130.0f}));
-	if(INPUT.KeyPress(KEY(i))) AddObject(GameObject::MakeMask(Vec2{850.0f,300.0f}));
+	if(INPUT.KeyPress(KEY(i))) AddObject(GameObject::MakeMask(Vec2{850.0f,400.0f}));
 	if(INPUT.KeyPress(KEY(y))) GO(player)->dead=true;
 
 	if(INPUT.KeyPress(KEY(n))) SETTINGS.showHP = !SETTINGS.showHP;
@@ -69,5 +69,30 @@ void StateStage::Resume(){
 	Camera::Follow(PLAYER_UID);
 }
 
-void StateStage::LoadAssets(){}
+void StateStage::LoadAssets(){
+	Resources::GetImage("img/porco/porco-chifrada.png");
+	Resources::GetImage("img/porco/porco-correndo.png");
+	Resources::GetImage("img/porco/porco-idle.png");
+	Resources::GetImage("img/porco/porco-morte.png");
+	Resources::GetImage("img/porco/porco-stun.png");
+	Resources::GetImage("img/porco/porco-virando.png");
+	Resources::GetImage("img/porco/porco-chifrada-virado.png");
+	Resources::GetImage("img/porco/porco-correndo-virado.png");
+	Resources::GetImage("img/porco/porco-idle-virado.png");
+	Resources::GetImage("img/porco/porco-morte-virado.png");
+	Resources::GetImage("img/porco/porco-stun-virado.png");
+	Resources::GetImage("img/porco/porco-virando-virado.png");
+	Resources::GetImage("img/porco/rage/porco-chifrada.png");
+	Resources::GetImage("img/porco/rage/porco-correndo.png");
+	Resources::GetImage("img/porco/rage/porco-idle.png");
+	Resources::GetImage("img/porco/rage/porco-morte.png");
+	Resources::GetImage("img/porco/rage/porco-stun.png");
+	Resources::GetImage("img/porco/rage/porco-virando.png");
+	Resources::GetImage("img/porco/rage/porco-chifrada-virado.png");
+	Resources::GetImage("img/porco/rage/porco-correndo-virado.png");
+	Resources::GetImage("img/porco/rage/porco-idle-virado.png");
+	Resources::GetImage("img/porco/rage/porco-morte-virado.png");
+	Resources::GetImage("img/porco/rage/porco-stun-virado.png");
+	Resources::GetImage("img/porco/rage/porco-virando-virado.png");
+}
 void StateStage::LoadGUI(){}

@@ -13,6 +13,7 @@
 uint Camera::focus = 0;
 Vec2 Camera::pos;
 Vec2 Camera::speed;
+Vec2 Camera::sz{100,50};
 float Camera::zoom = 1.0f;
 bool Camera::lock = false;
 bool Camera::following = false;
@@ -57,7 +58,11 @@ void Camera::Update(float time){
 }
 
 void Camera::CenterTo(const Vec2& v) {
-	pos = v - (WINSIZE/2/zoom);
+	Vec2 target = v - (WINSIZE/2/zoom);
+	pos.x = max(pos.x,target.x-sz.x);
+	pos.x = min(pos.x,target.x+sz.x);
+	pos.y = max(pos.y,target.y-sz.y);
+	pos.y = min(pos.y,target.y+sz.y);
 }
 
 Vec2 Camera::RenderPos(const Vec2& v) {

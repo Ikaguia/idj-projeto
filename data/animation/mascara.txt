@@ -1,4 +1,4 @@
-idle mascara_idle
-walk mascara_walk
-attack mascara_attack
-die mascara_die
+idle mascara/mascara_idle
+walk mascara/mascara_walk
+attack mascara/mascara_attack
+die mascara/mascara_die

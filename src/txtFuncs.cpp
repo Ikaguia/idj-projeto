@@ -36,16 +36,18 @@ void CallFunc(const string func,const string str,GameObject* go){
 // template<class T> txtFuncType1 AddParticle(T& in){}
 template<class T> txtFuncType1 AddSprite(T& in){
 	Vec2 pos;
-	in >> pos.x >> pos.y;
-	return [pos](GameObject* self){
+	float limit;
+	in >> pos.x >> pos.y >> limit;
+	return [pos,limit](GameObject* self){
 		GameObject *spr = new GameObject{pos};
 		spr->flipped=true;
 		spr->rotation=self->rotation;
 		Sprite sp;
-		if     (self->hasComponent[Component::type::t_animation])        sp = COMPANIMp(self)->sp;
-		else if(self->hasComponent[Component::type::t_animation_control])sp = COMPANIMCONTp(self)->GetCur().sp;
-		else if(self->hasComponent[Component::type::t_static_render])    sp = COMPSTATICRENDERp(self)->sp;
+		if     (self->HasComponent(Component::type::t_animation))        sp = COMPANIMp(self)->sp;
+		else if(self->HasComponent(Component::type::t_animation_control))sp = COMPANIMCONTp(self)->GetCur().sp;
+		else if(self->HasComponent(Component::type::t_static_render))    sp = COMPSTATICRENDERp(self)->sp;
 		sp.SetFrameTime(-1.0f);
+		if(limit != -1)spr->AddComponent(new CompTimer{limit});
 		spr->AddComponent(new CompStaticRender{sp,Vec2{}});
 		GAMESTATE.AddObject(spr->uid);
 	};
@@ -57,7 +59,7 @@ template<class T> txtFuncType1 AddVar(T& in){
 		int val;
 		in >> val;
 		return [name,val](GameObject* self){
-			if(!self->hasComponent[Component::type::t_memory])self->AddComponent(new CompMemory{});
+			if(!self->HasComponent(Component::type::t_memory))self->AddComponent(new CompMemory{});
 			COMPMEMORYp(self)->ints[name]+=val;
 		};
 	}
@@ -65,7 +67,7 @@ template<class T> txtFuncType1 AddVar(T& in){
 		float val;
 		in >> val;
 		return [name,val](GameObject* self){
-			if(!self->hasComponent[Component::type::t_memory])self->AddComponent(new CompMemory{});
+			if(!self->HasComponent(Component::type::t_memory))self->AddComponent(new CompMemory{});
 			COMPMEMORYp(self)->floats[name]+=val;
 		};
 	}
@@ -80,7 +82,7 @@ template<class T> txtFuncType1 ChangeVar(T& in){
 		string val;
 		in >> val;
 		return [name,val](GameObject* self){
-			if(!self->hasComponent[Component::type::t_memory])self->AddComponent(new CompMemory{});
+			if(!self->HasComponent(Component::type::t_memory))self->AddComponent(new CompMemory{});
 			COMPMEMORYp(self)->strings[name]=val;
 		};
 	}
@@ -88,7 +90,7 @@ template<class T> txtFuncType1 ChangeVar(T& in){
 		int val;
 		in >> val;
 		return [name,val](GameObject* self){
-			if(!self->hasComponent[Component::type::t_memory])self->AddComponent(new CompMemory{});
+			if(!self->HasComponent(Component::type::t_memory))self->AddComponent(new CompMemory{});
 			COMPMEMORYp(self)->ints[name]=val;
 		};
 	}
@@ -96,13 +98,13 @@ template<class T> txtFuncType1 ChangeVar(T& in){
 		float val;
 		in >> val;
 		return [name,val](GameObject* self){
-			if(!self->hasComponent[Component::type::t_memory])self->AddComponent(new CompMemory{});
+			if(!self->HasComponent(Component::type::t_memory))self->AddComponent(new CompMemory{});
 			COMPMEMORYp(self)->floats[name]=val;
 		};
 	}
 	if(type=="timer"){
 		return [name](GameObject* self){
-			if(!self->hasComponent[Component::type::t_memory])self->AddComponent(new CompMemory{});
+			if(!self->HasComponent(Component::type::t_memory))self->AddComponent(new CompMemory{});
 			COMPMEMORYp(self)->timers[name].Restart();
 		};
 	}
@@ -116,7 +118,7 @@ template<class T> txtFuncType1 Damage(T& in){
 	dmgHigh=max(dmgHigh,dmgLow+1);
 	return [dmgLow,dmgHigh](GameObject* self){
 		int dmg = dmgLow + (rand()%(dmgHigh-dmgLow));
-		if(self->hasComponent[Component::type::t_hp])COMPHPp(self)->Damage(dmg);
+		if(self->HasComponent(Component::type::t_hp))COMPHPp(self)->Damage(dmg);
 	};
 }
 template<class T> txtFuncType1 DamageArea(T& in){
@@ -142,7 +144,7 @@ template<class T> txtFuncType1 DamageArea(T& in){
 		for(uint go:gos){
 			if(dmgSelf || GO(go)->team != self->team){
 				//TODO: change collision to work with rotation
-				if(GO(go)->hasComponent[Component::type::t_hp] && area.collides(GO(go)->Box())){
+				if(GO(go)->HasComponent(Component::type::t_hp) && area.collides(GO(go)->Box())){
 					COMPHPp(GO(go))->Damage(dmgLow+(rand()%(dmgHigh-dmgLow)));
 				}
 			}
@@ -173,7 +175,7 @@ template<class T> txtFuncType1 DamageAreaFixed(T& in){
 		for(uint go:gos){
 			if(dmgSelf || GO(go)->team != self->team){
 				//TODO: change collision to work with rotation
-				if(GO(go)->hasComponent[Component::type::t_hp] && area.collides(GO(go)->Box())){
+				if(GO(go)->HasComponent(Component::type::t_hp) && area.collides(GO(go)->Box())){
 					COMPHPp(GO(go))->Damage(dmgLow+(rand()%(dmgHigh-dmgLow)));
 				}
 			}
@@ -244,7 +246,7 @@ template<class T> txtFuncType1 FireProjectile(T& in){
 						if(pfunc.first=="target")pfunc.second(GO(b.entity));
 					}
 				}
-				if(!GO(b.entity)->hasComponent[Component::type::t_movement]){
+				if(!GO(b.entity)->HasComponent(Component::type::t_movement)){
 					if((isAlly && vars.count("stick_ally")==0) || (!isAlly && vars.count("stick_enemy")==0))return;
 					Vec2 pos = GO(a.entity)->Box().corner() + move + totMove/4.0f;
 					auto &func = txtFuncsS["AddSprite"];
@@ -271,7 +273,7 @@ template<class T> txtFuncType1 FireProjectile(T& in){
 				if(vars.count("stick_block")==1){
 					Vec2 pos = GO(a.entity)->pos + move + totMove/4.0f;
 					auto &func = txtFuncsS["AddSprite"];
-					istringstream iss(to_string(pos.x) + " " + to_string(pos.y));
+					istringstream iss(to_string(pos.x) + " " + to_string(pos.y) + " 5");
 					func(iss)(GO(a.entity));
 					GAMESTATE.GetLastObject()->AttachTo(GO(b.entity));
 				}
@@ -285,7 +287,7 @@ template<class T> txtFuncType1 FireProjectile(T& in){
 		bullet->AddComponent(anim);
 
 		Vec2 mv;
-		if(owner->hasComponent[Component::type::t_movement])mv=COMPMOVEp(owner)->move;
+		if(owner->HasComponent(Component::type::t_movement))mv=COMPMOVEp(owner)->move;
 		bullet->AddComponent(new CompMovement{Vec2::makeVec2(f,ang)+mv,CompMovement::moveType::t_bullet});
 
 		bullet->AddComponent(new CompGravity{g});

@@ -1,4 +1,4 @@
-player_projectile
+player/player_projectile2
 500.0
 
 stick_block 1

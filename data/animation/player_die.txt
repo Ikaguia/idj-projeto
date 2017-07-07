@@ -1,7 +1,0 @@
-img/player_idle.png
-
-4 0.25
-0	0
-0	0
-0	0
-0	0

@@ -22,10 +22,14 @@ void CompCollider::Update(float time){
 	UNUSED(time);
 	for(Coll &coll:colls){
 		if(coll.active){
-			set<uint> ent = GAMESTATE.GetEntitiesInRange(coll.Box().x-10,coll.Box().x2()+10);
-			for(uint go:ent)
-				if(go != entity && GO(go)->hasComponent[Component::type::t_collider])
+			int x1 = coll.Box().x-10;
+			int x2 = coll.Box().x2()+10;
+			set<uint> ent = GAMESTATE.GetEntitiesInRange(x1,x2);
+			for(uint go:ent){
+				if(go != entity && GO(go)->HasComponent(Component::type::t_collider)){
 					CollisionCheck(COMPCOLLIDERp(GO(go)));
+				}
+			}
 		}
 	}
 }
@@ -59,8 +63,8 @@ void CompCollider::Own(GameObject *go){
 bool CompCollider::Die(float time){
 	UNUSED(time);
 
-	if(GO(entity)->hasComponent[Component::type::t_animation])return true;
-	if(GO(entity)->hasComponent[Component::type::t_animation_control])return true;
+	if(GO(entity)->HasComponent(Component::type::t_animation))return true;
+	if(GO(entity)->HasComponent(Component::type::t_animation_control))return true;
 	return false;
 }
 Component::type CompCollider::GetType() const{
@@ -84,7 +88,7 @@ Rect CompCollider::Coll::Box() const{
 void CompCollider::Coll::CollisionCheck(const CompCollider::Coll &other){
 	if(useDefault.count(other.cType))useDefault[other.cType](*this,other);
 	else if(useDefault.count(collType::t_any))useDefault[collType::t_any](*this,other);
-	else if(GO(entity)->hasComponent[Component::type::t_movement]){
+	else if(GO(entity)->HasComponent(Component::type::t_movement)){
 		CompMovement *compMove = COMPMOVEp(GO(entity));
 
 		Vec2 &speed=compMove->speed;

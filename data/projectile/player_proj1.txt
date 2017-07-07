@@ -1,4 +1,4 @@
-player_projectile
+player/player_projectile1
 500.0
 
 stick_enemy 1
@@ -7,7 +7,7 @@ stick_block 1
 start 1
 	owner AddVar int fired 1
 hit_enemy 2
-	target Damage 10 16
+	target Damage 100 160
 	self Remove
 hit_block 1
 	self Remove

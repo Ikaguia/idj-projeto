@@ -1,0 +1,14 @@
+idle porco/rage/porco_rage_idle_l
+walk porco/rage/porco_rage_walk_l
+attack porco/rage/porco_rage_attack_l
+stomp porco/rage/porco_rage_stomp_l
+charge porco/rage/porco_rage_charge_l
+die porco/rage/porco_rage_die_l
+turn porco/rage/porco_rage_virando_l
+idle_r porco/rage/porco_rage_idle_r
+walk_r porco/rage/porco_rage_walk_r
+attack_r porco/rage/porco_rage_attack_r
+stomp_r porco/rage/porco_rage_stomp_r
+charge_r porco/rage/porco_rage_charge_r
+die_r porco/rage/porco_rage_die_r
+turn_r porco/rage/porco_rage_virando_r

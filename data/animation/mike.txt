@@ -1,4 +1,5 @@
-idle mike_idle
-walk mike_walk
-attack mike_atacando
-die mike_die
+idle mike/mike_idle
+walk mike/mike_walk
+attack mike/mike_atacando
+hit mike/mike_hit
+die mike/mike_die

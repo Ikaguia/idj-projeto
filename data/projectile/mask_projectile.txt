@@ -1,4 +1,4 @@
-mascara_projectile
+mascara/mascara_projectile
 100.0
 
 start 1

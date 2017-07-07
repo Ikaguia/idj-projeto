@@ -95,7 +95,7 @@ const vector<string>& Resources::GetBlueprint(const string& file){
 	ifstream in;
 	in.open(BLUEPRINT_PATH + file + ".txt");
 	if(!in.is_open()){
-		cout << "Erro ao abrir o arquivo \"" << file << "\", o programa ira encerrar agora" << endl;
+		cerr << "Erro ao abrir o arquivo \"" << file << "\", o programa ira encerrar agora" << endl;
 		exit(EXIT_FAILURE);
 	}
 	for(string component;getline(in, component);)

@@ -1,0 +1,9 @@
+img/mascara/mascara-morrendo.png
+
+6 6 1 0.175
+0	0
+0	0
+0	0
+0	0
+0	0
+0	0

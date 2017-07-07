@@ -22,6 +22,7 @@ class Camera{
 public:
 	static Vec2 pos;
 	static Vec2 speed;
+	static Vec2 sz;
 	static float zoom;
 	static bool lock;
 	
