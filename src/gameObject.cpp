@@ -634,7 +634,8 @@ uint GameObject::Create(const string& blueprint, const Vec2& pos, const Vec2& au
 	if(blueprint == "porco")	return MakePorco(pos);
 	
 	GameObject* obj = new GameObject{pos};
-	CompStaticRender* img = new CompStaticRender{Sprite{blueprint}};
+	obj->type = blueprint;
+	CompStaticRender* img = new CompStaticRender{Sprite{"img/"+blueprint+".png"}};
 	Vec2 size{(float)img->sp.GetWidth(),(float)img->sp.GetHeight()};
 	obj->AddComponent(img);
 	obj->size = size;
@@ -667,6 +668,8 @@ uint GameObject::MakeTarget(const Vec2 &pos){
 
 uint GameObject::MakeMike(const Vec2 &pos){
 	GameObject* mike = new GameObject{pos,0.0f,Hotspot::BOTTOM};
+	
+	mike->type = "mike";
 
 	CompCollider coll{CompCollider::collType::t_monster};
 	coll.colls[0].useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
@@ -696,6 +699,8 @@ uint GameObject::MakeMike(const Vec2 &pos){
 uint GameObject::MakeBanshee(const Vec2 &pos,const Vec2 &pos2){
 	GameObject* banshee = new GameObject{pos,0.0f,Hotspot::BOTTOM};
 
+	banshee->type = "banshee";
+
 	CompCollider coll{CompCollider::collType::t_monster};
 	coll.colls[0].useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
 	coll.colls[0].useDefault[CompCollider::collType::t_player]=EmptyCollision;
@@ -706,7 +711,7 @@ uint GameObject::MakeBanshee(const Vec2 &pos,const Vec2 &pos2){
 	banshee->AddComponent(animControl);
 
 	banshee->AddComponent(new CompMovement{});
-	banshee->AddComponent(new CompGravity{2500.0f});
+	//banshee->AddComponent(new CompGravity{2500.0f});
 	// banshee->AddComponent(new CompHP{100,100,true,false});
 
 	banshee->AddComponent(new CompAI{PassiveAIfunc<2>});
@@ -726,6 +731,8 @@ uint GameObject::MakeBanshee(const Vec2 &pos,const Vec2 &pos2){
 
 uint GameObject::MakeMask(const Vec2 &pos){
 	GameObject* mask = new GameObject{pos,0.0f,Hotspot::BOTTOM};
+
+	mask->type = "mask";
 
 	CompCollider coll{CompCollider::collType::t_monster};
 	coll.colls[0].useDefault[CompCollider::collType::t_bullet]=EmptyCollision;
@@ -753,6 +760,8 @@ uint GameObject::MakeMask(const Vec2 &pos){
 
 uint GameObject::MakePorco(const Vec2 &pos){
 	GameObject* pumba = new GameObject{pos,0.0f,Hotspot::BOTTOM};
+
+	pumba->type = "porco";
 
 	CompCollider coll{CompCollider::collType::t_monster};
 	coll.colls[0].useDefault[CompCollider::collType::t_bullet]=EmptyCollision;

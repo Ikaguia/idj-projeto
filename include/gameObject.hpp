@@ -15,6 +15,8 @@ public:
 	static map<uint, unique_ptr<GameObject>> entities;
 
 	const uint uid;
+	
+	string type=""; 
 
 	bitset<Component::type::t_count> hasComponent;
 	array<Component*,Component::type::t_count> components;
