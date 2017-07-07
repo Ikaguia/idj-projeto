@@ -52,17 +52,29 @@ void StateStage::Resume(){
 }
 
 void StateStage::LoadAssets(){
-	Resources::GetImage("img/porco/porco-atacando.png");
+	Resources::GetImage("img/porco/porco-chifrada.png");
 	Resources::GetImage("img/porco/porco-correndo.png");
 	Resources::GetImage("img/porco/porco-idle.png");
 	Resources::GetImage("img/porco/porco-morte.png");
 	Resources::GetImage("img/porco/porco-stun.png");
 	Resources::GetImage("img/porco/porco-virando.png");
-	Resources::GetImage("img/porco/porco-atacando-virado.png");
+	Resources::GetImage("img/porco/porco-chifrada-virado.png");
 	Resources::GetImage("img/porco/porco-correndo-virado.png");
 	Resources::GetImage("img/porco/porco-idle-virado.png");
 	Resources::GetImage("img/porco/porco-morte-virado.png");
 	Resources::GetImage("img/porco/porco-stun-virado.png");
 	Resources::GetImage("img/porco/porco-virando-virado.png");
+	Resources::GetImage("img/porco/rage/porco-chifrada.png");
+	Resources::GetImage("img/porco/rage/porco-correndo.png");
+	Resources::GetImage("img/porco/rage/porco-idle.png");
+	Resources::GetImage("img/porco/rage/porco-morte.png");
+	Resources::GetImage("img/porco/rage/porco-stun.png");
+	Resources::GetImage("img/porco/rage/porco-virando.png");
+	Resources::GetImage("img/porco/rage/porco-chifrada-virado.png");
+	Resources::GetImage("img/porco/rage/porco-correndo-virado.png");
+	Resources::GetImage("img/porco/rage/porco-idle-virado.png");
+	Resources::GetImage("img/porco/rage/porco-morte-virado.png");
+	Resources::GetImage("img/porco/rage/porco-stun-virado.png");
+	Resources::GetImage("img/porco/rage/porco-virando-virado.png");
 }
 void StateStage::LoadGUI(){}

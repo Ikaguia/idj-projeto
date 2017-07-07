@@ -1,5 +1,5 @@
-walk player_walk
-idle player_idle
-fire player_fire
-kick player_kick
-die player_die
+walk player/player_walk
+idle player/player_idle
+fire player/player_fire
+kick player/player_kick
+die player/player_die

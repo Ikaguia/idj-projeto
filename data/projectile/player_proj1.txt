@@ -1,4 +1,4 @@
-player_projectile
+player/player_projectile
 500.0
 
 stick_enemy 1

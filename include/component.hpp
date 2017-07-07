@@ -28,8 +28,8 @@ public:
 		t_gravity,
 		t_memory,
 		t_timer,
-		t_count,
 		t_sound,
+		t_count,
 	};
 
 	Component(){};
