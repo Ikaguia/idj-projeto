@@ -356,8 +356,6 @@ template<int atkDist,int seeDist,int stCD,int atkCount,int stompCount> void Pumb
 	Timer &cd = mem->timers["cooldown"];
 	Timer &al = mem->timers["alerted"];
 	Timer &stompCD = mem->timers["stomp"];
-	// music2.Open("audio/batalha-miniboss.ogg");
-	// music2.Play(-1);
 
 	// bool enraged = hp->current < hp->total/2;
 	// if(enraged && !mem->ints["enraged"]){
