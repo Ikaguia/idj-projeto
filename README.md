@@ -8,6 +8,8 @@ Para se ganhar basta matar o boss final e perde-se quando a sua vida chega a zer
 
 A tecla 'A' atira a flecha, 'S' para chutar, 'Z' para zoom +, 'X' para zoom -, ESC para sair, 'N' para mostrar HP, 'M' para mostrar colisão. As tecladas direcionais são usadas para movimentar o personagem, sendo que a tecla direcional é usada para pular (é permitido double jump). Para o Editor de Fase basta usar os botões do mouse para adicionar e retirar um tile.
 
+A tecla 'U', 'P', 'O', 'I' fazem nascer os monstros Porco, Mike, Banshee e Mask, respectivamente. A tecla 'N' faz mostrar HP e 'M' blocos de colisão.
+
 Membros da Equipe:
 Artistas	Programadores	Músico
 Ivan		Cristiano		Rodrigo
@@ -21,7 +23,7 @@ Todos os membros participaram em decisões gerais do jogo, como escolha de sprit
 
 Para instalar basta rodar o makefile, não há nenhuma dependência além de ter SDL2 instalada.
 
-- Screenshots: 
+- Screenshots: Na plataforma unbgames.lapps.rocks.
 - Vídeo: 
 
 OBSERVAÇÃO: O jogo está atualizado na branch merged e não na master.
