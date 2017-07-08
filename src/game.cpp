@@ -78,8 +78,8 @@ Game::Game(string title,int width,int height):frameStart{0},dt{0},winSize{(float
 	res = TTF_Init();
 	if(res != 0)cerr << "Could not initialize TTF module!" << endl;
 
-	//window = SDL_CreateWindow(title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,width,height,SDL_WINDOW_FULLSCREEN);
-	window = SDL_CreateWindow(title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,width,height,0);
+	window = SDL_CreateWindow(title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,width,height,SDL_WINDOW_FULLSCREEN);
+	// window = SDL_CreateWindow(title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,width,height,0);
 	if(!window)throw GameException("Window nao foi carregada)!");
 
 	renderer = SDL_CreateRenderer(window,-1,SDL_RENDERER_ACCELERATED);
