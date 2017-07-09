@@ -11,10 +11,19 @@ A tecla 'A' atira a flecha, 'S' para chutar, 'Z' para zoom +, 'X' para zoom -, E
 A tecla 'U', 'P', 'O', 'I' fazem nascer os monstros Porco, Mike, Banshee e Mask, respectivamente. A tecla 'N' faz mostrar HP e 'M' blocos de colisão.
 
 Membros da Equipe:
-Artistas	Programadores	Músico
-Ivan		Cristiano		Rodrigo
-André		Hector
-Danillo		Raphael
+
+Artistas:
+André Accioly Lima - 12/0059908
+Danilo José Bispo Galvão - 12/0114852
+Ivan de Oliveira Mello - 12/0121352
+
+Programadores:
+Cristiano Krug Brust - 15/0008058
+Hector Rocha Margittay - 15/0036647
+Raphael Soares Ramis - 14/0160299
+
+Músico:
+Rodrigo Roriz Teodoro - 140161678
 
 O programador Cristiano fez a refatoração do código para método de componentes em vez de classes, conforme mostrado em sala de aula. Além de implementação de animações de monstros e estrutura do jogo.
 O programador Hector foi responsável pelo Editor de Fases, pelo qual construímos o cenário, além de auxiliar na estrutura do jogo.
@@ -24,6 +33,4 @@ Todos os membros participaram em decisões gerais do jogo, como escolha de sprit
 Para instalar basta rodar o makefile, não há nenhuma dependência além de ter SDL2 instalada.
 
 - Screenshots: Na plataforma unbgames.lapps.rocks.
-- Vídeo: 
-
-OBSERVAÇÃO: O jogo está atualizado na branch merged e não na master.
+- Vídeo:
