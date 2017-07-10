@@ -32,5 +32,8 @@ Todos os membros participaram em decisões gerais do jogo, como escolha de sprit
 
 Para instalar basta rodar o makefile, não há nenhuma dependência além de ter SDL2 instalada.
 
-- Screenshots: Na plataforma unbgames.lapps.rocks.
+- Screenshots:
+![](screenshots/screenshot1.png?raw=true)
+![](screenshots/screenshot2.png?raw=true)
+![](screenshots/screenshot3.png?raw=true)
 - Vídeo:
