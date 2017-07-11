@@ -8,7 +8,7 @@ Para se ganhar basta matar o boss final e perde-se quando a sua vida chega a zer
 
 A tecla 'A' atira a flecha, 'S' para chutar, 'Z' para zoom +, 'X' para zoom -, ESC para sair, 'N' para mostrar HP, 'M' para mostrar colisão. As tecladas direcionais são usadas para movimentar o personagem, sendo que a tecla direcional é usada para pular (é permitido double jump). Para o Editor de Fase basta usar os botões do mouse para adicionar e retirar um tile.
 
-A tecla 'U', 'P', 'O', 'I' fazem nascer os monstros Porco, Mike, Banshee e Mask, respectivamente. A tecla 'N' faz mostrar HP e 'M' blocos de colisão.
+As teclas 'U', 'P', 'O', 'I' fazem nascer os monstros Porco, Mike, Banshee e Mask, respectivamente. A tecla 'N' faz mostrar HP e 'M' blocos de colisão.
 
 Membros da Equipe:
 
@@ -20,7 +20,7 @@ Ivan de Oliveira Mello - 12/0121352
 Programadores:
 Cristiano Krug Brust - 15/0008058
 Hector Rocha Margittay - 15/0036647
-Raphael Soares Ramis - 14/0160299
+Raphael Soares Ramos - 14/0160299
 
 Músico:
 Rodrigo Roriz Teodoro - 140161678
